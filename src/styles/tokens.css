@@ -1,0 +1,29 @@
+/* Paper and watercolour. Pigments come from the water references (see
+   lib/paint.ts); the washes layer from clear blue toward the deep teal pools.
+   Text is --paper everywhere: invisible on bare paper, and once the page is
+   painted it gets a soft ink bleed (--bleed) so it holds up where the wash is
+   pale. */
+:root {
+  color-scheme: light;
+
+  --paper: #fcfdfd;
+  --paint: #2f80c0;
+  --paint-deep: #277397;
+  --paint-light: #56aede;
+  --ink: #23679c;
+  --ice: #b5dae3;
+  --sky: #65c6f3;
+  --lilac: #bcacd9;
+  --goldfish: #f7503e;
+  --goldfish-deep: #d63d28;
+  --butter: #fbe7a1;
+
+  --font-script: 'Imperial Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  --bleed: 0 0 3px rgb(16 70 122 / 0.32), 0 2px 18px rgb(16 70 122 / 0.45);
+  --font-sans: 'Josefin Sans Variable', 'Futura', 'Century Gothic', 'Avenir Next', sans-serif;
+
+  --track: 0.32em;
+  --maxw: 1080px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
