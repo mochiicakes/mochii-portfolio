@@ -16,12 +16,12 @@ body {
   color: var(--paper);
   /* Without JavaScript (or canvas), the page is simply painted. */
   background: var(--paint);
-  font: 500 1.02rem/1.75 var(--font-sans);
+  font: 500 1.02rem/1.75 var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Bare paper until the visitor paints. */
+/* Paper under the watercolour (its washes are laid with multiply). */
 html.js:not(.revealed) body,
 html.js body:has(.ground[data-ready]) {
   background: var(--paper);
@@ -34,14 +34,21 @@ html.js:not(.revealed) body {
   overscroll-behavior: none;
 }
 
+/* While the paper is bare, the pointer is a brush: press and drag to paint. */
+html.js:not(.revealed) body {
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
 html.no-paint body {
   background: var(--paint);
 }
 
-/* Once painted, text gets a soft ink bleed so it reads on the paler washes.
-   Before that it must stay invisible on the paper, so no shadow. */
-html.revealed .page,
-html:not(.js) .page {
+/* Text gets a soft ink bleed so it reads on the paler washes. The page is
+   already finished under the paper, so it shows right as the brush wears through. */
+.page {
   text-shadow: var(--bleed);
 }
 
@@ -153,54 +160,44 @@ html:not(.js) .needs-js {
   border-radius: 3px;
 }
 
-/* Buttons: tracked capitals inside a hand-drawn ellipse, as in the reference. */
+/* Buttons: tracked capitals in a plain, transparent rectangle. */
 .btn {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 11rem;
-  padding: 20px 34px 18px;
-  border: 0;
-  background: none;
+  /* Less on the right: the tracking leaves a space after the last letter. */
+  padding: 15px calc(28px - var(--track)) 14px 28px;
+  border: 1px solid rgb(252 253 253 / 0.85);
+  border-radius: 0;
+  background: transparent;
   color: var(--paper);
-  font: 600 0.82rem/1 var(--font-sans);
+  font: 600 0.82rem/1 var(--font-body);
   letter-spacing: var(--track);
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  isolation: isolate;
+  transition: background-color 0.3s;
 }
 
-.btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 64' preserveAspectRatio='none'%3E%3Cpath d='M18 14C46 5 128 3 168 8C196 12 202 30 190 44C176 60 96 63 46 58C14 55 2 44 4 32C6 22 14 16 30 12' fill='none' stroke='%23fcfdfd' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M30 9C70 3 150 4 182 14' fill='none' stroke='%23fcfdfd' stroke-width='0.8' stroke-linecap='round' opacity='0.7'/%3E%3C/svg%3E")
-    center / 100% 100% no-repeat;
-  transition: transform 0.5s var(--ease);
+.btn:hover {
+  background: rgb(252 253 253 / 0.12);
 }
 
-.btn:hover::before {
-  transform: rotate(-2deg) scale(1.04);
+.btn:active {
+  background: rgb(252 253 253 / 0.2);
 }
 
-/* The primary button carries a goldfish-orange swash under the ellipse. */
-.btn-koi::after {
-  content: '';
-  position: absolute;
-  inset: 16% 8% 18%;
-  z-index: -2;
-  border-radius: 50%;
-  background: var(--goldfish-deep);
-  transform: rotate(-2deg);
-  transition: opacity 0.8s 0.9s;
+/* A link still to come: the same frame, dashed and inert. */
+.btn-pending {
+  border-style: dashed;
+  cursor: default;
+  opacity: 0.8;
 }
 
-/* On bare paper even the swash stays hidden, so nothing reads before painting. */
-html.js:not(.revealed) .btn-koi::after {
-  opacity: 0;
+.btn-pending:hover {
+  background: transparent;
 }
 
 .btn-small {

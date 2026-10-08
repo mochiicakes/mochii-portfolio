@@ -1,7 +1,10 @@
+import { useSyncExternalStore } from 'react'
 import { content } from '../content'
+import { pageStore } from '../lib/htmlState'
 import { ModeSwitch } from './ui/ModeSwitch'
 
 export function TopBar() {
+  const page = useSyncExternalStore(pageStore.subscribe, pageStore.get, pageStore.getServer)
   return (
     <>
       <a className="skip-link" href="#work">
@@ -13,7 +16,7 @@ export function TopBar() {
         </a>
         <div className="topbar-end">
           <ModeSwitch />
-          <a className="topbar-link" href="#contact">
+          <a className="topbar-link" href="#contact" aria-current={page === 'contact' ? 'page' : undefined}>
             {content.contact.title}
           </a>
         </div>

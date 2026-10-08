@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { content } from '../content'
 import { hasPlaceholder } from '../lib/placeholder'
 import { ExternalLink } from './ui/ExternalLink'
+import { ScreenFoot } from './ScreenFoot'
 import { Rich } from './ui/Rich'
+import { Thumb } from './ui/Thumb'
 
 async function copyText(text: string, fallbackEl: HTMLElement | null): Promise<boolean> {
   try {
@@ -40,48 +42,69 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="contact" aria-labelledby="contact-title">
-      <div className="contact-inner pane">
-        <h2 id="contact-title" className="contact-title">
-          {c.title}
-        </h2>
-        <p className="contact-open">
-          <Rich text={c.openTo} />
-        </p>
-        <p className="email-row">
-          <span ref={emailRef} className="email">
-            {c.email}
-          </span>
-          <button type="button" className="btn btn-small needs-js" onClick={onCopy}>
-            {c.copy}
-          </button>
-        </p>
-        <ul className="contact-links">
-          {c.links.map((l) => (
-            <li key={l.label}>
-              {hasPlaceholder(l.href) ? (
-                <span className="contact-pending">
-                  {l.label}: <Rich text={l.href} />
-                </span>
-              ) : (
-                <ExternalLink href={l.href} className="btn btn-line">
-                  {l.label}
-                </ExternalLink>
-              )}
-            </li>
-          ))}
-          <li>
-            <a className="btn btn-koi" href={c.cv.href} download>
-              {c.cv.label}
-            </a>
-          </li>
-        </ul>
-        <p className={toast ? 'toast is-shown' : 'toast'} role="status" aria-live="polite">
-          {toast}
-        </p>
+    <section id="contact" className="contact" data-screen aria-labelledby="contact-title">
+      <h2 id="contact-title" className="contact-title">
+        {c.title}
+      </h2>
+      <div className="contact-board">
+        <div className="note-stack">
+          <div className="note">
+            <span className="pin" aria-hidden="true" />
+            <p className="note-line">
+              <span className="note-typed">{c.note.hello}</span> <span className="note-hand">{c.note.name}</span>
+            </p>
+            <p className="note-line">
+              <span className="note-typed">{c.note.am}</span> <span className="note-hand">{c.note.role}</span>
+            </p>
+            <p className="note-line">
+              <span className="note-typed">{c.note.open}</span>{' '}
+              <span className="note-fill">
+                <Rich text={c.openTo} />
+              </span>
+            </p>
+            <p className="note-line">
+              <span className="note-typed">{c.note.write}</span>{' '}
+              <span ref={emailRef} className="note-fill email">
+                {c.email}
+              </span>{' '}
+              <button type="button" className="note-copy needs-js" onClick={onCopy}>
+                {c.copy}
+              </button>
+            </p>
+          </div>
+        </div>
+        <figure className="polaroid">
+          <div className="polaroid-frame">
+            <span className="pin" aria-hidden="true" />
+            <Thumb src={c.selfie.src} alt={c.selfie.alt} label={c.note.name} className="polaroid-photo" />
+            <figcaption className="polaroid-caption">{c.selfie.caption}</figcaption>
+          </div>
+        </figure>
       </div>
-      {/* Where the second koi waits. */}
-      <div id="koi-home" className="koi-home" aria-hidden="true" />
+      <ul className="contact-links">
+        {c.links.map((l) => (
+          <li key={l.label}>
+            {hasPlaceholder(l.href) ? (
+              <span className="btn btn-pending" title="Link coming soon">
+                {l.label}
+              </span>
+            ) : (
+              <ExternalLink href={l.href} className="btn btn-line">
+                {l.label}
+              </ExternalLink>
+            )}
+          </li>
+        ))}
+        <li>
+          <a className="btn btn-koi" href={c.cv.href} download>
+            {c.cv.label}
+          </a>
+        </li>
+      </ul>
+      <p className={toast ? 'toast is-shown' : 'toast'} role="status" aria-live="polite">
+        {toast}
+      </p>
+      <ScreenFoot />
     </section>
   )
 }

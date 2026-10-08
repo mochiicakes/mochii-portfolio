@@ -14,6 +14,9 @@ export function CrystalLayer() {
     try {
       crystal = new Crystal(canvas, reduced)
       canvas.dataset.on = ''
+      // The background is finished from the start and shows wherever the
+      // paper is worn through, so the light moves from the start too.
+      crystal.run(true)
     } catch {
       // No WebGL: the paint shows without the crystal light.
     }

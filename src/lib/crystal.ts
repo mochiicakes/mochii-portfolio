@@ -4,8 +4,8 @@
 //   - caustics: the bright, curving net that sunlight throws on a pool floor,
 //     made from the edges between cells of moving, warped cellular noise
 //   - iridescence: a faint rainbow fringe along the brightest lines
-//   - starbursts: a few cross-shaped glints that swell and fade
-//   - glitter: small soft specks in white, pink and aqua
+//   - stars: many small four-point sparkles, each its own size, that swell and fade
+//   - glitter: a sprinkle of tiny sparkles in white, pink and aqua
 //   - ripples spreading from the pointer
 // Drawn at half resolution; still under reduced motion.
 
@@ -68,44 +68,51 @@ void main(){
   // Soft, sparse ripples of light: a thin bright core with a wide faint glow,
   // fading in and out across the surface so the net never reads as a grid.
   float patch = smoothstep(0.15, 0.85, 0.5 + 0.5 * sin(q.x * 0.9 + t * 0.3) * sin(q.y * 0.7 - t * 0.25));
-  float lines = (exp(-e1 * 46.0) * 0.5 + exp(-e1 * 12.0) * 0.1) * (0.35 + 0.65 * patch)
-              + exp(-e2 * 60.0) * 0.14 * patch;
+  // Cores kept soft so the light sits behind the content rather than over it.
+  float lines = (exp(-e1 * 26.0) * 0.4 + exp(-e1 * 10.0) * 0.1) * (0.35 + 0.65 * patch)
+              + exp(-e2 * 34.0) * 0.12 * patch;
 
   // Rainbow fringe where the light is strongest.
   vec3 rainbow = 0.5 + 0.5 * cos(6.2831 * (q.x * 0.18 + q.y * 0.12 + e1 * 2.5 + t * 0.05 + vec3(0.0, 0.33, 0.67)));
   vec3 col = vec3(0.92, 0.98, 1.0) * lines + rainbow * exp(-e1 * 16.0) * 0.1 * patch;
 
-  // Starbursts.
-  vec2 cell = vec2(190.0);
+  // Stars: small four-point sparkles with fainter diagonals, scattered
+  // through cells; each has its own size and twinkles at its own pace.
+  vec2 cell = vec2(120.0);
   vec2 sp = px + vec2(0.0, uScroll * 0.5);
   vec2 id = floor(sp / cell);
   float h = hash(id);
-  if (h > 0.84) {
-    vec2 c = (id + 0.5 + 0.3 * (hash2(id) - 0.5)) * cell;
-    vec2 v = sp - c;
-    float tw = pow(0.5 + 0.5 * sin(uTime * 1.3 + h * 40.0), 3.0);
-    float core = exp(-length(v) * 0.22);
-    float rays = exp(-abs(v.x) * 1.1) * exp(-abs(v.y) * 0.05) + exp(-abs(v.y) * 1.1) * exp(-abs(v.x) * 0.05);
+  if (h > 0.7) {
+    vec2 c = (id + 0.5 + 0.5 * (hash2(id) - 0.5)) * cell;
+    float k = 0.5 + 0.6 * hash(id + 7.0);
+    vec2 v = (sp - c) / k;
+    float tw = pow(0.5 + 0.5 * sin(uTime * (0.9 + h) + h * 40.0), 3.0);
+    float core = exp(-length(v) * 0.6);
+    float rays = exp(-abs(v.x) * 2.2) * exp(-abs(v.y) * 0.16) + exp(-abs(v.y) * 2.2) * exp(-abs(v.x) * 0.16);
     vec2 r = vec2(v.x + v.y, v.x - v.y) * 0.7071;
-    rays += 0.4 * (exp(-abs(r.x) * 1.4) * exp(-abs(r.y) * 0.1) + exp(-abs(r.y) * 1.4) * exp(-abs(r.x) * 0.1));
-    col += vec3(1.0, 0.96, 0.94) * (core * 1.1 + rays * 0.4) * tw;
+    rays += 0.35 * (exp(-abs(r.x) * 2.6) * exp(-abs(r.y) * 0.3) + exp(-abs(r.y) * 2.6) * exp(-abs(r.x) * 0.3));
+    col += vec3(1.0, 0.97, 0.95) * (core * 1.2 + rays * 0.55) * tw;
   }
 
-  // Glitter.
-  vec2 gid = floor(sp / 7.0);
+  // Glitter: tiny sparkles rather than round specks, and fewer of them.
+  vec2 gid = floor(sp / 14.0);
   float gh = hash(gid);
-  if (gh > 0.994) {
+  if (gh > 0.985) {
     float tw = pow(0.5 + 0.5 * sin(uTime * 2.2 + gh * 90.0), 6.0);
     vec3 tint = mix(vec3(1.0), mix(vec3(1.0, 0.75, 0.9), vec3(0.7, 0.95, 1.0), hash(gid + 2.0)), 0.6);
-    // A soft round speck inside its cell, not the whole cell.
-    float r = length(fract(sp / 7.0) - 0.5);
-    col += tint * tw * smoothstep(0.5, 0.0, r) * 0.9;
+    vec2 g = (fract(sp / 14.0) - 0.5) * 14.0;
+    float spark = exp(-length(g) * 1.2)
+                + exp(-abs(g.x) * 1.6) * exp(-abs(g.y) * 0.45)
+                + exp(-abs(g.y) * 1.6) * exp(-abs(g.x) * 0.45);
+    col += tint * tw * spark * 0.8;
   }
 
   gl_FragColor = vec4(min(col, 1.0), 1.0);
 }`
 
 const SCALE = 0.5
+/** The light moves slowly; 30 fps looks the same as 60 and halves the GPU work. */
+const FRAME_MS = 1000 / 30
 
 export class Crystal {
   private gl: WebGLRenderingContext
@@ -116,6 +123,8 @@ export class Crystal {
   private mouse = { x: -9999, y: -9999, at: -100 }
   private teardown: () => void
   private still: boolean
+  /** Animating. Off while the paper is bare: screen over white shows nothing. */
+  private running = false
 
   constructor(canvas: HTMLCanvasElement, still: boolean) {
     const gl = canvas.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' })
@@ -166,6 +175,13 @@ export class Crystal {
     this.teardown()
   }
 
+  /** Start or stop the animation; stopped, one still frame stays on screen. */
+  run(on: boolean) {
+    if (on === this.running) return
+    this.running = on
+    this.loop()
+  }
+
   private now() {
     return (performance.now() - this.start) / 1000
   }
@@ -174,7 +190,7 @@ export class Crystal {
     this.canvas.width = Math.max(1, Math.round(window.innerWidth * SCALE))
     this.canvas.height = Math.max(1, Math.round(window.innerHeight * SCALE))
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height)
-    if (this.still) this.draw(12)
+    if (this.still || !this.running) this.draw(this.still ? 12 : this.now())
   }
 
   private draw(time: number) {
@@ -189,12 +205,17 @@ export class Crystal {
 
   private loop = () => {
     cancelAnimationFrame(this.raf)
-    if (this.still) {
-      this.draw(12)
+    if (this.still || !this.running) {
+      this.draw(this.still ? 12 : this.now())
       return
     }
-    const frame = () => {
-      this.draw(this.now())
+    let last = 0
+    const frame = (now: number) => {
+      // A little under the frame budget, so 60 Hz screens draw every other frame.
+      if (now - last >= FRAME_MS - 4) {
+        last = now
+        this.draw(this.now())
+      }
       this.raf = requestAnimationFrame(frame)
     }
     this.raf = requestAnimationFrame(frame)

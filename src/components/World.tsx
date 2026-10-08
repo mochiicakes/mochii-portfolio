@@ -1,10 +1,12 @@
-import { useRef, useSyncExternalStore, type KeyboardEvent } from 'react'
 import { content } from '../content'
-import { setTab, tabStore } from '../lib/htmlState'
+import type { ReactNode } from 'react'
 import type { CasualTabId, Mode, RecruiterTabId } from '../types'
 import { CardFan, type FanCard } from './CardFan'
-import { RecruiterPanel } from './panels/RecruiterPanels'
-import { ModeSwitch } from './ui/ModeSwitch'
+import { IntroVideo } from './IntroVideo'
+import { ScreenFoot } from './ScreenFoot'
+import { Automations, Experience, RecruiterPanel } from './panels/RecruiterPanels'
+import { Divider } from './ui/Ornaments'
+import { Tabs } from './ui/Tabs'
 
 function projectCards(): FanCard[] {
   const group = content.fan.recruiterGroup
@@ -36,91 +38,106 @@ function casualCards(): FanCard[] {
   )
 }
 
-function RecruiterTabs() {
-  const active = useSyncExternalStore(tabStore.subscribe, tabStore.get, tabStore.getServer)
-  const listRef = useRef<HTMLDivElement>(null)
-  const tabs = content.worlds.recruiter.tabs
+/** A part of the recruiter world under its own header: Experience, Impact, Automations, Personal Projects. */
+type Next = { id: string; label: string }
 
-  const onKey = (e: KeyboardEvent) => {
-    const i = tabs.findIndex((t) => t.id === active)
-    const next =
-      e.key === 'ArrowRight' ? (i + 1) % tabs.length
-      : e.key === 'ArrowLeft' ? (i - 1 + tabs.length) % tabs.length
-      : e.key === 'Home' ? 0
-      : e.key === 'End' ? tabs.length - 1
-      : -1
-    if (next < 0) return
-    e.preventDefault()
-    const id = tabs.at(next)!.id
-    setTab(id)
-    listRef.current?.querySelector<HTMLButtonElement>(`#tab-${id}`)?.focus()
-  }
+/** The divider at the foot of a screen, leading on to the next topic. */
+function NextDivider({ next }: { next?: Next }) {
+  return next ? <Divider to={next.id} label={`Scroll to ${next.label}`} /> : null
+}
 
+/**
+ * One topic, one screen: Experience, Impact, Automations, Personal Projects.
+ * A divider at its foot leads on to the next one.
+ */
+function Part({
+  id,
+  title,
+  intro,
+  next,
+  last,
+  children,
+}: {
+  id: string
+  title: string
+  intro?: string
+  next?: Next
+  /** The page's last screen: it carries the credits and the koi's home. */
+  last?: boolean
+  children: ReactNode
+}) {
   return (
-    <>
-      <div ref={listRef} className="tabs needs-js" role="tablist" aria-label={content.worlds.recruiter.title} onKeyDown={onKey}>
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            id={`tab-${t.id}`}
-            type="button"
-            role="tab"
-            aria-selected={t.id === active}
-            aria-controls={t.id}
-            tabIndex={t.id === active ? 0 : -1}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-      {tabs.map((t) => (
-        <div
-          key={t.id}
-          id={t.id}
-          className="tab-panel"
-          role="tabpanel"
-          aria-labelledby={`tab-${t.id}`}
-          data-tab={t.id}
-          data-active={t.id === active || undefined}
-          tabIndex={0}
-        >
-          <h3 className="panel-title">{t.label}</h3>
-          <RecruiterPanel tab={t.id as RecruiterTabId} />
-        </div>
-      ))}
-    </>
+    <section id={id} className="world-part screen" data-screen aria-labelledby={`${id}-title`}>
+      <header className="part-head">
+        <h3 id={`${id}-title`} className="section-title">
+          {title}
+        </h3>
+        {intro && <p className="part-intro">{intro}</p>}
+      </header>
+      {children}
+      <NextDivider next={next} />
+      {last && <ScreenFoot />}
+    </section>
   )
 }
 
 /**
- * One world per mode. Recruiter mode ("Around Tech") deals the projects onto the
- * fan, then the work tabs. Casual mode ("Out of Tech") deals Gaming, Hobbies and
- * Life. CSS shows the world that matches the mode; both show without JavaScript.
+ * One world per mode, one screen per topic. Recruiter mode ("Around Tech") opens
+ * with the intro video, then Experience, the Impact tabs, Automations and the
+ * Personal Projects fan. Casual mode ("Out of Tech") is one screen: the Gaming
+ * and Hobbies fan. CSS shows the world that matches the mode; both show without
+ * JavaScript.
  */
 function WorldSection({ mode }: { mode: Mode }) {
   const world = content.worlds[mode]
   return (
     <section className="world" data-world={mode} aria-labelledby={`world-${mode}`}>
-      <header className="world-head">
-        <h2 id={`world-${mode}`} className="world-title">
-          {world.title}
-        </h2>
-        <p className="world-intro">{world.intro}</p>
-        <ModeSwitch className="world-switch" />
-      </header>
-      {mode === 'recruiter' ? (
+      {/* The world's first screen: its header, then the intro video or the fan. */}
+      <div className="world-intro-screen screen" data-screen>
+        <header className="world-head">
+          <h2 id={`world-${mode}`} className="world-title">
+            {world.title}
+          </h2>
+          <p className="world-intro">{world.intro}</p>
+        </header>
+        {mode === 'recruiter' ? (
+          <IntroVideo />
+        ) : (
+          <CardFan label={world.title} ring={content.fan.ring} cards={casualCards()} groups={content.worlds.casual.tabs} />
+        )}
+        {mode === 'recruiter' ? <NextDivider next={{ id: 'experience', label: 'experience' }} /> : <ScreenFoot />}
+      </div>
+      {mode === 'recruiter' && (
         <>
-          <CardFan label={content.fan.recruiterGroup} ring={content.fan.ring} cards={projectCards()} />
-          <RecruiterTabs />
+          <Part
+            id="experience"
+            title={content.sections.experience.title}
+            intro={content.sections.experience.intro}
+            next={{ id: 'impact', label: 'impact' }}
+          >
+            <Experience />
+          </Part>
+          <Part id="impact" title={content.worlds.recruiter.tabsTitle} next={{ id: 'automations', label: 'automations' }}>
+            <Tabs
+              set="recruiter"
+              label={content.worlds.recruiter.tabsTitle}
+              tabs={content.worlds.recruiter.tabs.map((t) => ({ id: t.id, label: t.label, title: t.label }))}
+            >
+              {(id) => <RecruiterPanel tab={id as RecruiterTabId} />}
+            </Tabs>
+          </Part>
+          <Part
+            id="automations"
+            title={content.sections.automations.title}
+            intro={content.sections.automations.intro}
+            next={{ id: 'personal-projects', label: 'personal projects' }}
+          >
+            <Automations />
+          </Part>
+          <Part last id="personal-projects" title={content.fan.recruiterGroup} intro={content.worlds.recruiter.projectsIntro}>
+            <CardFan label={content.fan.recruiterGroup} ring={content.fan.ring} cards={projectCards()} />
+          </Part>
         </>
-      ) : (
-        <CardFan
-          label={world.title}
-          ring={content.fan.ring}
-          cards={casualCards()}
-          groups={content.worlds.casual.tabs}
-        />
       )}
     </section>
   )

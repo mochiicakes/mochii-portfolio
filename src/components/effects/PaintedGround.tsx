@@ -2,65 +2,77 @@ import { useEffect, useRef, useState } from 'react'
 import { content } from '../../content'
 import { markRevealed } from '../../lib/htmlState'
 import { WatercolorGround } from '../../lib/paint'
+import { PaperMask } from '../../lib/paper'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 
-const FILL_MS = 1800
+const REVEAL_MS = 1300
 
 /**
- * The page's ground. It starts as bare paper with the text printed in paper
- * colour, so nothing reads. The visitor paints watercolour behind the text and
- * the words appear. Past the threshold, broad washes cover the rest and the
- * page opens. Arriving by #link, the ground is painted at once.
+ * The page's ground, in three layers: the prompt on top, then white paper,
+ * then the page over a watercolour background that is painted in full before
+ * anyone sees it. Painting splats holes in the paper; past the threshold the
+ * rest is splatted away and the paper removed, so none of the visitor's
+ * strokes stay in the page. Arriving by #link, there is no paper at all.
  */
 export function PaintedGround() {
   const reduced = useReducedMotion()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const wetRef = useRef<HTMLCanvasElement>(null)
+  const groundRef = useRef<HTMLCanvasElement>(null)
+  const paperRef = useRef<HTMLCanvasElement>(null)
   const promptRef = useRef<HTMLDivElement>(null)
-  const openRef = useRef<(x: number, y: number) => void>(() => {})
+  const openRef = useRef<() => void>(() => {})
   const [prompting, setPrompting] = useState(true)
+  const [paperGone, setPaperGone] = useState(false)
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    const wet = wetRef.current
-    if (!canvas || !wet) return
-    let painter: WatercolorGround
+    const ground = groundRef.current
+    if (!ground) return
+    let bg: WatercolorGround
     try {
-      painter = new WatercolorGround(canvas, wet, {
-        onProgress: (p) => promptRef.current?.style.setProperty('--progress', p.toFixed(3)),
-        onThreshold: () => openRef.current(0, 0),
-      })
+      bg = new WatercolorGround(ground)
     } catch {
       // No canvas: CSS shows the flat paint colour instead.
       document.documentElement.classList.add('revealed', 'no-paint')
       return
     }
-    canvas.dataset.ready = ''
+    ground.dataset.ready = ''
+
+    const sheet = paperRef.current
+    // Arrived by #link (or already open): CSS keeps the paper hidden.
+    if (!sheet || document.documentElement.classList.contains('revealed')) return () => bg.destroy()
+
+    let paper: PaperMask
+    try {
+      paper = new PaperMask(sheet, {
+        onProgress: (p) => promptRef.current?.style.setProperty('--progress', p.toFixed(3)),
+        onThreshold: () => openRef.current(),
+      })
+    } catch {
+      markRevealed()
+      return () => bg.destroy()
+    }
 
     let opened = false
     openRef.current = () => {
       if (opened) return
       opened = true
       setPrompting(false)
-      // The page opens as the last passes go on.
+      // Keep the paper on screen while it is splatted away.
+      sheet.dataset.revealing = ''
       markRevealed()
-      if (reduced) painter.fillNow()
-      else void painter.fill(FILL_MS)
+      void paper.reveal(reduced ? 0 : REVEAL_MS).then(() => {
+        paper.destroy()
+        setPaperGone(true)
+      })
     }
 
-    if (document.documentElement.classList.contains('revealed')) {
-      opened = true
-      painter.fillNow()
-      return () => painter.destroy()
-    }
-
-    painter.listen()
+    paper.listen()
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) openRef.current(0, 0)
+      if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) openRef.current()
     }
     window.addEventListener('keydown', onKey)
     return () => {
-      painter.destroy()
+      bg.destroy()
+      paper.destroy()
       window.removeEventListener('keydown', onKey)
     }
   }, [reduced])
@@ -68,14 +80,15 @@ export function PaintedGround() {
   const t = content.gate
   return (
     <>
-      <canvas ref={canvasRef} className="ground" aria-hidden="true" />
-      {/* The stroke still being painted, shown wet until it dries into the ground. */}
-      <canvas ref={wetRef} className="ground ground-wet" aria-hidden="true" />
+      {/* The finished background, under everything. */}
+      <canvas ref={groundRef} className="ground" aria-hidden="true" />
+      {/* The paper over the page, worn through by the brush. */}
+      {!paperGone && <canvas ref={paperRef} className="paper" aria-hidden="true" />}
       {prompting && (
         <div ref={promptRef} className="prompt">
           <p className="prompt-text">{t.prompt}</p>
           <p className="prompt-hint">{t.hint}</p>
-          <button type="button" className="prompt-skip" onClick={() => openRef.current(0, 0)}>
+          <button type="button" className="prompt-skip" onClick={() => openRef.current()}>
             {t.skip}
           </button>
         </div>

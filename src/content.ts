@@ -14,12 +14,22 @@ export const content: Content = {
 
   gate: {
     prompt: 'Paint the water',
-    hint: 'Move your cursor, or drag a finger, across the paper.',
+    hint: 'Click and drag to paint, or drag a finger across the paper.',
     skip: 'Enter',
   },
 
   hero: {
     name: 'Michaella Gonzales',
+    firstName: 'Michaella',
+    lastName: 'Gonzales',
+    // M-I-C-H-[A]-[E]-L-L-A: she stands in front of the A and the E.
+    coverLetters: [4, 5],
+    portrait: {
+      src: '/hero/michaella.webp',
+      alt: 'Illustrated portrait of Michaella in a white tee and black flared jeans',
+      width: 543,
+      height: 1516,
+    },
     role: 'AI & automation engineer',
     primaryCta: { label: 'Get in touch', href: '#contact' },
     cvCta: cv,
@@ -32,30 +42,30 @@ export const content: Content = {
       'Software engineer who puts AI to work across whole organizations. I build the automations, ship the integrations, and train the people who use them.',
   },
 
-  // The card fan. Recruiter mode deals the projects; casual mode deals Gaming, Hobbies and Life.
-  fan: { ring: 'Michaella Gonzales', recruiterGroup: 'Projects' },
+  // The card fan. Recruiter mode deals the projects; casual mode deals Gaming and Hobbies.
+  fan: { ring: 'Michaella Gonzales', recruiterGroup: 'Personal Projects' },
 
   modes: { label: 'View', recruiter: 'Recruiter', casual: 'Casual' },
 
   worlds: {
     recruiter: {
       title: 'Around Tech',
-      intro: 'What I have shipped, for whom, and how it held up. Turn the cards for projects.',
+      intro: 'What I have shipped, for whom, and how it held up.',
+      projectsIntro: 'Things I build on my own time. Turn the cards.',
+      tabsTitle: 'Impact',
       tabs: [
         { id: 'proof', label: 'Proof' },
-        { id: 'experience', label: 'Experience' },
+        { id: 'leadership', label: 'Leadership' },
         { id: 'cases', label: 'Case studies' },
-        { id: 'automations', label: 'Automations' },
         { id: 'how-i-work', label: 'How I work' },
       ],
     },
     casual: {
       title: 'Out of Tech',
-      intro: 'The rest of me: the stage, the games, and everything in between. Turn the cards.',
+      intro: 'The rest of me: the stage, the games, and the things I make. Turn the cards.',
       tabs: [
         { id: 'gaming', label: 'Gaming' },
         { id: 'hobbies', label: 'Hobbies' },
-        { id: 'life', label: 'Life' },
       ],
     },
   },
@@ -92,7 +102,7 @@ export const content: Content = {
         claim: 'Brings people along',
         evidence:
           "Wrote AI leadership training on safe usage and core concepts; ran onboarding and built the team's central documentation and tracking",
-        href: '#case-executives',
+        href: '#leadership',
       },
       {
         claim: 'Holds up under pressure',
@@ -102,13 +112,18 @@ export const content: Content = {
     ],
   },
 
+  // Screenshots: public/experience/<name>.webp, landscape 1600 × 1000, named as in `thumbnail`.
   experience: [
     {
       id: 'exp-bloch',
+      tab: 'Bloch.ai',
+      region: { name: 'United Kingdom', abbr: 'UK' },
+      href: 'https://www.bloch.ai',
+      thumbnail: '/experience/bloch.webp',
       org: 'Bloch.ai',
       role: 'Automation Specialist & Consultant',
-      dates: '[start date] to present',
-      location: '[location]',
+      dates: 'Oct 2025 to present',
+      location: 'United Kingdom',
       bullets: [
         {
           text: 'Introduced n8n automation to marketing and finance firms across Europe',
@@ -139,9 +154,14 @@ export const content: Content = {
     },
     {
       id: 'exp-yousource',
+      tab: 'YOU_SOURCE Inc. (Yebo Fresh)',
+      region: { name: 'South Africa', abbr: 'ZA' },
+      href: 'https://www.yebofresh.co.za',
+      thumbnail: '/experience/yousource.webp',
       org: 'YOU_SOURCE Inc.',
       role: 'Full-stack Software Engineer',
-      dates: 'Dec 2023 to Jun 2025',
+      dates: 'Dec 2023 to Jul 2025',
+      location: 'Yebo Fresh, South Africa',
       bullets: [
         {
           text: "Delivered the Yebo Fresh admin and delivery portal's 6-month roadmap in 4 months; improved performance by 25% across REST APIs, database and UI",
@@ -161,9 +181,14 @@ export const content: Content = {
     },
     {
       id: 'exp-hosting',
+      tab: 'Freelance Host & Shoutcaster',
+      region: { name: 'Asia-Pacific', abbr: 'APAC' },
+      href: 'https://sites.google.com/view/mochii-does-things/portfolio',
+      thumbnail: '/experience/hosting.webp',
       org: 'Freelance Host & Shoutcaster',
       role: 'Esports and tech events',
       dates: 'Jan 2021 to present',
+      location: 'Asia-Pacific',
       bullets: [
         {
           text: 'Hosted and cast live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS',
@@ -173,15 +198,85 @@ export const content: Content = {
     },
   ],
 
+  // Intro video on YouTube: the id is the part after watch?v= in its link.
+  introVideo: {
+    youtubeId: 'oSlaD3GcM9k',
+    title: 'Introduction from Michaella',
+    caption: 'A quick hello, and what I can do for your team (COMING SOON).',
+  },
+
+  sections: {
+    experience: {
+      title: 'Experience',
+      intro: 'Where I have worked, what I shipped there, and where I studied.',
+    },
+    automations: {
+      title: 'Automations',
+      intro: 'The real systems are confidential, so each card shows the workflow instead of a screenshot.',
+    },
+  },
+
+  leadership: {
+    intro:
+      'I have been a student leader since elementary school. As a professional I want to keep making that kind of impact: I see a gap, put my hand up, and bring people along.',
+    groups: [
+      {
+        id: 'lead-bloch',
+        heading: 'Bloch.ai',
+        period: 'Oct 2025 to present',
+        items: [
+          { text: 'Wrote AI leadership training for executives on safe usage and core concepts', kind: 'Initiative', chip: '[n] leaders' },
+          { text: "Ran onboarding and set up the team's central tracking and documentation", kind: 'Initiative', chip: '[n] new hires' },
+          { text: 'Introduced n8n automation to marketing and finance firms across Europe', chip: '[n] firms' },
+        ],
+      },
+      {
+        id: 'lead-yousource',
+        heading: 'YOU_SOURCE Inc.',
+        period: 'Dec 2023 to Jun 2025',
+        items: [
+          { text: 'Introduced test-driven development on Pine Connector, raising coverage from 36% to 78%', kind: 'Initiative' },
+          { text: 'Built YS-AI, a 6-module AI training app, to get colleagues comfortable with AI', kind: 'Initiative', chip: '60+ employees' },
+          { text: 'Benchmarked LLMs for YS-LLM, the internal coding assistant, and supported its pilot', chip: '50+ engineers' },
+        ],
+      },
+      {
+        id: 'lead-student',
+        heading: 'Student leadership',
+        period: 'Elementary school to 2024',
+        items: [
+          { text: '[Elementary school role, school]', kind: 'Volunteer' },
+          { text: '[High school role, school]', kind: 'Volunteer' },
+          {
+            text: 'President, iTamaraws Esports Club: grew membership from 70+ to 280+ and the officer team from 18 to 60+; secured full accreditation',
+            kind: 'Volunteer',
+          },
+          { text: 'Director for Membership, ACM Student Chapter: grew active membership 36% to 470+', kind: 'Volunteer' },
+          {
+            text: 'Director for Publications, ACM Student Chapter: chapter named Best Student Organization of the Year',
+            kind: 'Volunteer',
+          },
+          { text: 'Outstanding Leadership Award' },
+        ],
+      },
+      {
+        id: 'lead-community',
+        heading: 'Community',
+        period: '2021 to present',
+        items: [
+          { text: 'Hosted and cast esports and tech events for the community', chip: '80+ events' },
+          { text: '[Other volunteer work]', kind: 'Volunteer' },
+        ],
+      },
+    ],
+  },
+
   background: {
-    heading: 'Education and leadership',
+    heading: 'Education',
+    tab: 'Education',
+    region: { name: 'Philippines', abbr: 'PH' },
     degree:
       'B.S. Computer Science, Software Engineering, FEU Institute of Technology, 2020 to 2024. Cum Laude, GPA 3.5/4.0.',
-    leadership: [
-      'President, iTamaraws Esports Club: grew membership from 70+ to 280+ and the officer team from 18 to 60+; secured full accreditation',
-      'Director for Membership, ACM Student Chapter: grew active membership 36% to 470+',
-      'Director for Publications, ACM Student Chapter: chapter named Best Student Organization of the Year',
-    ],
     awards:
       "Outstanding Leadership Award, AcadArena Silver Awardee, President's Scholar, pitching competition wins (iTam Design Jam, Techno Fair)",
     certs: 'Cisco CCNA DevNet Associate, Google Agile Project Management, TOPCIT Level 3, Harvard Leaders of Learning',
@@ -237,7 +332,7 @@ export const content: Content = {
     },
   ],
 
-  // Live projects first. Thumbnails: add public/projects/<slug>.png (1600×1000).
+  // Live projects first. Card art: public/projects/<slug>.webp, portrait 660 × 900 (the fan's card shape).
   projects: [
     {
       slug: 'spirit',
@@ -247,7 +342,7 @@ export const content: Content = {
         'An anonymous sky of glowing orbs where people leave a thought, feeling or confession for others to find, with mental-health resources built in.',
       stack: ['[confirm stack]'],
       href: 'https://spirit-our-comfort.vercel.app',
-      thumbnail: '/projects/spirit.png',
+      thumbnail: '/projects/spirit.webp',
     },
     {
       slug: 'yours-db',
@@ -257,7 +352,7 @@ export const content: Content = {
         'A personal database. Build sheets with typed columns (text, number, date, choices, checkboxes, links), then search, tick off and bulk-edit rows.',
       stack: ['React', 'TypeScript', 'Vite', 'Supabase'],
       href: 'https://yours-db.vercel.app',
-      thumbnail: '/projects/yours-db.png',
+      thumbnail: '/projects/yours-db.webp',
     },
     {
       slug: 'photo-bot',
@@ -266,7 +361,7 @@ export const content: Content = {
       description: 'A virtual photobooth. Take photos, edit them with digital effects, and send them by email.',
       stack: ['React', 'Fabric.js', 'Tailwind', 'EmailJS'],
       href: 'https://photo-bot-kappa.vercel.app',
-      thumbnail: '/projects/photo-bot.png',
+      thumbnail: '/projects/photo-bot.webp',
     },
     {
       slug: 'tomorrow',
@@ -275,7 +370,7 @@ export const content: Content = {
       description: 'A daily planner where a cat companion of your choice keeps you company through your tasks.',
       stack: ['React Native', 'Expo', 'TypeScript', 'SQL'],
       href: '[deployed link]',
-      thumbnail: '/projects/tomorrow.png',
+      thumbnail: '/projects/tomorrow.webp',
     },
     {
       slug: 'pastel-affirmations',
@@ -285,7 +380,7 @@ export const content: Content = {
         'An always-on-top pixel-art widget that shows a fresh affirmation on demand and saves your favourites.',
       stack: ['Electron', 'React', 'Express', 'Node.js'],
       href: '[deployed link or download page]',
-      thumbnail: '/projects/pastel-affirmations.png',
+      thumbnail: '/projects/pastel-affirmations.webp',
     },
     {
       slug: 'motion-field',
@@ -294,11 +389,10 @@ export const content: Content = {
       description: 'A particle field that follows your movement through the webcam, entirely in the browser.',
       stack: ['JavaScript', 'Canvas', 'WebRTC'],
       href: '[deployed link]',
-      thumbnail: '/projects/motion-field.png',
+      thumbnail: '/projects/motion-field.webp',
     },
   ],
 
-  automationsIntro: 'The real systems are confidential, so each card shows the workflow instead of a screenshot.',
   automations: [
     {
       slug: 'bio-generator',
@@ -341,6 +435,7 @@ export const content: Content = {
 
   cardLabels: {
     visit: 'Visit',
+    visitSite: 'Visit site',
     readCase: 'Read the case study',
     comingSoon: 'Link coming soon',
     scale: 'Scale',
@@ -366,7 +461,7 @@ export const content: Content = {
     ],
   },
 
-  // Casual mode ("Out of Tech"): one card per moment. Photos go in public/casual/<slug>.jpg.
+  // Casual mode ("Out of Tech"): one card per moment. Photos: public/casual/<slug>.webp, portrait 660 × 900.
   casual: {
     gaming: [
       {
@@ -374,51 +469,76 @@ export const content: Content = {
         title: 'On the mic',
         when: '2021 to now',
         detail: 'Hosted and cast 80+ live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS.',
-        image: '/casual/shoutcasting.jpg',
+        image: '/casual/shoutcasting.webp',
       },
-      {
-        slug: 'itamaraws',
-        title: 'iTamaraws Esports',
-        when: 'President, FEU Tech',
-        detail: 'Grew the club from 70+ to 280+ members and the officer team from 18 to 60+, and secured full accreditation.',
-        image: '/casual/itamaraws.jpg',
-      },
-      {
-        slug: 'acadarena',
-        title: 'AcadArena Silver',
-        detail: '[What the award recognised.]',
-        image: '/casual/acadarena.jpg',
-      },
-      {
-        slug: 'now-playing',
-        title: 'Now playing',
-        detail: '[Games you are playing right now, and your main.]',
-        image: '/casual/now-playing.jpg',
-      },
+      { slug: 'gaming', title: 'Video games', detail: '[What you play to unwind.]', image: '/casual/gaming.webp' },
+      { slug: 'cosplay', title: 'Cosplay', detail: '[Characters you have made, or are making next.]', image: '/casual/cosplay.webp' },
     ],
     hobbies: [
-      { slug: 'hobby-1', title: '[Hobby]', detail: '[What you love about it.]', image: '/casual/hobby-1.jpg' },
-      { slug: 'hobby-2', title: '[Hobby]', detail: '[What you love about it.]', image: '/casual/hobby-2.jpg' },
-      { slug: 'hobby-3', title: '[Hobby]', detail: '[What you love about it.]', image: '/casual/hobby-3.jpg' },
-    ],
-    life: [
-      { slug: 'home', title: '[Home]', detail: '[Where you are based, in a line.]', image: '/casual/home.jpg' },
-      { slug: 'cares', title: '[Something you care about]', detail: '[Why it matters to you.]', image: '/casual/cares.jpg' },
-      { slug: 'currently', title: '[Currently]', detail: '[Reading, learning or planning.]', image: '/casual/currently.jpg' },
+      {
+        slug: 'bioactive',
+        title: 'Bioactive keeping',
+        detail: 'A shelf of terrariums and planted tanks that look after themselves, with a cat who supervises.',
+        image: '/casual/bioactive.webp',
+      },
+      {
+        slug: 'jewelry',
+        title: 'Jewelry making',
+        detail: '[What you make, and the piece you are proudest of.]',
+        image: '/casual/jewelry.webp',
+      },
+      {
+        slug: 'crochet',
+        title: 'Crochet',
+        detail: "Finally finished crocheting my very own Owlbear, the stuffed toy from Baldur's Gate 3.",
+        image: '/casual/crochet.webp',
+      },
+      {
+        slug: 'development',
+        title: 'Development',
+        detail: 'Side projects after hours, down to drawing the pixel cat for tomorrow by hand.',
+        image: '/casual/development.webp',
+      },
+      {
+        slug: 'painting',
+        title: 'Painting',
+        detail: 'Watercolour in between meetings: peonies, a peach, a sky full of cats and stars, water lilies.',
+        image: '/casual/painting.webp',
+      },
+      {
+        slug: 'reading',
+        title: 'Reading',
+        detail: 'Currently: Essentialism by Greg McKeown, on the disciplined pursuit of less.',
+        image: '/casual/reading.webp',
+      },
     ],
   },
 
   contact: {
     title: 'Contact',
+    note: {
+      hello: "Hello, I'm",
+      name: 'Michaella',
+      am: "and I'm an",
+      role: 'AI & automation engineer',
+      open: "I'm open to",
+      write: 'Write to me at',
+    },
+    // Add the photo at public/contact/selfie.webp (portrait 4:5, 800 × 1000).
+    selfie: {
+      src: '/contact/selfie.webp',
+      alt: 'Selfie of Michaella with dark, teal-tipped hair and a silver star earring',
+      caption: 'Say hi!',
+    },
     openTo:
-      'Open to AI and automation engineering, solutions engineering and technical lead roles. Remote or [location].',
+      'AI and automation engineering, solutions engineering and technical lead roles. Remote or [location].',
     email: 'michaellagonzales.owo@gmail.com',
     copy: 'Copy',
     copied: 'Copied',
     copyFailed: 'Copy failed. Select the address instead.',
     links: [
       { label: 'LinkedIn', href: 'https://www.linkedin.com/in/michaella-gonzales-203626296' },
-      { label: 'GitHub', href: '[link]' },
+      { label: 'GitHub', href: 'https://github.com/mochiicakes' },
     ],
     cv,
   },

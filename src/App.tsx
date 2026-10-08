@@ -6,21 +6,22 @@ import { PaintedGround } from './components/effects/PaintedGround'
 import { NameHero } from './components/NameHero'
 import { TopBar } from './components/TopBar'
 import { World } from './components/World'
-import { content } from './content'
-import { revealStore, setMode, setTab } from './lib/htmlState'
+import { revealStore, setMode, setPage, tabStores, type TabSet, type TabStore } from './lib/htmlState'
 import { lockScroll, scrollToElement, startSmoothScroll, stopSmoothScroll } from './lib/scroll'
 import { useReducedMotion } from './lib/useReducedMotion'
-import type { Mode, RecruiterTabId } from './types'
+import type { Mode } from './types'
 
 /**
- * Make an in-page target visible before scrolling to it: switch to the world and
- * tab that hold it, and open it if it is a case study.
+ * Make an in-page target visible before scrolling to it: open the page that
+ * holds it (Contact is a page of its own), switch to its mode and tab, and open
+ * it if it is a case study.
  */
 function reveal(el: HTMLElement) {
-  const world = el.closest<HTMLElement>('.world')
+  setPage(el.closest('#contact') ? 'contact' : 'home')
+  const world = el.closest<HTMLElement>('[data-world]')
   if (world) setMode(world.dataset.world as Mode)
   const panel = el.closest<HTMLElement>('.tab-panel')
-  if (panel) setTab(panel.dataset.tab as RecruiterTabId)
+  if (panel) (tabStores[panel.dataset.tabs as TabSet] as TabStore).set(panel.id)
   if (el instanceof HTMLDetailsElement) el.open = true
 }
 
@@ -60,7 +61,14 @@ export function App() {
     }
     const fromHash = () => {
       try {
-        go(decodeURIComponent(location.hash.slice(1)), true)
+        const id = decodeURIComponent(location.hash.slice(1))
+        // Back to a plain URL: the main page, from the top.
+        if (!id) {
+          setPage('home')
+          window.scrollTo(0, 0)
+          return
+        }
+        go(id, true)
       } catch {
         // Malformed hash: stay where we are.
       }
@@ -85,7 +93,6 @@ export function App() {
           <World />
           <Contact />
         </main>
-        <footer className="footer">{content.footer}</footer>
       </div>
       <CursorKoi />
     </>
