@@ -1,58 +1,72 @@
 import type { CSSProperties } from 'react'
 import { content } from '../content'
-import { Star, Underline, type StarTone } from './ui/Ornaments'
-
-// Stars that drift over the paint once it is down (the image's butter, sky and milk).
-const STARS: { x: string; y: string; s: number; tone: StarTone; d: number }[] = [
-  { x: '9%', y: '16%', s: 30, tone: 'sky', d: 0.1 },
-  { x: '86%', y: '12%', s: 22, tone: 'butter', d: 0.4 },
-  { x: '80%', y: '64%', s: 34, tone: 'milk', d: 0.6 },
-  { x: '14%', y: '72%', s: 26, tone: 'butter', d: 0.3 },
-  { x: '92%', y: '40%', s: 18, tone: 'milk', d: 0.8 },
-  { x: '5%', y: '42%', s: 20, tone: 'milk', d: 0.5 },
-  { x: '68%', y: '86%', s: 22, tone: 'sky', d: 0.7 },
-]
+import { useImageFallback } from '../lib/useImageFallback'
 
 /**
- * The name. Every word here is printed in paper colour, so on bare paper the
- * section reads as empty; painting behind it brings it out.
+ * The name, set like a magazine cover: the first name huge behind the
+ * portrait, the surname signed at its end, and a small block of text in each
+ * corner. Where the portrait covers the first name, the hidden letters are
+ * drawn over her as an outline (masked to her silhouette), so the name stays
+ * whole. Every word is printed in paper colour, so on bare paper the section
+ * reads as empty; painting behind it brings it out.
  */
 export function NameHero() {
   const h = content.hero
   const t = content.tagline
+  const { failed, ref, onError } = useImageFallback(h.portrait.src)
+  const portrait = !failed
   return (
-    <section id="top" className="hero" aria-labelledby="hero-name">
-      {STARS.map((s, i) => (
-        <Star
-          key={i}
-          tone={s.tone}
-          className="hero-star"
-          style={{ left: s.x, top: s.y, width: s.s, height: s.s, '--d': `${s.d}s` } as CSSProperties}
-        />
-      ))}
-      <div className="hero-inner">
-        <p className="caps hero-role">{h.role}</p>
-        <h1 id="hero-name" className="hero-name">
-          {h.name}
-        </h1>
-        <Underline className="hero-underline" />
-        <p className="caps hero-tagline">
-          <span>{t.line1}</span>
-          <span>{t.line2}</span>
-        </p>
-        <p className="hero-support">{t.supporting}</p>
-        <div className="hero-actions">
-          <a className="btn btn-koi" href={h.primaryCta.href}>
-            {h.primaryCta.label}
-          </a>
-          <a className="btn btn-line" href={h.cvCta.href} download>
-            {h.cvCta.label}
-          </a>
+    <section id="top" className="hero" data-screen aria-labelledby="hero-name" data-portrait={portrait || undefined}>
+      <p className="hero-block hero-tl caps">{h.role}</p>
+
+      <h1 id="hero-name" className="hero-name">
+        <span className="hero-first">{h.firstName}</span> <span className="hero-last">{h.lastName}</span>
+      </h1>
+
+      {portrait && (
+        <div className="hero-figure" style={{ '--portrait': `url(${h.portrait.src})` } as CSSProperties}>
+          <img
+            ref={ref}
+            className="hero-portrait"
+            src={h.portrait.src}
+            alt={h.portrait.alt}
+            width={h.portrait.width}
+            height={h.portrait.height}
+            decoding="async"
+            fetchPriority="high"
+            draggable={false}
+            onError={onError}
+          />
+          <span className="hero-overprint" aria-hidden="true">
+            <span>
+              {[...h.firstName].map((ch, i) => (
+                <span key={i} data-cover={h.coverLetters.includes(i) || undefined}>
+                  {ch}
+                </span>
+              ))}
+            </span>
+          </span>
         </div>
+      )}
+
+      <p className="hero-block hero-tr">
+        <span>{t.line1}</span>
+        <span>{t.line2}</span>
+      </p>
+
+      <div className="hero-block hero-bl">
+        <p className="hero-block-name">{h.name}</p>
+        <p>{t.supporting}</p>
       </div>
-      <a className="scroll-cue" href="#work" aria-label="Scroll to the work">
-        <span />
-      </a>
+
+      <div className="hero-block hero-br">
+        <a className="btn btn-koi" href={h.primaryCta.href}>
+          {h.primaryCta.label}
+        </a>
+        <a className="btn btn-line" href={h.cvCta.href} download>
+          {h.cvCta.label}
+        </a>
+      </div>
     </section>
   )
 }

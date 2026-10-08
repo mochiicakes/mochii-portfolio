@@ -18,9 +18,25 @@
   --goldfish-deep: #d63d28;
   --butter: #fbe7a1;
 
-  --font-script: 'Imperial Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  /* Type, after the editorial cover: a heavy high-contrast serif for names and
+     titles, a signature script for accents, and a book serif for reading. */
+  --font-display: 'Playfair Display Variable', 'Bodoni 72', Didot, Georgia, serif;
+  --font-script: 'Mrs Saint Delafield', 'Snell Roundhand', cursive;
   --bleed: 0 0 3px rgb(16 70 122 / 0.32), 0 2px 18px rgb(16 70 122 / 0.45);
-  --font-sans: 'Josefin Sans Variable', 'Futura', 'Century Gothic', 'Avenir Next', sans-serif;
+  /* Once painted, the ground is softened so the content leads. About 3px
+     takes out pigment grain and hard rims but keeps the washes; 6px and up
+     reads as out of focus. */
+  --ground-blur: clamp(2px, 0.18vw, 4px);
+  --crystal-opacity: 0.75;
+  --font-body: 'Lora Variable', Georgia, 'Times New Roman', serif;
+  --font-type: 'Courier Prime', 'Courier New', ui-monospace, monospace;
+
+  /* The contact board: a white sticky note on a sky-blue one, and a polaroid. */
+  --note: #fdfdfb;
+  --note-back: #9fd3f4;
+  --note-ink: #1d2d5c;
+  --note-hand: #2b2263;
+  --polaroid: #f4ece1;
 
   --track: 0.32em;
   --maxw: 1080px;

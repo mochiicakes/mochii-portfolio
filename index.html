@@ -21,6 +21,8 @@
         } catch (e) {}
         // A link straight to a section opens the page without the paint reveal.
         if (location.hash.length > 1) d.classList.add('revealed')
+        // Contact is a page of its own (the key matches setPage in src/lib/htmlState.ts).
+        if (location.hash === '#contact') d.dataset.page = 'contact'
       })()
     </script>
   </head>

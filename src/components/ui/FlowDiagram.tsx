@@ -1,8 +1,13 @@
 import { useEffect, useId, useRef } from 'react'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 
-const VW = 320
-const VH = 200
+/** Two-row snake (fits a narrow card) or one long row (fits a wide, short one). */
+export type FlowShape = 'snake' | 'row'
+
+const SIZE: Record<FlowShape, { w: number; h: number }> = {
+  snake: { w: 320, h: 200 },
+  row: { w: 520, h: 84 },
+}
 const PAD_X = 16
 const GAP = 16
 const NODE_H = 44
@@ -10,9 +15,13 @@ const DOT_MS = 2200
 
 type Node = { x: number; y: number; w: number; label: string[] }
 
-/** Snake layout: first half left to right, second half back right to left. */
-function layout(labels: string[]): Node[] {
-  const top = Math.ceil(labels.length / 2)
+/**
+ * Snake: first half left to right, second half back right to left.
+ * Row: every node left to right on one line.
+ */
+function layout(labels: string[], shape: FlowShape): Node[] {
+  const { w: VW, h: VH } = SIZE[shape]
+  const top = shape === 'row' ? labels.length : Math.ceil(labels.length / 2)
   const w = (VW - PAD_X * 2 - GAP * (top - 1)) / top
   const rows = labels.length > top ? [56, 144] : [VH / 2]
   return labels.map((label, i) => {
@@ -51,18 +60,27 @@ function edge(a: Node, b: Node) {
  * A drawn workflow (rounded nodes joined by arrows). When it scrolls into
  * view, a glowing dot travels once from the first node to the last.
  */
-export function FlowDiagram({ nodes }: { nodes: string[] }) {
+export function FlowDiagram({
+  nodes,
+  shape = 'snake',
+  className = '',
+}: {
+  nodes: string[]
+  shape?: FlowShape
+  className?: string
+}) {
   const uid = useId().replace(/:/g, '')
   const svgRef = useRef<SVGSVGElement>(null)
   const dotRef = useRef<SVGGElement>(null)
   const reduced = useReducedMotion()
-  const placed = layout(nodes)
+  const placed = layout(nodes, shape)
+  const { w: VW, h: VH } = SIZE[shape]
 
   useEffect(() => {
     const svg = svgRef.current
     const dot = dotRef.current
     if (reduced || !svg || !dot) return
-    const pts = layout(nodes).map((n) => [n.x, n.y] as const)
+    const pts = layout(nodes, shape).map((n) => [n.x, n.y] as const)
     const segs = pts.slice(1).map((p, i) => Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]))
     const total = segs.reduce((a, b) => a + b, 0)
     let raf = 0
@@ -100,10 +118,10 @@ export function FlowDiagram({ nodes }: { nodes: string[] }) {
       cancelAnimationFrame(raf)
       dot.style.opacity = '0'
     }
-  }, [nodes, reduced])
+  }, [nodes, shape, reduced])
 
   return (
-    <div className="thumb thumb-flow">
+    <div className={`thumb-flow ${className}`}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${VW} ${VH}`}

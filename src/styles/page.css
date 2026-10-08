@@ -1,23 +1,30 @@
-/* Script type, thickened: its hairlines get a stroke in their own colour. */
+/* The signature script, thickened: its hairlines get a stroke in their own colour. */
 .prompt-text,
-.topbar-mark,
-.hero-name,
-.world-title,
-.fan-face-word,
-.fan-title,
-.panel-title,
-.job-org,
-.background h4,
-.card-title,
-.toolbox h4,
-.contact-title {
-  -webkit-text-stroke: 0.02em currentColor;
+.hero-last,
+.thumb-art,
+.polaroid-caption {
+  -webkit-text-stroke: 0.015em currentColor;
   paint-order: stroke fill;
 }
 
-/* Ground: paper, then watercolour, then water light (screen, so paper stays clean). */
+/* Display serif: the cover's heavy, high-contrast face. */
+.topbar-mark,
+.world-title,
+.section-title,
+.panel-title,
+.contact-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Layers, bottom to top: the finished watercolour (.ground) and its water
+   light (.crystal, screen), the page, the white paper (.paper) that the
+   visitor paints through, the paper fibres, then the prompt. */
 .ground,
-.crystal {
+.crystal,
+.paper {
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -26,15 +33,13 @@
   pointer-events: none;
 }
 
+/* Softened so the content leads. A filter on this still canvas is cached by
+   the compositor, unlike a backdrop-filter over the moving water light. */
 .ground {
   z-index: 0;
-}
-
-.ground-wet {
-  /* The stroke being painted: glossy and wet until it dries. */
-  opacity: 0.46;
-  filter: blur(2px);
-  mix-blend-mode: multiply;
+  filter: blur(var(--ground-blur));
+  /* Pushes the blurred edge just off screen, so no paper fringe shows. */
+  scale: 1.012;
 }
 
 .crystal {
@@ -45,15 +50,26 @@
 }
 
 .crystal[data-on] {
-  opacity: 0.45;
+  opacity: var(--crystal-opacity);
 }
 
-html.revealed .crystal[data-on] {
-  opacity: 1;
+/* The paper. Plain white until its canvas is drawn, so the page never shows
+   before it is covered. */
+.paper {
+  z-index: 2;
+  background: var(--paper);
 }
 
-/* Paper fibres over everything, text included, so paper-coloured text and
-   the paper beneath it stay exactly the same colour until paint arrives. */
+.paper[data-ready] {
+  background: none;
+}
+
+html:not(.js) .paper,
+html.revealed .paper:not([data-revealing]) {
+  display: none;
+}
+
+/* Paper fibres over everything, the white paper included. */
 body::after {
   content: '';
   position: fixed;
@@ -92,7 +108,7 @@ html.revealed .prompt {
 }
 
 .prompt-text {
-  font: 400 clamp(2.6rem, 6vw, 4.2rem) / 1 var(--font-script);
+  font: 400 clamp(3.4rem, 8vw, 5.6rem) / 1 var(--font-script);
 }
 
 .prompt-hint {
@@ -130,7 +146,7 @@ html.revealed .prompt {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: calc(16px + env(safe-area-inset-top, 0px)) var(--gutter) 16px;
+  padding: calc(26px + env(safe-area-inset-top, 0px)) var(--gutter) 22px;
   transition: opacity 0.8s 0.6s;
 }
 
@@ -139,18 +155,19 @@ html.js:not(.revealed) .topbar {
 }
 
 .topbar-mark {
-  font: 400 2.3rem/1 var(--font-script);
+  font-size: 1.9rem;
+  line-height: 1;
   text-decoration: none;
 }
 
 .topbar-end {
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: 34px;
 }
 
 .topbar-link {
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 600;
   letter-spacing: var(--track);
   text-transform: uppercase;
@@ -167,15 +184,19 @@ html.js:not(.revealed) .topbar {
   gap: 6px 26px;
 }
 
+.topbar-link,
 .mode-switch button,
 .fan-groups button,
 .tabs [role='tab'] {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
   padding: 8px 2px 12px;
   border: 0;
   background: none;
   color: var(--paper);
-  font: 600 0.8rem/1 var(--font-sans);
+  font: 600 0.8rem/1 var(--font-body);
   letter-spacing: var(--track);
   text-transform: uppercase;
   opacity: 0.75;
@@ -183,6 +204,8 @@ html.js:not(.revealed) .topbar {
   transition: opacity 0.3s;
 }
 
+.topbar-link:hover,
+.topbar-link[aria-current='page'],
 .mode-switch button:hover,
 .fan-groups button:hover,
 .tabs [role='tab']:hover,
@@ -192,6 +215,7 @@ html.js:not(.revealed) .topbar {
   opacity: 1;
 }
 
+.topbar-link::after,
 .mode-switch button::after,
 .fan-groups button::after,
 .tabs [role='tab']::after {
@@ -207,6 +231,7 @@ html.js:not(.revealed) .topbar {
   transition: clip-path 0.55s var(--ease);
 }
 
+.topbar-link[aria-current='page']::after,
 .mode-switch button[aria-pressed='true']::after,
 .fan-groups button[aria-pressed='true']::after,
 .tabs [role='tab'][aria-selected='true']::after {
@@ -223,73 +248,212 @@ html.js:not(.revealed) .topbar {
   }
 }
 
-/* Name */
+/* Name: an editorial cover. The first name is set huge behind the portrait,
+   the surname is signed at its end, and a small block of text sits in each
+   corner. Phones stack the same pieces. */
 .hero {
+  /* The portrait stands a little above the floor; the name starts just under
+     her chin (22% down the portrait), so its outline never crosses her face. */
+  --figure-h: min(88svh, 1000px);
+  /* As high as fits: up to 11svh off the floor, but never so high that her
+     head reaches the top bar (72px). */
+  --figure-bottom: max(3svh, min(11svh, 100svh - var(--figure-h) - 72px));
+  --chin: 0.22;
+  --name-top: calc(100svh - var(--figure-bottom) - var(--figure-h) * (1 - var(--chin)));
   position: relative;
+  isolation: isolate;
   display: grid;
-  place-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 18px;
   min-height: 100svh;
-  padding: 110px var(--gutter) 150px;
+  padding: 104px var(--gutter) 0;
+  /* Clip sideways only, so the portrait's soft shadow can fall past the floor
+     instead of ending in a hard line. */
+  overflow-x: clip;
   text-align: center;
 }
 
-.hero-inner {
-  display: grid;
-  justify-items: center;
-  max-width: 60rem;
-}
-
+/* One column as wide as the first name, so the surname can sit at its end. */
 .hero-name {
-  margin-top: 16px;
-  font: 400 clamp(4.4rem, 14.5vw, 12.5rem) / 0.95 var(--font-script);
-  padding: 0.1em 0.2em 0;
-}
-
-.underline {
-  fill: var(--paper);
-  stroke: var(--paper);
-}
-
-.hero-underline {
-  width: min(74%, 460px);
-  height: 16px;
-}
-
-html.revealed .hero-underline {
-  filter: drop-shadow(0 1px 6px rgb(16 70 122 / 0.35));
-  margin-top: 4px;
-}
-
-.hero-tagline {
+  position: relative;
   display: grid;
-  gap: 14px;
-  margin-top: 38px;
+  grid-template-columns: auto;
+  justify-content: center;
 }
 
-.hero-support {
-  max-width: 34rem;
-  margin-top: 30px;
-  font-size: 1.05rem;
+.hero-first,
+.hero-overprint > span {
+  font: 800 clamp(2.6rem, 14.5vw, 9rem) / 0.82 'Playfair Display', var(--font-display);
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.hero-actions {
+.hero-first {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-last {
+  position: relative;
+  z-index: 3;
+  justify-self: end;
+  margin: -0.32em -0.15em 0 0;
+  font: 400 clamp(3rem, 13vw, 8.5rem) / 1 var(--font-script);
+  rotate: -5deg;
+  white-space: nowrap;
+}
+
+.hero-figure {
+  position: relative;
+  z-index: 2;
+  margin-top: -6svh;
+}
+
+.hero-portrait {
+  display: block;
+  width: auto;
+  height: min(64svh, 720px);
+  /* A soft glow all round, not a cast shadow: nothing for the floor to cut. */
+  filter: drop-shadow(0 0 22px rgb(3 40 64 / 0.28));
+  user-select: none;
+}
+
+/* The first name again, as a blue outline, shown only where she covers it:
+   masked to the portrait's own silhouette. */
+.hero-overprint {
+  display: none;
+}
+
+.hero-block {
+  position: relative;
+  z-index: 3;
+  max-width: 22rem;
+  font-size: 0.98rem;
+}
+
+.hero-tl {
+  order: -1;
+}
+
+.hero-tr {
+  display: grid;
+  gap: 2px;
+  font: italic 500 1.15rem/1.45 var(--font-body);
+}
+
+.hero-block-name {
+  margin-bottom: 6px;
+  font: 700 1.15rem var(--font-display);
+}
+
+.hero-br {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px 18px;
-  margin-top: 40px;
+  gap: 12px 16px;
+  padding-bottom: 48px;
 }
 
-.hero-star {
-  position: absolute;
-  opacity: 0;
-}
+/* Wide screens: the cover. The portrait stands on the section floor and the
+   name crosses her upper body. */
+@media (min-width: 1100px) {
+  .hero {
+    display: block;
+    padding: 0;
+  }
 
-html:not(.js) .hero-star,
-html.revealed .hero-star {
-  animation:
-    star-in 0.9s var(--ease) calc(var(--d) + 1.1s) both,
-    float 6s ease-in-out calc(var(--d) + 2s) infinite;
+  .hero-name {
+    position: absolute;
+    top: var(--name-top);
+    inset-inline: 0;
+  }
+
+  .hero-first,
+  .hero-overprint > span {
+    font-size: clamp(8rem, 14vw, 16rem);
+  }
+
+  .hero-last {
+    margin: -0.42em -0.25em 0 0;
+  }
+
+  .hero-figure {
+    position: absolute;
+    bottom: var(--figure-bottom);
+    left: 50%;
+    height: var(--figure-h);
+    margin: 0;
+    translate: -50% 0;
+  }
+
+  .hero-portrait {
+    height: 100%;
+  }
+
+  .hero-overprint {
+    position: absolute;
+    inset: 0;
+    display: block;
+    -webkit-mask: var(--portrait) center / 100% 100% no-repeat;
+    mask: var(--portrait) center / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+
+  /* Placed to match the name exactly: in here, that is the chin line. */
+  .hero-overprint > span {
+    position: absolute;
+    top: calc(var(--figure-h) * var(--chin));
+    left: 50%;
+    translate: -50% 0;
+    color: transparent;
+    text-shadow: none;
+  }
+
+  /* Every letter keeps its place (so the line matches the name), but only the
+     letters she covers are drawn, as translucent blue glass. A traced outline
+     doubles up on the serif's hairlines (the A's crossbar and thin stroke), so
+     the letter is a filled shape instead. */
+  .hero-overprint [data-cover] {
+    color: rgb(47 128 192 / 0.55);
+  }
+
+  .hero-block {
+    position: absolute;
+    max-width: min(21rem, 26vw);
+    text-align: left;
+  }
+
+  .hero-tl {
+    top: calc(116px + 3svh);
+    left: var(--gutter);
+    padding-top: 14px;
+    border-top: 1px solid rgb(252 253 253 / 0.6);
+  }
+
+  .hero-tr {
+    top: calc(116px + 3svh);
+    right: var(--gutter);
+    text-align: right;
+  }
+
+  .hero-bl {
+    bottom: 12svh;
+    left: var(--gutter);
+  }
+
+  .hero-br {
+    bottom: 12svh;
+    right: var(--gutter);
+    justify-content: flex-end;
+    padding: 0;
+  }
+
+  /* Without the portrait, the name simply sits in the middle. */
+  .hero:not([data-portrait]) {
+    --name-top: 36svh;
+  }
 }
 
 .star-butter {
@@ -307,40 +471,17 @@ html.revealed .hero-star {
   stroke: var(--paper);
 }
 
-@keyframes star-in {
-  from {
-    opacity: 0;
-    transform: scale(0.2) rotate(-60deg);
-  }
-  to {
-    opacity: 0.95;
-    transform: none;
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    opacity: 0.95;
-    transform: translateY(0) rotate(0);
-  }
-  50% {
-    opacity: 0.6;
-    transform: translateY(-8px) rotate(14deg);
-  }
-}
-
-.scroll-cue {
-  position: absolute;
-  left: 50%;
-  bottom: 34px;
+/* The divider between sections: a hairline with paint running down it. */
+.divider {
+  display: block;
   width: 1px;
   height: 64px;
+  margin: 0 auto;
   background: rgb(252 253 253 / 0.35);
   overflow: hidden;
 }
 
-.scroll-cue span {
+.divider span {
   display: block;
   height: 40%;
   background: var(--paper);
@@ -360,16 +501,151 @@ html.revealed .hero-star {
 .worlds {
   max-width: calc(var(--maxw) + 2 * var(--gutter));
   margin: 0 auto;
-  padding: 8vh var(--gutter) 6vh;
+  padding: 0 var(--gutter);
+}
+
+/* One topic, one screen: at least the window's height, its content centred
+   under the top bar, opening with a divider. A mouse wheel turns a screen at a
+   time (lib/scroll.ts). */
+.screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 72px 0 76px;
+}
+
+/* The divider sits at the foot of the screen, on the line between topics. */
+.screen > .divider {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  height: 48px;
+  margin: 0;
+  translate: -50% 0;
 }
 
 html.js[data-mode='recruiter'] .world[data-world='casual'],
-html.js[data-mode='casual'] .world[data-world='recruiter'] {
+html.js[data-mode='casual'] .world[data-world='recruiter'],
+html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   display: none;
 }
 
-html:not(.js) .world + .world {
-  margin-top: 14vh;
+/* Long job names: closer together, so the set fits on one row. */
+#experience .tabs {
+  gap: 6px 22px;
+}
+
+#experience .tabs [role='tab'] {
+  letter-spacing: 0.24em;
+}
+
+/* The intro video, under the Around Tech header: as large as fits the screen. */
+.intro-video {
+  width: min(100%, 960px, (100svh - 400px) * 16 / 9);
+  min-width: min(100%, 420px);
+  margin: 28px auto 0;
+}
+
+.intro-video-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 22px 44px rgb(3 40 64 / 0.3);
+}
+
+.intro-video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Lenis turns off pointer events on iframes while it scrolls; the player must
+   still take clicks. */
+.lenis.lenis-smooth .intro-video iframe {
+  pointer-events: auto;
+}
+
+/* YouTube's still, with a play mark, until pressed. */
+.intro-video-cover {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(170deg, rgb(86 174 222 / 0.35), rgb(39 115 151 / 0.45));
+}
+
+.intro-video-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+
+.intro-video-cover:hover img {
+  transform: scale(1.03);
+}
+
+/* A play mark: a ring with a triangle. */
+.intro-video-play {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border: 1.5px solid var(--paper);
+  border-radius: 50%;
+  background: rgb(4 58 92 / 0.45);
+  box-shadow: 0 6px 24px rgb(3 40 64 / 0.4);
+  transition: transform 0.4s var(--ease);
+}
+
+.intro-video-cover:hover .intro-video-play {
+  transform: scale(1.08);
+}
+
+.intro-video-play::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 54%;
+  translate: -50% -50%;
+  border-style: solid;
+  border-width: 13px 0 13px 21px;
+  border-color: transparent transparent transparent var(--paper);
+}
+
+.intro-video-caption {
+  margin-top: 14px;
+  font-style: italic;
+  text-align: center;
+}
+
+.part-head {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+.section-title {
+  font-size: clamp(2.6rem, min(6vw, 8svh), 4.6rem);
+  line-height: 1;
+  text-align: center;
+}
+
+.part-intro {
+  max-width: 32rem;
+  font-weight: 500;
+}
+
+.world-part > .fan,
+.world-intro-screen > .fan {
+  margin-top: 4px;
 }
 
 .world {
@@ -386,22 +662,18 @@ html:not(.js) .world + .world {
 .world-head {
   display: grid;
   justify-items: center;
-  gap: 18px;
+  gap: 10px;
   text-align: center;
 }
 
 .world-title {
-  font: 400 clamp(4rem, 11vw, 9rem) / 1 var(--font-script);
-  padding: 0 0.2em 0.3em;
+  font-size: clamp(2.8rem, min(8vw, 11svh), 7rem);
+  line-height: 0.95;
 }
 
 .world-intro {
   max-width: 32rem;
   font-weight: 500;
-}
-
-.world-switch {
-  margin-top: 4px;
 }
 
 /* Card fan, after the reference pin. */
@@ -411,10 +683,33 @@ html:not(.js) .world + .world {
   --rc: 400px;
   --step: 15deg;
   --top: 64px;
+  /* Room under the cards for the dial. */
+  --below: 200px;
   display: grid;
   justify-items: center;
-  gap: 22px;
+  gap: 14px;
   margin-top: 44px;
+}
+
+/* Shorter windows: a smaller fan, so its screen still fits. */
+@media (min-width: 641px) and (max-height: 1150px) {
+  .fan {
+    --cw: 190px;
+    --ch: 259px;
+    --rc: 345px;
+    --top: 54px;
+    --below: 170px;
+  }
+}
+
+@media (min-width: 641px) and (max-height: 960px) {
+  .fan {
+    --cw: 160px;
+    --ch: 218px;
+    --rc: 290px;
+    --top: 46px;
+    --below: 140px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -430,7 +725,7 @@ html:not(.js) .world + .world {
 .fan-stage {
   position: relative;
   width: 100%;
-  height: calc(var(--top) + var(--ch) + 200px);
+  height: calc(var(--top) + var(--ch) + var(--below));
   overflow: hidden;
   touch-action: pan-y;
   cursor: grab;
@@ -466,6 +761,16 @@ html:not(.js) .world + .world {
 
 .fan-card[aria-current] {
   cursor: default;
+}
+
+/* Mid-drag the cards follow the pointer directly. */
+.fan-stage[data-dragging] .fan-card {
+  transition: none;
+}
+
+/* A card wrapping round the loop jumps sides out of sight, then fades in. */
+.fan-card[data-wrap] {
+  transition: opacity 0.6s;
 }
 
 .fan-face {
@@ -529,14 +834,14 @@ html:not(.js) .world + .world {
 }
 
 .fan-face-word {
-  font: 400 clamp(2.1rem, 4.2vw, 3rem) / 1.05 var(--font-script);
+  font: 600 italic clamp(1.6rem, 3.2vw, 2.3rem) / 1.05 var(--font-display);
   text-align: center;
 }
 
 .fan-face-word .ph {
   border: 0;
   color: inherit;
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-size: 0.42em;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -585,7 +890,7 @@ html:not(.js) .world + .world {
 
 .fan-ring text {
   fill: rgb(252 253 253 / 0.85);
-  font: 400 5px var(--font-sans);
+  font: 400 5px var(--font-body);
   letter-spacing: 1.8px;
   text-transform: uppercase;
 }
@@ -653,18 +958,18 @@ html:not(.js) .world + .world {
 .fan-detail {
   display: grid;
   justify-items: center;
-  gap: 12px;
+  gap: 8px;
   width: min(100%, 36rem);
-  padding: 26px 30px 32px;
+  padding: 18px 28px 22px;
   text-align: center;
 }
 
 .fan-title {
-  font: 400 clamp(2.4rem, 5vw, 3.2rem) / 1.1 var(--font-script);
+  font: 700 clamp(1.8rem, 3.4vw, 2.3rem) / 1.1 var(--font-display);
 }
 
 .fan-title .ph {
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-size: 0.4em;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -688,9 +993,26 @@ html:not(.js) .world + .world {
   opacity: 0.8;
 }
 
-/* Recruiter tabs */
+/* Tabs, each set under its own section title */
 .tabs {
-  margin: 80px 0 34px;
+  margin: 10px 0 34px;
+}
+
+/* A tab's region tag, e.g. UK. */
+.tab-region {
+  margin-left: 0.8em;
+  padding: 4px 7px 3px;
+  border: 1px solid rgb(252 253 253 / 0.6);
+  border-radius: 999px;
+  font-size: 0.6rem;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+}
+
+.tabs [role='tab']:focus-visible {
+  outline-offset: 6px;
+  border-radius: 4px;
 }
 
 html.js .tab-panel:not([data-active]) {
@@ -711,7 +1033,7 @@ html:not(.js) .tab-panel + .tab-panel {
 
 .panel-title {
   margin-bottom: 20px;
-  font: 400 2.8rem var(--font-script);
+  font-size: 2.2rem;
   text-align: center;
 }
 
@@ -737,6 +1059,20 @@ html.js .panel-title {
   font-size: 0.68rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+.lead-kind {
+  display: inline-block;
+  margin-right: 0.6em;
+  padding: 2px 8px 1px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  vertical-align: 0.15em;
+  opacity: 0.85;
 }
 
 .bullets {
@@ -834,7 +1170,105 @@ html.js .panel-title {
 
 .job,
 .background {
-  padding: 30px clamp(20px, 4vw, 40px);
+  padding: 24px clamp(20px, 4vw, 36px);
+}
+
+/* The job's text on the left, its screenshot on the right. */
+.job {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.75fr);
+  column-gap: clamp(24px, 4vw, 44px);
+  align-content: start;
+}
+
+.job > * {
+  grid-column: 1;
+}
+
+.job > .job-thumb {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+  /* Centred on the card's text, top to bottom. */
+  align-self: center;
+}
+
+@media (max-width: 760px) {
+  .job {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .job > .job-thumb {
+    grid-column: 1;
+    grid-row: auto;
+    margin-bottom: 22px;
+  }
+}
+
+.job-thumb {
+  display: block;
+  transition: transform 0.4s var(--ease);
+}
+
+a.job-thumb {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Says the screenshot is a link: under it, right-aligned. */
+.job-thumb-go {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5em;
+  margin-top: 12px;
+  color: var(--butter);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+a.job-thumb:hover .job-thumb-go {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+a.job-thumb:hover {
+  transform: translateY(-4px) rotate(-0.6deg);
+}
+
+.job-thumb-img {
+  aspect-ratio: 16 / 10;
+  border: 1px solid rgb(252 253 253 / 0.45);
+  border-radius: 6px;
+  box-shadow: 0 18px 36px rgb(3 40 64 / 0.3);
+}
+
+/* A screenshot or photo, over a painted stand-in. */
+.thumb {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-art {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: linear-gradient(170deg, #fcfdfd 0%, #c9e8f8 55%, #88cef0 100%);
+  color: var(--paint);
+  font: 400 clamp(2.6rem, 5vw, 3.8rem) / 1.1 var(--font-script);
+  text-align: center;
+  text-shadow: none;
 }
 
 .job-head {
@@ -844,7 +1278,7 @@ html.js .panel-title {
 }
 
 .job-org {
-  font: 400 2.8rem/1.05 var(--font-script);
+  font: 700 2.2rem/1.1 var(--font-display);
 }
 
 .job-role,
@@ -877,7 +1311,7 @@ html.js .panel-title {
 }
 
 .background h4 {
-  font: 400 2.6rem var(--font-script);
+  font: 700 2rem/1.15 var(--font-display);
 }
 
 /* Case studies */
@@ -986,6 +1420,90 @@ html.js .panel-title {
   border-bottom: 1px solid rgb(252 253 253 / 0.25);
 }
 
+/* Automations: a long, flat diagram over a tight card body, so all four
+   cards fit on one screen. Phones keep the two-row diagram. */
+.flow-narrow {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .flow-wide {
+    display: none;
+  }
+
+  .flow-narrow {
+    display: block;
+  }
+}
+
+.automations {
+  gap: 16px;
+}
+
+.automations .flow-wide {
+  padding: 8px 6px 4px;
+}
+
+.automations .card-body {
+  gap: 5px;
+  padding: 14px 22px 18px;
+}
+
+.automations .card-title {
+  font-size: 1.9rem;
+}
+
+.automations .card-desc {
+  line-height: 1.55;
+}
+
+/* Big screens: let the section grow, so the cards (and the diagrams, which
+   scale with their width) read at a comfortable size and still fit one screen. */
+@media (min-width: 1600px) {
+  /* Wider than the page column: break out of it, centred. */
+  #automations {
+    position: relative;
+    left: 50%;
+    width: min(1480px, 90vw);
+    translate: -50% 0;
+  }
+
+  #automations .part-intro {
+    max-width: 48rem;
+  }
+
+  .automations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .automations .card-body {
+    gap: 7px;
+    padding: 18px 28px 22px;
+  }
+
+  .automations .card-title {
+    font-size: 2.5rem;
+  }
+
+  .automations .card-scale {
+    font-size: 0.8rem;
+  }
+
+  .automations .card-desc {
+    font-size: 1.1rem;
+  }
+
+  .automations .card-stack {
+    font-size: 0.9rem;
+  }
+
+  .automations .card-go,
+  .automations .card-soon {
+    font-size: 0.8rem;
+  }
+}
+
 .flow-node rect {
   fill: none;
   stroke: rgb(252 253 253 / 0.8);
@@ -993,7 +1511,7 @@ html.js .panel-title {
 
 .flow-node text {
   fill: var(--paper);
-  font: 400 12px var(--font-sans);
+  font: 400 12px var(--font-body);
   letter-spacing: 0.06em;
 }
 
@@ -1030,7 +1548,7 @@ html.js .panel-title {
 }
 
 .card-title {
-  font: 400 2.2rem/1.05 var(--font-script);
+  font: 700 1.6rem/1.15 var(--font-display);
 }
 
 .card-link {
@@ -1106,7 +1624,7 @@ html.js .panel-title {
 
 .toolbox h4 {
   margin-bottom: 6px;
-  font: 400 2.6rem var(--font-script);
+  font: 700 2rem/1.15 var(--font-display);
 }
 
 .toolbox dl > div {
@@ -1129,41 +1647,185 @@ html.js .panel-title {
 }
 
 /* Contact */
-.contact {
-  padding: 10vh var(--gutter) 0;
+/* Contact is a page of its own: the Contact link opens it in place of the
+   main page. Without JavaScript it simply follows the main page. */
+html.js[data-page='contact'] main > :not(#contact),
+html.js:not([data-page='contact']) #contact {
+  display: none;
 }
 
-.contact-inner {
+html.js[data-page='contact'] .contact {
+  min-height: 100svh;
+  align-content: center;
+  padding-top: 120px;
+}
+
+.contact {
+  position: relative;
+  padding: 10vh var(--gutter) 76px;
   display: grid;
   justify-items: center;
-  gap: 20px;
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 48px clamp(20px, 5vw, 56px) 52px;
+  gap: 28px;
   text-align: center;
 }
 
 .contact-title {
-  font: 400 clamp(3.6rem, 8vw, 5.8rem) / 1 var(--font-script);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  line-height: 1;
 }
 
-.contact-open {
-  max-width: 32rem;
-  font-weight: 500;
-}
-
-.email-row {
-  display: flex;
-  flex-wrap: wrap;
+/* The board: a sticky note on the left, a pinned polaroid on the right. */
+.contact-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 12px 18px;
+  gap: clamp(36px, 6vw, 72px);
+  width: min(100%, var(--maxw));
+  padding: 24px clamp(8px, 2vw, 24px);
+  text-align: left;
+}
+
+@media (max-width: 760px) {
+  .contact-board {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .polaroid {
+    order: -1;
+    width: min(78%, 300px);
+    justify-self: center;
+  }
+}
+
+.note-stack,
+.polaroid {
+  position: relative;
+  margin: 0;
+}
+
+.polaroid {
+  justify-self: center;
+  width: min(100%, 340px);
+}
+
+/* The butter note peeking out behind. */
+.note-stack::before {
+  content: '';
+  position: absolute;
+  inset: 18px -14px -16px 22px;
+  background: var(--note-back);
+  rotate: 2.5deg;
+  box-shadow: 0 10px 24px rgb(3 40 64 / 0.25);
+}
+
+.note {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 44px clamp(22px, 4vw, 44px) 40px;
+  background: var(--note);
+  color: var(--note-ink);
+  text-shadow: none;
+  rotate: -1.2deg;
+  box-shadow: 0 16px 34px rgb(3 40 64 / 0.3);
+}
+
+.note-line {
+  line-height: 2.1;
+}
+
+.note-typed {
+  font: 400 1rem var(--font-type);
+  letter-spacing: 0.02em;
+}
+
+/* The answers, on a ruled line. */
+.note-hand,
+.note-fill {
+  padding: 0 0.3em 2px;
+  border-bottom: 1px solid rgb(29 45 92 / 0.45);
+  color: var(--note-hand);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Every answer in the same readable type: the name and role match the rest. */
+.note-hand,
+.note-fill {
+  font-weight: 600;
 }
 
 .email {
-  font-size: clamp(1rem, 2.6vw, 1.4rem);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   overflow-wrap: anywhere;
+}
+
+.note-copy {
+  padding: 4px 12px 2px;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: none;
+  font: 400 0.8rem var(--font-type);
+  cursor: pointer;
+}
+
+.note-copy:hover {
+  background: rgb(29 45 92 / 0.1);
+}
+
+.note-copy:focus-visible {
+  outline-color: var(--note-ink);
+}
+
+/* Placeholders on the white note: ink instead of butter, which would vanish. */
+.note .ph {
+  border-bottom-color: var(--goldfish-deep);
+  color: var(--goldfish-deep);
+}
+
+/* A second frame behind the photo. */
+.polaroid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--polaroid);
+  rotate: -5deg;
+  translate: -10px 8px;
+  box-shadow: 0 10px 24px rgb(3 40 64 / 0.25);
+}
+
+.polaroid-frame {
+  position: relative;
+  padding: 16px 16px 0;
+  background: var(--polaroid);
+  rotate: 2deg;
+  box-shadow: 0 18px 38px rgb(3 40 64 / 0.32);
+}
+
+.polaroid-photo {
+  aspect-ratio: 4 / 5;
+}
+
+.polaroid-caption {
+  padding: 10px 0 14px;
+  color: var(--note-hand);
+  font: 400 2.8rem / 1.1 var(--font-script);
+  text-align: center;
+  text-shadow: none;
+}
+
+/* A silver push pin. */
+.pin {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 12%, #c9ced6 30%, #7d8592 75%, #555c68);
+  box-shadow: 2px 5px 6px rgb(3 30 50 / 0.35);
 }
 
 .contact-links {
@@ -1173,13 +1835,8 @@ html.js .panel-title {
   align-items: center;
   justify-content: center;
   gap: 12px 18px;
-  margin-top: 6px;
-}
-
-.contact-pending {
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  /* Set apart from the board, closer to the foot of the page. */
+  margin-top: 56px;
 }
 
 .toast {
@@ -1197,12 +1854,29 @@ html.js .panel-title {
 }
 
 /* Where the second koi waits. */
+/* The last screen's foot: the koi waits at the lower left, the credits sit
+   centred along the bottom. */
+.screen-foot {
+  position: absolute;
+  inset: auto 0 0;
+  height: 0;
+}
+
 .koi-home {
-  height: 220px;
+  position: absolute;
+  /* Centred, just above the credits. */
+  left: calc(50% - 130px);
+  bottom: 0;
+  width: 260px;
+  height: 150px;
 }
 
 .footer {
-  padding: 0 var(--gutter) 40px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  margin: 0;
   font-size: 0.66rem;
   letter-spacing: var(--track);
   text-align: center;
@@ -1226,6 +1900,16 @@ html.js .panel-title {
   opacity: 1;
 }
 
+/* The watercolour wakes, painted under the two koi. */
+.koi-wake,
+.koi-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
 .koi-mate {
   opacity: 0;
   transition: opacity 0.8s;
@@ -1234,16 +1918,4 @@ html.js .panel-title {
 .koi-mate.is-on,
 .is-met .koi-mate {
   opacity: 1;
-}
-
-.wake-ink {
-  fill: rgb(252 253 253 / 0.45);
-}
-
-.wake-core {
-  fill: rgb(247 80 62 / 0.8);
-}
-
-.wake-gold {
-  fill: rgb(251 231 161 / 0.9);
 }

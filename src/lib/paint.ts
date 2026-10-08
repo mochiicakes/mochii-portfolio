@@ -1,24 +1,23 @@
-// Watercolour calligraphy on paper.
+// The watercolour background, and the brush-mark helpers shared with the
+// paper reveal (lib/paper.ts) and the koi wakes (lib/wake.ts).
 //
-// The page starts as bare paper with its text printed in the paper's colour.
-// Painting lays wet blue washes behind the text and the words appear.
+// The background is painted in full, at once, before anyone sees it: broad
+// calligraphic washes in three layers. It sits under the white paper, and the
+// visitor's brush only ever wears holes in the paper, so their strokes are
+// never part of the background itself.
 //
-// How a stroke becomes watercolour:
-//   1. While the brush moves, the stroke is drawn as one solid shape on a "wet"
-//      layer. Its width follows a calligraphy nib: thick across the nib angle,
-//      thin along it, thinner when fast, tapered at the start.
-//   2. When the brush pauses (or the stroke gets long), the wet layer dries into
-//      the paint layer:
+// How a wash becomes watercolour:
+//   1. The wash is drawn as one solid shape on an offscreen "wet" layer. Its
+//      width follows a calligraphy nib: thick across the nib angle, thin along it.
+//   2. The wet layer then dries into the background:
 //        - granulation: the shape is mottled with a pigment-grain mask
 //        - the body is laid down softly blurred and translucent, with `multiply`,
 //          so overlapping washes deepen like real layers
 //        - a darker rim is drawn just inside the edge, where pigment collects
 //          as a wash dries
 //        - now and then a bloom: a pale centre with a dark tide line
-// A coverage grid decides when enough is painted; then `fill()` lays broad
-// calligraphic washes over the rest.
 
-type RGB = readonly [number, number, number]
+export type RGB = readonly [number, number, number]
 
 /** Pigments sampled from the water references, weighted by how often they load. */
 const PIGMENTS: { rgb: RGB; weight: number }[] = [
@@ -27,13 +26,11 @@ const PIGMENTS: { rgb: RGB; weight: number }[] = [
   { rgb: [118, 155, 200], weight: 2 }, // lavender blue
   { rgb: [39, 115, 151], weight: 1.4 }, // deep teal, the darkest pools
   { rgb: [181, 218, 227], weight: 0.8 }, // pale aqua
-  { rgb: [188, 172, 217], weight: 0.4 }, // iridescent lilac
-  { rgb: [229, 194, 236], weight: 0.2 }, // iridescent pink
+  // No lilac or pink: a stroke that drew them left a pink band across the blue.
 ]
 
-const COLS = 24
-const ROWS = 14
-const NIB = (-38 * Math.PI) / 180
+/** The broad nib's angle, shared with the paper brush. */
+export const NIB = (-38 * Math.PI) / 180
 
 function pick(): RGB {
   const total = PIGMENTS.reduce((s, p) => s + p.weight, 0)
@@ -45,25 +42,107 @@ function pick(): RGB {
   return PIGMENTS[0].rgb
 }
 
+/** A tile of pigment grain: mostly solid, with soft lighter flecks. Used as a `destination-in` mask. */
+export function grainTile(size = 160) {
+  const g = document.createElement('canvas')
+  g.width = g.height = size
+  const ctx = g.getContext('2d')
+  if (!ctx) return g
+  ctx.fillStyle = 'rgba(0,0,0,0.72)'
+  ctx.fillRect(0, 0, size, size)
+  const flecks = Math.round(1400 * (size / 160) ** 2)
+  for (let i = 0; i < flecks; i++) {
+    ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.3})`
+    const r = 0.5 + Math.random() * 2.5
+    ctx.beginPath()
+    ctx.arc(Math.random() * size, Math.random() * size, r, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  return g
+}
+
+/** Traces an irregular, cauliflower-edged outline around (cx, cy) as the current path. */
+export function blobPath(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
+  const k1 = 3 + Math.floor(Math.random() * 4)
+  const k2 = 7 + Math.floor(Math.random() * 6)
+  const p1 = Math.random() * 6
+  const p2 = Math.random() * 6
+  ctx.beginPath()
+  for (let i = 0; i <= 48; i++) {
+    const a = (i / 48) * Math.PI * 2
+    const rr = r * (1 + 0.16 * Math.sin(k1 * a + p1) + 0.07 * Math.sin(k2 * a + p2) + (Math.random() - 0.5) * 0.04)
+    const x = cx + Math.cos(a) * rr
+    const y = cy + Math.sin(a) * rr
+    if (i === 0) ctx.moveTo(x, y)
+    else ctx.lineTo(x, y)
+  }
+  ctx.closePath()
+}
+
+const grains = new Map<number, HTMLCanvasElement>()
+
+/**
+ * One watercolour brush mark on a square canvas of `size` px: an irregular
+ * blob mottled with grain, with a darker rim just inside its edge and a
+ * slightly bled outline. The blob fills about 72% of the canvas.
+ */
+export function washSprite(body: RGB, rim: RGB, bodyAlpha: number, rimAlpha: number, size = 96) {
+  const make = () => {
+    const c = document.createElement('canvas')
+    c.width = c.height = size
+    return c
+  }
+  const c = make()
+  const shape = make()
+  const edge = make()
+  const ctx = c.getContext('2d')
+  const sctx = shape.getContext('2d')
+  const ectx = edge.getContext('2d')
+  if (!ctx || !sctx || !ectx) return c
+  const mid = size / 2
+
+  // The shape, mottled with grain.
+  sctx.fillStyle = `rgb(${body.join(',')})`
+  blobPath(sctx, mid, mid, size * 0.36)
+  sctx.fill()
+  let grain = grains.get(size)
+  if (!grain) grains.set(size, (grain = grainTile(size)))
+  sctx.globalCompositeOperation = 'destination-in'
+  sctx.drawImage(grain, 0, 0)
+
+  // The rim: the shape minus a blurred copy of itself, in the rim colour.
+  const k = size / 96
+  ectx.drawImage(shape, 0, 0)
+  ectx.globalCompositeOperation = 'destination-out'
+  ectx.filter = `blur(${5 * k}px)`
+  ectx.drawImage(shape, 0, 0)
+  ectx.filter = 'none'
+  ectx.globalCompositeOperation = 'source-in'
+  ectx.fillStyle = `rgb(${rim.join(',')})`
+  ectx.fillRect(0, 0, size, size)
+
+  // Body with a slightly bled edge, then the rim over it.
+  ctx.filter = `blur(${1.5 * k}px)`
+  ctx.globalAlpha = bodyAlpha
+  ctx.drawImage(shape, 0, 0)
+  ctx.filter = `blur(${0.6 * k}px)`
+  ctx.globalAlpha = rimAlpha
+  ctx.drawImage(edge, 0, 0)
+  return c
+}
+
 type Pt = { x: number; y: number; w: number }
 type Box = { x0: number; y0: number; x1: number; y1: number }
 
-type Options = {
-  onProgress?: (share: number) => void
-  onThreshold?: () => void
-  threshold?: number
-}
-
+/** Paints the full watercolour background onto `paint`, and repaints it on resize. */
 export class WatercolorGround {
   private paint: HTMLCanvasElement
   private pctx: CanvasRenderingContext2D
-  private wet: HTMLCanvasElement
+  private wet = document.createElement('canvas')
   private wctx: CanvasRenderingContext2D
   private rim = document.createElement('canvas')
   private rctx: CanvasRenderingContext2D
   private grain: CanvasPattern | null = null
-  private opts: Options
-  private threshold: number
   private dpr = 1
   private w = 0
   private h = 0
@@ -71,59 +150,42 @@ export class WatercolorGround {
   private stroke: Pt[] = []
   private smooth: { x: number; y: number; w: number; t: number } | null = null
   private box: Box | null = null
-  private length = 0
-  /** Points since this stroke began, for the tapered start. */
+  /** Points since this wash began, for the tapered start. */
   private age = 0
-  private lastMove = 0
-  private dryTimer = 0
-  private cells = new Uint8Array(COLS * ROWS)
-  private painted = 0
-  private listening = false
-  private filled = false
-  private raf = 0
   private teardown: () => void
 
-  constructor(paint: HTMLCanvasElement, wet: HTMLCanvasElement, opts: Options = {}) {
+  constructor(paint: HTMLCanvasElement) {
     const pctx = paint.getContext('2d')
-    const wctx = wet.getContext('2d')
+    const wctx = this.wet.getContext('2d')
     const rctx = this.rim.getContext('2d')
     if (!pctx || !wctx || !rctx) throw new Error('Canvas 2D is not available')
     this.paint = paint
     this.pctx = pctx
-    this.wet = wet
     this.wctx = wctx
     this.rctx = rctx
-    this.opts = opts
-    this.threshold = opts.threshold ?? 0.32
-    this.size()
-    this.makeGrain()
+    this.grain = wctx.createPattern(grainTile(), 'repeat')
 
-    const onMove = (e: PointerEvent) => this.move(e)
-    const onUp = () => this.dry()
+    let lastW = window.innerWidth
     const onResize = () => {
-      this.size()
-      if (this.filled) this.fillNow()
+      // Phones resize the viewport height as their toolbars slide; only a
+      // real change of width is worth repainting for.
+      if (window.innerWidth === lastW && window.innerHeight <= this.h) return
+      lastW = window.innerWidth
+      this.paintAll()
     }
-    window.addEventListener('pointermove', onMove, { passive: true })
-    window.addEventListener('pointerdown', onMove, { passive: true })
-    window.addEventListener('pointerup', onUp, { passive: true })
     window.addEventListener('resize', onResize)
-    this.teardown = () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerdown', onMove)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('resize', onResize)
-      window.clearTimeout(this.dryTimer)
-    }
+    this.teardown = () => window.removeEventListener('resize', onResize)
+    this.paintAll()
   }
 
   destroy() {
-    cancelAnimationFrame(this.raf)
     this.teardown()
   }
 
-  listen() {
-    this.listening = true
+  /** The whole background, painted at once. */
+  paintAll() {
+    this.size()
+    this.plan().forEach((r, i) => this.wash(r.y, i % 2 === 0, r.scale, r.color, r.strength))
   }
 
   private size() {
@@ -137,48 +199,8 @@ export class WatercolorGround {
     for (const ctx of [this.pctx, this.wctx, this.rctx]) ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
   }
 
-  /** A tile of pigment grain: mostly solid, with soft lighter flecks. */
-  private makeGrain() {
-    const g = document.createElement('canvas')
-    g.width = g.height = 160
-    const ctx = g.getContext('2d')
-    if (!ctx) return
-    ctx.fillStyle = 'rgba(0,0,0,0.72)'
-    ctx.fillRect(0, 0, 160, 160)
-    for (let i = 0; i < 1400; i++) {
-      ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.3})`
-      const r = 0.5 + Math.random() * 2.5
-      ctx.beginPath()
-      ctx.arc(Math.random() * 160, Math.random() * 160, r, 0, Math.PI * 2)
-      ctx.fill()
-    }
-    this.grain = this.wctx.createPattern(g, 'repeat')
-  }
-
   private brush() {
     return Math.max(70, Math.min(this.w, this.h) * 0.16)
-  }
-
-  private move(e: PointerEvent) {
-    if (!this.listening || this.filled) return
-    if (e.pointerType !== 'mouse' && e.buttons === 0) return
-    const now = performance.now()
-    // A real pause in the brush (not a slow frame) ends the stroke.
-    if (this.lastMove && now - this.lastMove > 450) this.dry()
-    this.lastMove = now
-    this.addPoint(e.clientX, e.clientY, now)
-    window.clearTimeout(this.dryTimer)
-    this.dryTimer = window.setTimeout(() => this.dry(), 500)
-    // A very long unbroken stroke dries in place and carries on.
-    if (this.length > 2400) this.dry(true)
-
-    const share = this.painted / this.cells.length
-    this.opts.onProgress?.(Math.min(1, share / this.threshold))
-    if (share >= this.threshold) {
-      this.listening = false
-      this.dry()
-      this.opts.onThreshold?.()
-    }
   }
 
   /** Feed one brush position; draws the wet shape between it and the last. */
@@ -208,7 +230,6 @@ export class WatercolorGround {
     const p = { x: nx, y: ny, w }
     const prev = this.stroke.at(-1) ?? { x: s.x, y: s.y, w: s.w }
     this.stroke.push(p)
-    this.length += dist
     this.segment(prev, p)
   }
 
@@ -243,11 +264,10 @@ export class WatercolorGround {
           y1: Math.max(this.box.y1, b.y + r),
         }
       : { x0: b.x - r, y0: b.y - r, x1: b.x + r, y1: b.y + r }
-    this.mark(b.x, b.y, Math.max(b.w * 0.6, this.brush() * 0.35))
   }
 
-  /** Let the wet stroke dry into the paint. `keepGoing` continues the same stroke. */
-  private dry(keepGoing = false, strength = 1) {
+  /** Let the wet wash dry into the background. */
+  private dry(strength = 1) {
     const box = this.box
     if (box) {
       const pad = 24
@@ -258,16 +278,9 @@ export class WatercolorGround {
       if (w > 0 && h > 0) this.bake(x, y, w, h, strength)
     }
     this.box = null
-    this.length = 0
-    const last = this.stroke.at(-1)
     this.stroke = []
-    if (keepGoing && last) {
-      this.stroke.push(last)
-    } else {
-      this.smooth = null
-      this.age = 0
-      this.color = pick()
-    }
+    this.smooth = null
+    this.age = 0
   }
 
   private bake(x: number, y: number, w: number, h: number, strength: number) {
@@ -319,25 +332,6 @@ export class WatercolorGround {
     wctx.restore()
   }
 
-  /** An irregular, cauliflower-edged outline around (cx, cy). */
-  private blob(cx: number, cy: number, r: number) {
-    const { pctx } = this
-    const k1 = 3 + Math.floor(Math.random() * 4)
-    const k2 = 7 + Math.floor(Math.random() * 6)
-    const p1 = Math.random() * 6
-    const p2 = Math.random() * 6
-    pctx.beginPath()
-    for (let i = 0; i <= 48; i++) {
-      const a = (i / 48) * Math.PI * 2
-      const rr = r * (1 + 0.16 * Math.sin(k1 * a + p1) + 0.07 * Math.sin(k2 * a + p2) + (Math.random() - 0.5) * 0.04)
-      const x = cx + Math.cos(a) * rr
-      const y = cy + Math.sin(a) * rr
-      if (i === 0) pctx.moveTo(x, y)
-      else pctx.lineTo(x, y)
-    }
-    pctx.closePath()
-  }
-
   /** Water dropped into a drying wash: a paler centre and a ragged tide line. */
   private bloom(x: number, y: number, w: number, h: number) {
     const { pctx, dpr } = this
@@ -350,13 +344,13 @@ export class WatercolorGround {
     pctx.filter = `blur(${3 * dpr}px)`
     pctx.globalCompositeOperation = 'destination-out'
     pctx.fillStyle = 'rgba(0,0,0,0.2)'
-    this.blob(bx, by, r)
+    blobPath(pctx, bx, by, r)
     pctx.fill()
     pctx.filter = `blur(${0.9 * dpr}px)`
     pctx.globalCompositeOperation = 'multiply'
     pctx.strokeStyle = `rgba(${R},${G},${B},0.38)`
     pctx.lineWidth = 2.2
-    this.blob(bx, by, r * 1.02)
+    blobPath(pctx, bx, by, r * 1.02)
     pctx.stroke()
     pctx.restore()
   }
@@ -376,7 +370,7 @@ export class WatercolorGround {
       // Space points evenly in time so width comes from the nib, not speed.
       this.addPoint(x, y + Math.sin(f * 5 + phase) * amp, i * 60, widthScale)
     }
-    this.dry(false, strength)
+    this.dry(strength)
   }
 
   private plan() {
@@ -399,51 +393,5 @@ export class WatercolorGround {
       }
     }
     return rows
-  }
-
-  fill(ms: number): Promise<void> {
-    this.listening = false
-    this.filled = true
-    const rows = this.plan()
-    return new Promise((resolve) => {
-      const start = performance.now()
-      let done = 0
-      const tick = (now: number) => {
-        const due = Math.min(rows.length, Math.ceil(((now - start) / ms) * rows.length))
-        while (done < due) {
-          const r = rows.at(done)!
-          this.wash(r.y, done % 2 === 0, r.scale, r.color, r.strength)
-          done++
-        }
-        if (done < rows.length) this.raf = requestAnimationFrame(tick)
-        else resolve()
-      }
-      this.raf = requestAnimationFrame(tick)
-    })
-  }
-
-  fillNow() {
-    this.listening = false
-    this.filled = true
-    this.plan().forEach((r, i) => this.wash(r.y, i % 2 === 0, r.scale, r.color, r.strength))
-  }
-
-  private mark(x: number, y: number, r: number) {
-    const cw = this.w / COLS
-    const ch = this.h / ROWS
-    const c0 = Math.max(0, Math.floor((x - r) / cw))
-    const c1 = Math.min(COLS - 1, Math.floor((x + r) / cw))
-    const r0 = Math.max(0, Math.floor((y - r) / ch))
-    const r1 = Math.min(ROWS - 1, Math.floor((y + r) / ch))
-    for (let row = r0; row <= r1; row++) {
-      for (let col = c0; col <= c1; col++) {
-        const k = row * COLS + col
-        if (this.cells[k]) continue
-        if (Math.hypot((col + 0.5) * cw - x, (row + 0.5) * ch - y) <= r) {
-          this.cells[k] = 1
-          this.painted++
-        }
-      }
-    }
   }
 }
