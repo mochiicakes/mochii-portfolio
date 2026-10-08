@@ -154,6 +154,22 @@ html.js:not(.revealed) .topbar {
   opacity: 0;
 }
 
+/* Scrolled: a band of deep water behind the bar, fading out downwards. */
+.topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -18px;
+  z-index: -1;
+  background: linear-gradient(rgb(22 92 148) 0%, rgb(22 92 148) 70%, rgb(22 92 148 / 0));
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+
+.topbar[data-scrolled]::before {
+  opacity: 1;
+}
+
 .topbar-mark {
   font-size: 1.9rem;
   line-height: 1;
@@ -238,13 +254,34 @@ html.js:not(.revealed) .topbar {
   clip-path: inset(0 0 0 0);
 }
 
+/* Phones: everything in one row, Contact included. */
 @media (max-width: 520px) {
-  .topbar-link {
-    display: none;
+  .topbar {
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 12px;
+  }
+
+  .topbar-mark {
+    font-size: 1.5rem;
+  }
+
+  .topbar-end {
+    gap: 14px;
   }
 
   .topbar-end .mode-switch {
-    gap: 4px 16px;
+    flex-wrap: nowrap;
+    gap: 14px;
+  }
+
+  .topbar-link,
+  .topbar-end .mode-switch button {
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+  }
+
+  .topbar-link::after,
+  .topbar-end .mode-switch button::after {
+    right: -6%;
   }
 }
 
@@ -346,6 +383,30 @@ html.js:not(.revealed) .topbar {
 .hero-block-name {
   margin-bottom: 6px;
   font: 700 1.15rem var(--font-display);
+}
+
+/* Phones and tablets: the name and summary block is left out (the name is
+   already the title), so the buttons sit right under the tagline. */
+@media (max-width: 1099px) {
+  .hero-bl {
+    display: none;
+  }
+}
+
+/* Phones: a shorter portrait, so the buttons show on the first screen. */
+@media (max-width: 520px) {
+  .hero {
+    gap: 12px;
+    padding-top: 84px;
+  }
+
+  .hero-portrait {
+    height: min(48svh, 440px);
+  }
+
+  .hero-br {
+    padding-bottom: 28px;
+  }
 }
 
 .hero-br {
@@ -524,6 +585,15 @@ html.js:not(.revealed) .topbar {
   height: 48px;
   margin: 0;
   translate: -50% 0;
+}
+
+/* Phones scroll by touch, not a turn per screen, so each topic takes only the
+   height it needs instead of a full screen of empty space. */
+@media (max-width: 760px) {
+  .screen {
+    min-height: 0;
+    padding: 64px 0 84px;
+  }
 }
 
 html.js[data-mode='recruiter'] .world[data-world='casual'],
@@ -1918,4 +1988,17 @@ html.js[data-page='contact'] .contact {
 .koi-mate.is-on,
 .is-met .koi-mate {
   opacity: 1;
+}
+
+/* Touch screens: the full-window paper-fibre overlay (a multiply blend) and the
+   blur on the painted ground are costly to composite while scrolling on a
+   phone, and barely show at phone size. */
+@media (pointer: coarse) {
+  body::after {
+    display: none;
+  }
+
+  .ground {
+    filter: none;
+  }
 }

@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  /* Nothing may push the page sideways (it shows as a white strip on phones). */
+  overflow-x: clip;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -25,6 +31,13 @@ body {
 html.js:not(.revealed) body,
 html.js body:has(.ground[data-ready]) {
   background: var(--paper);
+}
+
+/* Once revealed, anything the paint does not reach (a phone's overscroll, the
+   strip a sliding toolbar uncovers) shows blue, not white paper. */
+html.js.revealed,
+html.js.revealed body:has(.ground[data-ready]) {
+  background: var(--paint);
 }
 
 html.js:not(.revealed),
