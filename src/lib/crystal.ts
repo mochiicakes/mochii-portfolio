@@ -110,9 +110,11 @@ void main(){
   gl_FragColor = vec4(min(col, 1.0), 1.0);
 }`
 
-const SCALE = 0.5
-/** The light moves slowly; 30 fps looks the same as 60 and halves the GPU work. */
-const FRAME_MS = 1000 / 30
+/** Phones and tablets: draw the light coarser and less often, to keep scrolling smooth. */
+const TOUCH = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+const SCALE = TOUCH ? 0.35 : 0.5
+/** The light moves slowly; 30 fps looks the same as 60 and halves the GPU work (20 on touch screens). */
+const FRAME_MS = 1000 / (TOUCH ? 20 : 30)
 
 export class Crystal {
   private gl: WebGLRenderingContext
@@ -187,8 +189,16 @@ export class Crystal {
   }
 
   private resize() {
-    this.canvas.width = Math.max(1, Math.round(window.innerWidth * SCALE))
-    this.canvas.height = Math.max(1, Math.round(window.innerHeight * SCALE))
+    const w = Math.max(1, Math.round(window.innerWidth * SCALE))
+    const h = Math.max(1, Math.round(window.innerHeight * SCALE))
+    // Phones resize the height as their toolbars slide while scrolling.
+    // Resizing a WebGL canvas reallocates it, which stutters, so only grow
+    // for that; a real change of width rebuilds.
+    const sameWidth = w === this.canvas.width
+    if (sameWidth && h <= this.canvas.height) return
+    const height = sameWidth ? Math.max(h, this.canvas.height) : h
+    this.canvas.width = w
+    this.canvas.height = height
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height)
     if (this.still || !this.running) this.draw(this.still ? 12 : this.now())
   }
