@@ -14,6 +14,29 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-padding-top: 96px;
+  /* The scrollbar in the page's own water: an ice-blue thumb on deep water. */
+  scrollbar-color: rgb(181 218 227 / 0.75) rgb(22 92 148);
+  scrollbar-width: thin;
+}
+
+/* Browsers without scrollbar-color (older Safari). */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(22 92 148);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid rgb(22 92 148);
+  border-radius: 999px;
+  background: rgb(181 218 227 / 0.75);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--paper);
 }
 
 body {
