@@ -225,6 +225,13 @@ html:not(.js) .needs-js {
   background: rgb(252 253 253 / 0.2);
 }
 
+/* The frame is the button: keyboard focus fills it instead of drawing a
+   second frame around it. */
+.btn:focus-visible {
+  outline: none;
+  background: rgb(252 253 253 / 0.2);
+}
+
 /* A link still to come: the same frame, dashed and inert. */
 .btn-pending {
   border-style: dashed;

@@ -654,8 +654,7 @@ export const content: Content = {
       {
         slug: 'shoutcasting',
         title: 'On the mic',
-        when: '2021 to now',
-        detail: 'Hosted and cast 80+ live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS.',
+        detail: 'Since 2021, I have hosted and cast 80+ live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS.',
         image: '/casual/shoutcasting.webp',
       },
       { slug: 'gaming', title: 'Video games', detail: 'When work gets stressful, I play League of Legends and Valorant to get even more stressed :D', image: '/casual/gaming.webp' },
@@ -733,14 +732,14 @@ export const content: Content = {
   // Live from Spotify; setup in README (Recently played).
   recentlyPlayed: {
     title: 'Recently played',
-    intro: 'What has been on repeat lately, live from my Spotify. Hover or tap play to hear a bit; click to open it.',
+    intro: 'What has been on repeat lately, live from my Spotify. Press play to listen through, or hover a song to hear a bit. Open any of them on Spotify.',
     ago: { now: 'Just now', minutes: '{n} min ago', hours: '{n} h ago', days: '{n} d ago' },
-    play: 'Play preview',
-    pause: 'Pause preview',
+    play: 'Listen from here',
+    pause: 'Stop listening',
+    open: 'Open in Spotify',
     noPreview: 'No preview',
     soundHint: 'Click anywhere once to turn the sound on.',
     empty: 'Nothing to show right now. Check back soon.',
-    credit: { label: 'Listening data from Spotify', href: 'https://open.spotify.com' },
   },
 
   footer: `© ${new Date().getFullYear()} Michaella Gonzales`,

@@ -210,12 +210,14 @@ export type Content = {
     intro: string
     /** "{n} min ago" style labels; {n} is replaced. */
     ago: { now: string; minutes: string; hours: string; days: string }
+    /** Starts listening through from that song. */
     play: string
     pause: string
+    /** The link to the song on Spotify, on touch screens. */
+    open: string
     noPreview: string
     soundHint: string
     empty: string
-    credit: { label: string; href: string }
   }
   footer: string
 }
