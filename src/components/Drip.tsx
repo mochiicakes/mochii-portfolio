@@ -10,6 +10,17 @@ const { width: W, height: H } = content.hero.portrait
 // How far out the cards sit from the portrait's sides, in % of its width (matches --drip-out in page.css).
 const OUT = 62
 
+/** Phones and tablets, where the cards are tickets in an endless row. */
+const narrow = {
+  subscribe(cb: () => void) {
+    const mq = window.matchMedia('(max-width: 1099px)')
+    mq.addEventListener('change', cb)
+    return () => mq.removeEventListener('change', cb)
+  },
+  get: () => window.matchMedia('(max-width: 1099px)').matches,
+  getServer: () => false,
+}
+
 /** The "Cop my drip?" button, under Get in touch. Casual mode only (CSS). */
 export function DripToggle({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   return (
@@ -27,13 +38,37 @@ export function DripToggle({ open, onToggle }: { open: boolean; onToggle: () => 
 
 /**
  * What she's wearing in the portrait. On the wide cover, a line runs from each
- * piece out to a card beside her, like a fashion spread; on phones the cards
- * sit in a row you swipe through, under the buttons. Each card links to where to buy the piece.
- * Closes on Escape, and when the page leaves casual mode.
+ * piece out to a card beside her, like a fashion spread. On phones and
+ * tablets the cards are 4:3 tickets in a row under the buttons that you can
+ * swipe through endlessly: three copies sit side by side, and nearing either
+ * end quietly moves you back to the middle one. Each card links to where to
+ * buy the piece. Closes on Escape, and when the page leaves casual mode.
  */
 export function Drip({ open, onClose }: { open: boolean; onClose: () => void }) {
   const mode = useSyncExternalStore(modeStore.subscribe, modeStore.get, modeStore.getServer)
   const ref = useRef<HTMLDivElement>(null)
+  const row = useRef<HTMLUListElement>(null)
+  const small = useSyncExternalStore(narrow.subscribe, narrow.get, narrow.getServer)
+  const loop = open && small
+  const copies = loop ? 3 : 1
+
+  // The width of one copy of the tickets, gaps included.
+  const span = () => {
+    const items = row.current?.children
+    const n = d.items.length
+    return items && items.length > n ? (items[n] as HTMLElement).offsetLeft - (items[0] as HTMLElement).offsetLeft : 0
+  }
+  // Start on the middle copy, so there are tickets to swipe to either way.
+  useLayoutEffect(() => {
+    if (loop && row.current) row.current.scrollLeft = span()
+  }, [loop])
+  const wrapRow = () => {
+    const el = row.current
+    const s = span()
+    if (!el || !s) return
+    if (el.scrollLeft < s * 0.5) el.scrollLeft += s
+    else if (el.scrollLeft > s * 1.5) el.scrollLeft -= s
+  }
   // Where the `fit` cards go on the wide cover, in % of the portrait's height:
   // the middle of the space above the name (under the top bar) and below it
   // (above the buttons).
@@ -97,44 +132,50 @@ export function Drip({ open, onClose }: { open: boolean; onClose: () => void }) 
           style={{ '--x': `${it.dot.x}%`, '--y': `${it.dot.y}%`, '--i': i } as CSSProperties}
         />
       ))}
-      <ul className="drip-cards" aria-label={d.heading}>
-        {d.items.map((it, i) => {
-          // One card, two looks: a slim row beside the portrait on the wide
-          // cover, a spec card (name, photo, then from / get it) on phones.
-          const inner = (
-            <>
-              <span className="drip-head">
-                <span className="drip-name">{it.name}</span>
-              </span>
-              <Thumb src={it.thumb} alt="" label={it.kind} className="drip-thumb" />
-              <span className="drip-foot">
-                <span className="drip-from">
-                  <i>{d.labels.from}</i>
-                  <b>{it.where}</b>
+      <ul ref={row} className="drip-cards" aria-label={d.heading} onScroll={loop ? wrapRow : undefined}>
+        {Array.from({ length: copies }, (_, c) => c).flatMap((c) =>
+          d.items.map((it, i) => {
+            // The copies either side of the middle are only there to scroll into.
+            const echo = copies > 1 && c !== 1
+            // One card, two looks: a slim row beside the portrait on the wide
+            // cover, a ticket (photo stub, then the name and from / get it) on phones.
+            const inner = (
+              <>
+                <span className="drip-head">
+                  <span className="drip-name">{it.name}</span>
                 </span>
-                <span className="drip-get">
-                  <i>{d.labels.get}</i>
-                  <b>{it.href ? `${d.labels.shop} ↗` : d.labels.none}</b>
+                <Thumb src={it.thumb} alt="" label={it.kind} className="drip-thumb" />
+                <span className="drip-foot">
+                  <span className="drip-from">
+                    <i>{d.labels.from}</i>
+                    <b>{it.where}</b>
+                  </span>
+                  <span className="drip-get">
+                    <i>{d.labels.get}</i>
+                    <b>{it.href ? `${d.labels.shop} ↗` : d.labels.none}</b>
+                  </span>
                 </span>
-              </span>
-            </>
-          )
-          return (
-            <li
-              key={it.id}
-              className={`drip-card drip-${it.card.side}`}
-              style={{ '--y': `${cardY(it)}%`, '--i': i } as CSSProperties}
-            >
-              {it.href ? (
-                <ExternalLink href={it.href} className="drip-link">
-                  {inner}
-                </ExternalLink>
-              ) : (
-                <div className="drip-link">{inner}</div>
-              )}
-            </li>
-          )
-        })}
+              </>
+            )
+            return (
+              <li
+                key={`${c}-${it.id}`}
+                className={`drip-card drip-${it.card.side}`}
+                style={{ '--y': `${cardY(it)}%`, '--i': i } as CSSProperties}
+                aria-hidden={echo || undefined}
+                inert={echo}
+              >
+                {it.href ? (
+                  <ExternalLink href={it.href} className="drip-link">
+                    {inner}
+                  </ExternalLink>
+                ) : (
+                  <div className="drip-link">{inner}</div>
+                )}
+              </li>
+            )
+          })
+        )}
       </ul>
     </div>
   )
