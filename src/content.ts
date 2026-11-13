@@ -455,13 +455,14 @@ export const content: Content = {
       thumbnail: '/projects/yours-db.webp',
     },
     {
-      slug: 'photo-bot',
-      title: 'Photo Bot',
+      slug: 'tsuki-cam',
+      title: 'Tsuki Cam',
       status: 'Live',
-      description: 'A virtual photobooth. Take photos with your webcam, add digital effects, and save them.',
+      description:
+        'A moonlit photobooth that runs entirely in your browser, with no server by design, so your photos stay on your device. Take a photo or upload one, light your face with a coloured screen light, frame it at 3:4, 1:1 or 4:3, then add filters, skin smoothing and brightening, with pose ideas to try.',
       stack: ['React', 'Tailwind', 'Framer Motion', 'react-webcam', 'html-to-image'],
       href: 'https://photo-bot-kappa.vercel.app',
-      thumbnail: '/projects/photo-bot.webp',
+      thumbnail: '/projects/tsuki-cam.webp',
     },
     {
       slug: 'tomorrow',

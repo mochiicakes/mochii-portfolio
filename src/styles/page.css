@@ -141,16 +141,22 @@ html.revealed .prompt {
 .topbar {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 50;
+  /* Above the koi (60) and the lily pads (61). */
+  z-index: 62;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: calc(26px + env(safe-area-inset-top, 0px)) var(--gutter) 22px;
+  text-shadow: var(--bleed);
   transition: opacity 0.8s 0.6s;
 }
 
-html.js:not(.revealed) .topbar {
+/* Outside #page, so it is not made inert before the reveal: hidden instead, so
+   its links cannot be clicked or focused over the paper. */
+html.js:not(.revealed) .topbar,
+html.js:not(.revealed) .skip-link {
+  visibility: hidden;
   opacity: 0;
 }
 
@@ -1985,9 +1991,239 @@ html.js[data-page='contact'] .contact {
   transition: opacity 0.8s;
 }
 
-.koi-mate.is-on,
-.is-met .koi-mate {
-  opacity: 1;
+/* Lily pads: big pads floating down both sides, in the room beside the content
+   column. The layer is as tall as the page, so the pads scroll with it, and
+   sits above the koi (z 60), so the koi swim under the pads but over the
+   content. The top bar (z 62, outside #page) sits above both. Pads start
+   below the cover, whose corner text reaches the window's edges. */
+body {
+  position: relative;
+}
+
+.lily-pads {
+  /* The room beside the content column: 0 on a laptop-narrow window. */
+  --room: max(0px, (100vw - var(--maxw)) / 2 - var(--gutter));
+  position: absolute;
+  inset: 0;
+  z-index: 61;
+  overflow: clip;
+  pointer-events: none;
+  transition: opacity 1.2s 0.4s;
+}
+
+/* Not on the white paper before the reveal. */
+html.js:not(.revealed) .lily-pads {
+  opacity: 0;
+  transition: none;
+}
+
+.lily {
+  --s: min(var(--size), 46vw);
+  /* How much of the pad shows past the window's edge: most of it where there
+     is room, a sliver on a laptop. Never more than the room plus a little of
+     the gutter, so a pad never reaches the content. */
+  --show: min(var(--s) * 0.8, var(--room) + 24px);
+  position: absolute;
+  top: max(100svh + 40px, var(--at));
+  width: var(--s);
+  height: var(--s);
+}
+
+/* Beside Automations, which breaks out to min(1480px, 90vw) on big screens:
+   keep clear of that wider edge instead, allowing for the drift. */
+@media (min-width: 1600px) {
+  .lily-wide {
+    --show: min(var(--s) * 0.8, max(0px, (100vw - min(1480px, 90vw)) / 2 - 24px));
+  }
+}
+
+.lily-left {
+  --dir: 1;
+  left: calc(var(--show) - var(--s));
+}
+
+.lily-right {
+  --dir: -1;
+  right: calc(var(--show) - var(--s));
+}
+
+.lily-float,
+.lily-shadow,
+.lily-ripple {
+  position: absolute;
+  inset: 0;
+}
+
+/* The pad drifts on its own clock, carrying its lotus flowers; the pad alone
+   sways and turns, so the flowers stay on the side that shows. */
+.lily-float {
+  animation: lily-drift var(--drift) ease-in-out var(--delay) infinite alternate;
+  will-change: transform;
+}
+
+.lily img {
+  max-width: none;
+  user-select: none;
+}
+
+.lily-pad {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: lily-sway calc(var(--drift) * 0.8) ease-in-out var(--delay) infinite alternate;
+  will-change: transform;
+}
+
+/* Lotus flowers: placed from the pad's inner edge (see Lotus in LilyPads.tsx). */
+.lily-lotus {
+  position: absolute;
+  top: calc(var(--y) * 100%);
+  width: calc(var(--f) * 100%);
+  animation: lily-bob 6s ease-in-out var(--lag) infinite alternate;
+}
+
+.lily-left .lily-lotus {
+  right: calc(var(--x) * 100%);
+}
+
+.lily-right .lily-lotus {
+  left: calc(var(--x) * 100%);
+}
+
+/* Cherry blossom petals scattered over the open water in the room beside the
+   content, turning slowly as they drift. Under the pads. */
+.lily-petal {
+  position: absolute;
+  top: max(100svh + 20px, var(--at));
+  width: var(--px);
+  max-width: none;
+  user-select: none;
+  animation: lily-petal var(--drift) ease-in-out var(--lag) infinite alternate;
+}
+
+.lily-petal-left {
+  --dir: 1;
+  left: calc(var(--room) * var(--x));
+}
+
+.lily-petal-right {
+  --dir: -1;
+  right: calc(var(--room) * var(--x));
+}
+
+/* Its shadow on the water, offset down and away, following more lazily. */
+.lily-shadow {
+  inset: 3%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(10 50 88 / 0.42) 55%, rgb(10 50 88 / 0));
+  animation: lily-shadow var(--drift) ease-in-out var(--delay) infinite alternate;
+}
+
+/* A faint ring now and then, as the pad rocks. */
+.lily-ripple {
+  inset: -4%;
+  border: 2px solid rgb(252 253 253 / 0.55);
+  border-radius: 50%;
+  opacity: 0;
+  animation: lily-ripple 8s ease-out var(--delay) infinite;
+}
+
+@keyframes lily-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  35% {
+    transform: translate(calc(-10px * var(--dir)), -18px) scale(1.015);
+  }
+  70% {
+    transform: translate(calc(-4px * var(--dir)), 10px) scale(0.995);
+  }
+  100% {
+    transform: translate(calc(-12px * var(--dir)), 20px) scale(1.01);
+  }
+}
+
+@keyframes lily-sway {
+  from {
+    transform: rotate(calc(var(--turn) - 5deg));
+  }
+  to {
+    transform: rotate(calc(var(--turn) + 6deg));
+  }
+}
+
+@keyframes lily-petal {
+  from {
+    transform: translate(0, 0) rotate(var(--spin));
+  }
+  to {
+    transform: translate(calc(-14px * var(--dir)), 22px) rotate(calc(var(--spin) + 50deg));
+  }
+}
+
+@keyframes lily-shadow {
+  0% {
+    transform: translate(calc(16px * var(--dir)), 26px) scale(1.02);
+  }
+  50% {
+    transform: translate(calc(22px * var(--dir)), 20px) scale(1.06);
+  }
+  100% {
+    transform: translate(calc(18px * var(--dir)), 34px) scale(1.03);
+  }
+}
+
+@keyframes lily-bob {
+  from {
+    transform: rotate(calc(var(--spin) - 6deg)) scale(1);
+  }
+  to {
+    transform: rotate(calc(var(--spin) + 8deg)) scale(1.04);
+  }
+}
+
+@keyframes lily-ripple {
+  0% {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.32);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lily-float,
+  .lily-pad,
+  .lily-shadow,
+  .lily-ripple,
+  .lily-lotus,
+  .lily-petal {
+    animation: none;
+  }
+
+  .lily-pad {
+    transform: rotate(var(--turn));
+  }
+
+  .lily-petal {
+    transform: rotate(var(--spin));
+  }
+
+  .lily-shadow {
+    transform: translate(calc(18px * var(--dir)), 26px);
+  }
+}
+
+/* Tablets and phones: no room beside the content. */
+@media (max-width: 1099px) {
+  .lily-pads {
+    display: none;
+  }
 }
 
 /* Touch screens: the full-window paper-fibre overlay (a multiply blend) and the
