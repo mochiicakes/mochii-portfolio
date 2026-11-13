@@ -134,11 +134,6 @@ The canonical link, share-image tags, JSON-LD `Person` URL and `sitemap.xml` nee
 - [ ] Playwright smoke test with an axe accessibility check in CI
 - [ ] Per-project pages, if the site grows past one page
 
-## Branches
-
-- `master`: the live site.
-- `motion-field`: Motion Field (the webcam-reactive particle field from the earlier design), kept for a future standalone project. Its README maps where each piece is. Its card in Personal Projects was replaced by Viso.
-
 ## License
 
 The code is released under the [MIT License](LICENSE). The written content, photos and illustrations are © 2026 Michaella Gonzales, all rights reserved.
