@@ -22,6 +22,12 @@ function ago(iso: string): string {
   return r.ago.days.replace('{n}', String(Math.round(min / 1440)))
 }
 
+/** Song `i`'s place relative to the front one, the short way round the loop. */
+function offset(i: number, front: number, n: number): number {
+  const d = (((i - front) % n) + n) % n
+  return d > n / 2 ? d - n : d
+}
+
 /** Touch screens and other devices with no hover. */
 const noHover = {
   subscribe(cb: () => void) {
@@ -37,12 +43,13 @@ const noHover = {
  * The songs Michaella played last on Spotify, live (api/recently-played.ts),
  * as a coverflow of glass cards: the focused song in front, two either side
  * turned away, and the playing (or focused) album's colours glowing behind.
- * Arrows, the arrow keys or a swipe move through them.
+ * The songs run in a loop, with no first or last: arrows, the arrow keys or a
+ * swipe go round and round.
  *
  * Sound only ever starts from the visitor: browsers block anything else, and
  * music out of nowhere is unwelcome. Pressing play listens through, like a
  * small radio: moving to another song plays it, and each preview leads on to
- * the next. With a mouse, hovering a song also plays a quick taste of it (not
+ * the next, round the loop. With a mouse, hovering a song also plays a quick taste of it (not
  * while listening through). On touch screens the front cover is the play
  * button and an "Open in Spotify" link sits under it; tapping a side card
  * brings it to the front. Sound fades out when the screen scrolls out of view.
@@ -55,7 +62,10 @@ export function RecentlyPlayed() {
   const touch = useSyncExternalStore(noHover.subscribe, noHover.get, noHover.getServer)
   const root = useRef<HTMLDivElement>(null)
   const [tracks, setTracks] = useState<PlayedTrack[] | null>(null)
-  const [focus, setFocus] = useState(0)
+  // The front song, and where it was before the last move (see `wrapped`).
+  const [pos, setPos] = useState({ at: 0, from: 0 })
+  const focus = pos.at
+  const setFocus = useCallback((at: number) => setPos((p) => ({ at, from: p.at })), [])
   const [playing, setPlaying] = useState<string | null>(null)
   const [radio, setRadio] = useState(false)
   const [hint, setHint] = useState(false)
@@ -81,8 +91,8 @@ export function RecentlyPlayed() {
           .then((data) => {
             const list = data.tracks ?? []
             setTracks(list)
-            // Start in the middle of the first five, so there are cards on both sides.
-            setFocus(Math.floor((Math.min(list.length, REACH * 2 + 1) - 1) / 2))
+            // The most recent song in front; the loop puts others on both sides.
+            setPos({ at: 0, from: 0 })
           })
           .catch(() => setTracks([]))
       },
@@ -154,14 +164,14 @@ export function RecentlyPlayed() {
     (i: number) => {
       const list = live.current.tracks
       if (!list.length) return
-      const j = Math.max(0, Math.min(list.length - 1, i))
+      const j = ((i % list.length) + list.length) % list.length
       setFocus(j)
       if (live.current.radio) {
         if (list[j].preview) play(list[j])
         else stop()
       }
     },
-    [play, stop],
+    [play, stop, setFocus],
   )
 
   /** Starts listening through from song `i`. */
@@ -174,16 +184,17 @@ export function RecentlyPlayed() {
     play(t)
   }
 
-  // Each preview leads on to the next song that has one; after the last, stop.
+  // Each preview leads on to the next song that has one, round the loop.
   useEffect(() => {
     const a = audio.current
     if (!a) return
     a.onended = () => {
       if (!live.current.radio) return
       const { tracks: list, focus: at } = live.current
-      const next = list.findIndex((t, k) => k > at && t.preview)
-      if (next === -1) setRadio(false)
-      else goTo(next)
+      const n = list.length
+      const ahead = Array.from({ length: n - 1 }, (_, k) => (at + 1 + k) % n).find((k) => list[k].preview)
+      if (ahead === undefined) setRadio(false)
+      else goTo(ahead)
     }
   }, [goTo, playing])
 
@@ -259,8 +270,11 @@ export function RecentlyPlayed() {
             </span>
             <ul className="flow-stage">
               {list.map((t, i) => {
-                const d = i - centre
+                const d = tracks ? offset(i, centre, n) : i - centre
                 const far = Math.abs(d) > REACH
+                // A card that just went round the loop jumps to its new side
+                // instead of sliding across the front.
+                const wrapped = tracks !== null && Math.abs(d - offset(i, pos.from, n)) > 1
                 const style = { '--d': d, '--ad': Math.abs(d) } as React.CSSProperties
                 if (!t) {
                   return (
@@ -296,6 +310,7 @@ export function RecentlyPlayed() {
                     style={style}
                     data-focus={front || undefined}
                     data-far={far || undefined}
+                    data-wrap={wrapped || undefined}
                     data-playing={on || undefined}
                     inert={far}
                     onPointerEnter={hover(t)}
@@ -353,13 +368,13 @@ export function RecentlyPlayed() {
           </div>
           {tracks && n > 1 && (
             <div className="fan-nav flow-nav needs-js">
-              <button type="button" onClick={() => goTo(focus - 1)} disabled={focus === 0} aria-label="Previous song">
+              <button type="button" onClick={() => goTo(focus - 1)} aria-label="Previous song">
                 <span aria-hidden="true">‹</span>
               </button>
               <span className="fan-count" aria-hidden="true">
                 {focus + 1} / {n}
               </span>
-              <button type="button" onClick={() => goTo(focus + 1)} disabled={focus === n - 1} aria-label="Next song">
+              <button type="button" onClick={() => goTo(focus + 1)} aria-label="Next song">
                 <span aria-hidden="true">›</span>
               </button>
             </div>
