@@ -1991,6 +1991,11 @@ html.js[data-page='contact'] .contact {
   transition: opacity 0.8s;
 }
 
+.koi-mate.is-on,
+.is-met .koi-mate {
+  opacity: 1;
+}
+
 /* Lily pads: big pads floating down both sides, in the room beside the content
    column. The layer is as tall as the page, so the pads scroll with it, and
    sits above the koi (z 60), so the koi swim under the pads but over the
@@ -2024,7 +2029,8 @@ html.js:not(.revealed) .lily-pads {
      the gutter, so a pad never reaches the content. */
   --show: min(var(--s) * 0.8, var(--room) + 24px);
   position: absolute;
-  top: max(100svh + 40px, var(--at));
+  /* Placed by LilyPads.tsx for the page showing; until then, by screen. */
+  top: var(--top, calc(var(--at) * 100svh));
   width: var(--s);
   height: var(--s);
 }
@@ -2094,7 +2100,7 @@ html.js:not(.revealed) .lily-pads {
    content, turning slowly as they drift. Under the pads. */
 .lily-petal {
   position: absolute;
-  top: max(100svh + 20px, var(--at));
+  top: var(--top, max(100svh + 20px, var(--at) * 100svh));
   width: var(--px);
   max-width: none;
   user-select: none;
