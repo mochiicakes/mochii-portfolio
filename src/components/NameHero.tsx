@@ -63,9 +63,6 @@ export function NameHero() {
         <a className="btn btn-koi" href={h.primaryCta.href}>
           {h.primaryCta.label}
         </a>
-        <a className="btn btn-line" href={h.cvCta.href} download>
-          {h.cvCta.label}
-        </a>
       </div>
     </section>
   )

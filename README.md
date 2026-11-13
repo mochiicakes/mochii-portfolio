@@ -36,7 +36,7 @@ Live site: _add the Vercel URL here_
 ```text
 portfolio/
 ├─ index.html                 shell + the pre-paint script (mode, skip-the-gate)
-├─ public/                    favicon, CV, project screenshots (projects/), casual-card photos (casual/)
+├─ public/                    favicon, share image, project screenshots (projects/), casual-card photos (casual/)
 ├─ scripts/
 │  ├─ prerender.mjs           writes rendered HTML, title, description and social tags into dist/
 │  └─ placeholders.mjs        lists [placeholders] left in src/content.ts
@@ -96,24 +96,24 @@ npm run dev
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server at `http://localhost:5173` |
-| `npm run build` | Type-check, build, pre-render into `dist/` |
+| `npm run build` | Check for placeholders, type-check, build, pre-render into `dist/` (plus `robots.txt`, and `sitemap.xml` when the site URL is known) |
 | `npm run preview` | Serve `dist/` at `http://localhost:4173` |
 | `npm run lint` | ESLint |
-| `npm run placeholders` | List the `[placeholders]` left in `src/content.ts` |
+| `npm run placeholders` | List the `[placeholders]` left in `src/content.ts` (`--check` exits with an error while any remain; `href` placeholders are allowed and show "Link coming soon") |
 
 ### Filling in content
 
-1. Edit `src/content.ts`. Replace each `[placeholder]` until `npm run placeholders` reports none left.
-2. Add `public/Michaella-Gonzales-CV.pdf`.
-3. Add the images (WebP, named exactly as in `src/content.ts`). Until a file exists, its slot shows a painted stand-in.
+1. Edit `src/content.ts`. Replace each `[placeholder]` until `npm run placeholders` reports none left. `npm run build` refuses to build while any remain, except in an `href`.
+2. Add the images (WebP, named exactly as in `src/content.ts`). Until a file exists, its slot shows a painted stand-in.
 
    | Slot | Path | Shape and size |
    | --- | --- | --- |
    | Hero portrait (done) | `public/hero/michaella.webp` | transparent cut-out, about 1500–2000px tall, cropped to the figure, feet on the bottom edge |
    | Personal Projects fan cards | `public/projects/<slug>.webp` | portrait 11:15, 660 × 900 |
    | Out of Tech fan cards | `public/casual/<slug>.webp` | portrait 11:15, 660 × 900 |
-   | Experience screenshots | `public/experience/{bloch,yousource,hosting}.webp` | landscape 16:10, 1600 × 1000 |
+   | Experience screenshots | `public/experience/<name>.webp` | landscape 16:10, 1600 × 1000 |
    | Contact polaroid | `public/contact/selfie.webp` | portrait 4:5, 800 × 1000 |
+   | Share image | `public/og.jpg` | 1200 × 630 |
 
    Export WebP at quality 80–85 (screens with small text: 90). Keep each under about 250 KB; the portrait is the only one that needs transparency.
 
@@ -121,21 +121,19 @@ npm run dev
 
 Static build on Vercel: import the repo, preset **Vite**, build command `npm run build`, output `dist`. Any static host that serves `dist/` works.
 
+The canonical link, share-image tags, JSON-LD `Person` URL and `sitemap.xml` need the site's address. The build reads `SITE_URL` if set, otherwise `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel provides on every build. For a custom domain, set `SITE_URL` (for example `https://example.com`) in the Vercel project's environment variables.
+
 ## Roadmap
 
-- [ ] Fill the placeholders, including the Hobbies cards
-- [ ] Photos for every casual card and screenshots for every project
-- [ ] CV PDF and a 1200 × 630 share image
-- [ ] Fail the production build while placeholders remain
-- [ ] `robots.txt`, `sitemap.xml`, canonical URL, JSON-LD `Person`
+- [x] Fill the placeholders, including the Hobbies cards
+- [x] Photos for every casual card and screenshots for every project
+- [x] A 1200 × 630 share image (the CV download was removed)
+- [x] Fail the production build while placeholders remain
+- [x] `robots.txt`, `sitemap.xml`, canonical URL, JSON-LD `Person`
+- [ ] Links for tomorrow and Pastel Affirmations
 - [ ] Playwright smoke test with an axe accessibility check in CI
 - [ ] Per-project pages, if the site grows past one page
 
-## Branches
-
-- `master`: the live site.
-- `motion-field`: Motion Field (the webcam-reactive particle field from the earlier design), kept for a future standalone project. Its README maps where each piece is.
-
 ## License
 
-© 2026 Michaella Gonzales. _Choose a license, for example MIT for the code and all rights reserved for written content and images._
+The code is released under the [MIT License](LICENSE). The written content, photos and illustrations are © 2026 Michaella Gonzales, all rights reserved.

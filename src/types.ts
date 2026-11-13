@@ -19,8 +19,8 @@ export type Job = {
   tab: string
   /** Where the work was, shown as a tag beside the tab label. */
   region: Region
-  /** The company's or work's site. A [placeholder] shows no link. */
-  href: string
+  /** The company's or work's site. Leave out, or use a [placeholder], to show no link. */
+  href?: string
   /** Screenshot path under public/. Missing files fall back to a painted card. */
   thumbnail: string
   org: string
@@ -38,8 +38,10 @@ export type CaseStudy = {
   role: string
   /** A list renders as numbered steps; a string renders as a sentence. */
   built: string | string[]
-  decisions: string
-  result: string
+  /** Optional: leave out to hide the "Key decisions" row. */
+  decisions?: string
+  /** Optional: leave out to hide the "Result" row. */
+  result?: string
   /** Small qualifier shown after the result, e.g. "Self-reported". */
   resultNote?: string
 }
@@ -110,7 +112,6 @@ export type Content = {
     portrait: { src: string; alt: string; width: number; height: number }
     role: string
     primaryCta: Link
-    cvCta: Link
   }
   tagline: { line1: string; line2: string; supporting: string }
   fan: { ring: string; recruiterGroup: string }
@@ -153,7 +154,6 @@ export type Content = {
     copied: string
     copyFailed: string
     links: Link[]
-    cv: Link
   }
   footer: string
 }

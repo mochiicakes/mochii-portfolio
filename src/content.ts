@@ -3,8 +3,6 @@ import type { Content } from './types'
 // All site copy. Components read from here; edit text, numbers and links in this file.
 // [Square brackets] mark placeholders. `npm run placeholders` lists the ones left.
 
-const cv = { label: 'Download CV', href: '/Michaella-Gonzales-CV.pdf' }
-
 export const content: Content = {
   meta: {
     title: 'Michaella Gonzales, AI & automation engineer',
@@ -32,7 +30,6 @@ export const content: Content = {
     },
     role: 'AI & automation engineer',
     primaryCta: { label: 'Get in touch', href: '#contact' },
-    cvCta: cv,
   },
 
   tagline: {
@@ -81,6 +78,18 @@ export const content: Content = {
         href: '#exp-yousource',
       },
       {
+        claim: 'Writes code that lasts',
+        evidence:
+          '25+ code reviews and 10+ refactors at YOU_SOURCE that cut technical debt by up to 32%; introduced TDD and faster CI feedback',
+        href: '#exp-yousource',
+      },
+      {
+        claim: 'Builds secure, tested full-stack apps',
+        evidence:
+          'yours-db: Postgres row-level security with automated database tests, triggers that validate every row against its column types, and CI on GitHub Actions',
+        href: '#personal-projects',
+      },
+      {
         claim: 'Knows which AI fits which job',
         evidence:
           "Benchmarked GPT, Claude and DeepSeek across 5 engineering tasks for an internal coding assistant; built API integrations for Bob, Bloch.ai's agentic platform",
@@ -93,6 +102,12 @@ export const content: Content = {
         href: '#case-bios',
       },
       {
+        claim: 'Connects AI to the tools a company already uses',
+        evidence:
+          'n8n workflows wired into Microsoft Graph, SharePoint, Outlook, Notion and Baserow, with Claude and Perplexity doing the research and writing',
+        href: '#automations',
+      },
+      {
         claim: 'Builds things leaders can trust',
         evidence:
           'Human approval step before any AI-drafted bio is sent; weekly EU legislation digest delivered to executives',
@@ -101,8 +116,14 @@ export const content: Content = {
       {
         claim: 'Brings people along',
         evidence:
-          "Wrote AI leadership training on safe usage and core concepts; ran onboarding and built the team's central documentation and tracking",
+          "Wrote and designed a 10-module AI leadership course and a KNIME course for finance teams, and delivered the KNIME training; ran onboarding and built the team's central documentation and tracking",
         href: '#leadership',
+      },
+      {
+        claim: 'Earns trust with clients and audiences',
+        evidence:
+          'Worked directly with clients in South Africa; picked as 1 of 50 Samsung campus ambassadors from 4,000+ applicants, then ranked Top 6 nationwide',
+        href: '#lead-samsung',
       },
       {
         claim: 'Holds up under pressure',
@@ -127,7 +148,7 @@ export const content: Content = {
       bullets: [
         {
           text: 'Introduced n8n automation to marketing and finance firms across Europe',
-          chip: '[n] firms, [n] offices',
+          chip: '4 firms, 26 offices',
         },
         {
           text: 'Built a bio generator with web scraping, validation, AI drafting, automated email and human approval',
@@ -139,18 +160,24 @@ export const content: Content = {
         },
         {
           text: 'Automated a digest that summarises new EU legislation for executives',
-          chip: '[n] executives, weekly',
+          chip: 'Weekly',
         },
         {
-          text: 'Wrote AI leadership training on safe usage and technical concepts',
-          chip: '[n] leaders, [n] offices',
+          text: 'Wrote and designed a 10-module AI leadership course, from AI fundamentals to risk, governance and adoption',
+          chip: '10 modules',
+        },
+        {
+          text: 'Wrote and delivered a KNIME course that teaches finance and accounting teams to build auditable, no-code data workflows',
         },
         {
           text: 'Ran onboarding and set up central tracking and documentation',
-          chip: '[n] new hires',
+          chip: '3 new hires',
         },
       ],
-      meta: { label: 'Platforms', text: 'Microsoft Entra, Supabase, Google Cloud Platform' },
+      meta: {
+        label: 'Built with',
+        text: 'n8n, KNIME, Microsoft Graph, SharePoint, Microsoft Entra ID, Azure AI Foundry, Claude, OpenAI and Perplexity APIs, Notion, Baserow, Supabase, Google Cloud Platform',
+      },
     },
     {
       id: 'exp-yousource',
@@ -167,6 +194,9 @@ export const content: Content = {
           text: "Delivered the Yebo Fresh admin and delivery portal's 6-month roadmap in 4 months; improved performance by 25% across REST APIs, database and UI",
         },
         {
+          text: 'Moved the backend from Django to Node.js and TypeScript, and connected WhatsApp Business, SMS, Postmark email and PDF invoicing',
+        },
+        {
           text: 'Raised unit test coverage from 36% to 78% in 5 months on Pine Connector and introduced TDD practices',
         },
         {
@@ -178,6 +208,35 @@ export const content: Content = {
           chip: '50+ engineers in pilot',
         },
       ],
+      meta: {
+        label: 'Built with',
+        text: 'Node.js, TypeScript, Express, Prisma, PostgreSQL, Next.js, React, Material UI, Redux Toolkit, GraphQL (Apollo), Jest, Docker, Google Cloud (App Engine, Cloud Build), Sentry',
+      },
+    },
+    {
+      id: 'exp-ys-training-bot',
+      tab: 'YS Training Bot',
+      region: { name: 'Internal tool, not public', abbr: 'Internal' },
+      thumbnail: '/experience/ys-training-bot.webp',
+      org: 'YS Training Bot (YS-AI)',
+      role: 'AI training app, built at YOU_SOURCE Inc.',
+      dates: 'Dec 2023 to Jul 2025',
+      location: 'Internal tool',
+      bullets: [
+        {
+          text: "An AI-powered assistant that trains engineers on the company's coding standards and its clients' needs, through a set of training modules",
+        },
+        {
+          text: 'Runs oral examinations with a voice AI interviewer: speech-to-text for answers, text-to-speech for questions',
+        },
+        {
+          text: 'The interviewer persona is defined in a YAML file, and SSML shapes how it speaks',
+        },
+        {
+          text: 'Sign-in with company Google accounts',
+        },
+      ],
+      meta: { label: 'Built with', text: 'Azure AI Speech, Google Cloud Text-to-Speech, YAML, SSML, Google sign-in' },
     },
     {
       id: 'exp-hosting',
@@ -187,7 +246,7 @@ export const content: Content = {
       thumbnail: '/experience/hosting.webp',
       org: 'Freelance Host & Shoutcaster',
       role: 'Esports and tech events',
-      dates: 'Jan 2021 to present',
+      dates: 'Mar 2021 to present',
       location: 'Asia-Pacific',
       bullets: [
         {
@@ -225,19 +284,56 @@ export const content: Content = {
         heading: 'Bloch.ai',
         period: 'Oct 2025 to present',
         items: [
-          { text: 'Wrote AI leadership training for executives on safe usage and core concepts', kind: 'Initiative', chip: '[n] leaders' },
-          { text: "Ran onboarding and set up the team's central tracking and documentation", kind: 'Initiative', chip: '[n] new hires' },
-          { text: 'Introduced n8n automation to marketing and finance firms across Europe', chip: '[n] firms' },
+          {
+            text: 'Wrote and designed a 10-module AI leadership course for executives, covering responsible use, governance and adoption',
+            kind: 'Initiative',
+          },
+          {
+            text: 'Wrote and delivered KNIME training for finance and accounting teams, replacing fragile spreadsheets with workflows a reviewer can follow',
+            kind: 'Initiative',
+          },
+          {
+            text: "Onboarded new team members on tools, workflows, AI best practices and company standards; set up the team's central tracking and documentation",
+            kind: 'Initiative',
+            chip: '3 new hires',
+          },
+          {
+            text: 'Mapped workflows and shared what I learned, so the team builds automations the same way',
+            kind: 'Initiative',
+          },
+          { text: 'Introduced n8n automation to marketing and finance firms across Europe', chip: '4 firms' },
         ],
       },
       {
         id: 'lead-yousource',
         heading: 'YOU_SOURCE Inc.',
-        period: 'Dec 2023 to Jun 2025',
+        period: 'Dec 2023 to Jul 2025',
         items: [
           { text: 'Introduced test-driven development on Pine Connector, raising coverage from 36% to 78%', kind: 'Initiative' },
           { text: 'Built YS-AI, a 6-module AI training app, to get colleagues comfortable with AI', kind: 'Initiative', chip: '60+ employees' },
           { text: 'Benchmarked LLMs for YS-LLM, the internal coding assistant, and supported its pilot', chip: '50+ engineers' },
+          {
+            text: 'Led code review and project management initiatives: 25+ reviews and 10+ refactors that cut technical debt by up to 32%',
+            kind: 'Initiative',
+          },
+          {
+            text: 'Worked directly with clients in South Africa on sprints and stakeholder alignment, delivering a 6-month roadmap in 4 months',
+          },
+        ],
+      },
+      {
+        id: 'lead-samsung',
+        heading: 'Samsung Galaxy Campus Program',
+        period: 'Dec 2023 to Jun 2025',
+        items: [
+          {
+            text: 'Selected as a campus ambassador from 4,000+ applicants nationwide, representing FEU Institute of Technology',
+            chip: '1 of 50',
+          },
+          {
+            text: 'Named a Top 6 Ambassador nationwide for tech content, earning a brand immersion trip to South Korea',
+            chip: 'Top 6',
+          },
         ],
       },
       {
@@ -245,8 +341,6 @@ export const content: Content = {
         heading: 'Student leadership',
         period: 'Elementary school to 2024',
         items: [
-          { text: '[Elementary school role, school]', kind: 'Volunteer' },
-          { text: '[High school role, school]', kind: 'Volunteer' },
           {
             text: 'President, iTamaraws Esports Club: grew membership from 70+ to 280+ and the officer team from 18 to 60+; secured full accreditation',
             kind: 'Volunteer',
@@ -265,7 +359,9 @@ export const content: Content = {
         period: '2021 to present',
         items: [
           { text: 'Hosted and cast esports and tech events for the community', chip: '80+ events' },
-          { text: '[Other volunteer work]', kind: 'Volunteer' },
+          {
+            text: 'Interviewed players and delivered play-by-play and colour commentary, working with production teams on the flow of each show',
+          },
         ],
       },
     ],
@@ -293,29 +389,30 @@ export const content: Content = {
   caseStudies: [
     {
       id: 'case-bios',
-      title: 'Bios for 600+ people, written in days instead of [months]',
+      title: 'Bios for 600+ people, automatically written in days instead of manually over years',
       problem:
-        '26 offices across Europe needed consistent staff bios. Writing them by hand was slow and the quality varied by office. [confirm]',
+        '26 offices across Europe needed consistent staff bios. Writing them by hand was slow and the quality varied by office.',
       role: 'Designed and built the full workflow in n8n.',
       built: [
-        'Scrape existing profiles and internal data [confirm sources]',
-        'Validate and clean the inputs',
-        'Draft each bio with AI to a house style',
-        'Email the draft to the employee for approval or edits',
+        'Detect new employees from a SharePoint list through Microsoft Graph, and research each one on the web with Perplexity',
+        'Validate and clean the inputs in a Baserow working database',
+        'Draft each bio with Claude to a house style',
+        'Email the draft and guidelines to the employee through Microsoft Graph for approval or edits',
         'Publish only approved bios',
       ],
       decisions:
         'A human approves every bio before it goes live, because a wrong fact on a public profile costs more than the time saved. Validation runs before drafting, so bad data never reaches the model.',
-      result: '[number] bios produced; [time per bio before vs after]; [first-draft approval rate].',
+      result: '600+ bios drafted across 26 offices, each signed off by its owner.',
     },
     {
       id: 'case-assistant',
-      title: 'Choosing the model behind an internal AI assistant (YOU_SOURCE)',
+      title: 'Choosing the right model for the job',
       problem: 'The company wanted an AI coding assistant but had no basis for choosing a model.',
       role: "Researched and benchmarked models; contributed to the assistant's build.",
       built:
         'A comparison of GPT, Claude and DeepSeek across code generation, refactoring, task planning, test creation and documentation, then the internal tool itself, piloted with 50+ engineers.',
-      decisions: '[Which model won which task, and why not one model for everything.]',
+      decisions:
+        'No single model wins every task, and that has held across everything I have built since. I match the model to the job: Perplexity for web research, Claude for drafting and long-form writing, and a benchmark before committing a team to any one of them.',
       result: 'Engineers reported an estimated 25 to 35% gain in task efficiency during the pilot.',
       resultNote: 'Self-reported',
     },
@@ -324,11 +421,14 @@ export const content: Content = {
       title: 'Making AI usable for executives (Bloch.ai)',
       problem:
         'Leaders were expected to use and approve AI tools without a working understanding of them, and needed to track EU legislation without reading it all.',
-      role: 'Wrote the training and built the automation.',
-      built:
-        'AI leadership training on safe usage and core concepts; an n8n workflow that summarises new EU legislation and emails executives every week.',
-      decisions: '[How the training was scoped; how the digest decides what matters.]',
-      result: '[Leaders trained; how long the digest has run; feedback.]',
+      role: 'Wrote and designed the training, and built the automation.',
+      built: [
+        'A 10-module AI leadership course: AI fundamentals and myths, why generative AI behaves the way it does, prompts and workflows, reliability, risk and responsible use, research, decision-making, communication, governance and adoption',
+        'A governance module leaders can apply on Monday: responsible-AI principles, a three-tier policy (acceptable, conditional, prohibited), a four-question risk check and an approval workflow, with GDPR and CCPA in view',
+        'An n8n workflow that reads EUR-Lex and EU RSS feeds, filters new legislation by week and sector, summarises it with an LLM and emails executives every week',
+      ],
+      decisions:
+        'Taught AI as augmentation, not replacement, so the conversation is about capability rather than job loss. Every task is sorted before use into great fit, fit with verification, or not suitable, by asking what happens if the AI is wrong, how easy the output is to check, and who is accountable. People keep the final decision. Adoption is measured by outcomes (time saved, quality, risk reduced), not by logins.',
     },
   ],
 
@@ -340,7 +440,7 @@ export const content: Content = {
       status: 'Live',
       description:
         'An anonymous sky of glowing orbs where people leave a thought, feeling or confession for others to find, with mental-health resources built in.',
-      stack: ['[confirm stack]'],
+      stack: ['JavaScript', 'Three.js', 'Supabase'],
       href: 'https://spirit-our-comfort.vercel.app',
       thumbnail: '/projects/spirit.webp',
     },
@@ -350,7 +450,7 @@ export const content: Content = {
       status: 'Live',
       description:
         'A personal database. Build sheets with typed columns (text, number, date, choices, checkboxes, links), then search, tick off and bulk-edit rows.',
-      stack: ['React', 'TypeScript', 'Vite', 'Supabase'],
+      stack: ['React', 'TypeScript', 'Supabase', 'PostgreSQL', 'Vitest', 'GitHub Actions'],
       href: 'https://yours-db.vercel.app',
       thumbnail: '/projects/yours-db.webp',
     },
@@ -358,8 +458,8 @@ export const content: Content = {
       slug: 'photo-bot',
       title: 'Photo Bot',
       status: 'Live',
-      description: 'A virtual photobooth. Take photos, edit them with digital effects, and send them by email.',
-      stack: ['React', 'Fabric.js', 'Tailwind', 'EmailJS'],
+      description: 'A virtual photobooth. Take photos with your webcam, add digital effects, and save them.',
+      stack: ['React', 'Tailwind', 'Framer Motion', 'react-webcam', 'html-to-image'],
       href: 'https://photo-bot-kappa.vercel.app',
       thumbnail: '/projects/photo-bot.webp',
     },
@@ -368,7 +468,7 @@ export const content: Content = {
       title: 'tomorrow',
       status: 'In development',
       description: 'A daily planner where a cat companion of your choice keeps you company through your tasks.',
-      stack: ['React Native', 'Expo', 'TypeScript', 'SQL'],
+      stack: ['React Native', 'Expo', 'TypeScript', 'Supabase', 'Expo Notifications'],
       href: '[deployed link]',
       thumbnail: '/projects/tomorrow.webp',
     },
@@ -378,18 +478,19 @@ export const content: Content = {
       status: 'Desktop app',
       description:
         'An always-on-top pixel-art widget that shows a fresh affirmation on demand and saves your favourites.',
-      stack: ['Electron', 'React', 'Express', 'Node.js'],
+      stack: ['Electron', 'Node.js', 'Express', 'affirmations.dev API'],
       href: '[deployed link or download page]',
       thumbnail: '/projects/pastel-affirmations.webp',
     },
     {
-      slug: 'motion-field',
-      title: 'Motion Field',
-      status: 'In development',
-      description: 'A particle field that follows your movement through the webcam, entirely in the browser.',
-      stack: ['JavaScript', 'Canvas', 'WebRTC'],
-      href: '[deployed link]',
-      thumbnail: '/projects/motion-field.webp',
+      slug: 'viso',
+      title: 'Viso',
+      status: 'Live',
+      description:
+        'Ten live-camera filters, from edge detection to optical flow and point clouds, each taken apart layer by layer to show how it works.',
+      stack: ['JavaScript', 'Canvas 2D', 'Three.js', 'getUserMedia'],
+      href: 'https://viso-case-study.vercel.app/index.html',
+      thumbnail: '/projects/viso.webp',
     },
   ],
 
@@ -398,37 +499,47 @@ export const content: Content = {
       slug: 'bio-generator',
       title: 'Staff bio generator',
       scale: '26 offices, 600+ employees',
-      nodes: ['Scrape', 'Validate', 'AI draft', 'Email for approval', 'Publish'],
+      nodes: ['New hire in SharePoint', 'Web research', 'AI draft', 'Email for approval', 'Publish'],
       description:
-        'Scrapes and validates staff data, drafts bios with AI, and emails each person to approve before anything is published.',
-      stack: ['n8n', 'LLM API', 'Web scraping', 'Email'],
+        'Spots new employees in SharePoint, researches each one, drafts a bio with Claude, and emails it to them to approve before anything is published.',
+      stack: ['n8n', 'Microsoft Graph', 'SharePoint', 'Perplexity', 'Claude', 'Baserow'],
       link: { kind: 'case', caseId: 'case-bios' },
     },
     {
       slug: 'eu-digest',
       title: 'EU legislation digest',
-      scale: '[n] executives, weekly',
-      nodes: ['New legislation', 'Filter', 'AI summary', 'Weekly email'],
-      description: 'Summarises new EU legislation and emails executives a weekly briefing.',
-      stack: ['n8n', 'LLM API', 'Email'],
+      scale: 'Weekly',
+      nodes: ['EU RSS feeds', 'Filter by week and sector', 'AI summary', 'Weekly email'],
+      description: 'Reads EUR-Lex and EU RSS feeds, keeps what is new for each sector, and emails executives a weekly AI-written briefing.',
+      stack: ['n8n', 'EUR-Lex RSS', 'LLM API', 'Email'],
       link: { kind: 'case', caseId: 'case-executives' },
     },
     {
       slug: 'n8n-rollout',
       title: 'n8n rollout',
-      scale: '[n] firms, [n] offices',
+      scale: '4 firms, 26 offices',
       nodes: ['Audit', 'Build', 'Train', 'Hand over'],
       description: 'Introduced n8n automation to marketing and finance firms across Europe.',
-      stack: ['n8n', '[integrations]'],
+      stack: ['n8n', 'Microsoft Graph', 'SharePoint', 'Baserow', 'Notion'],
+      link: null,
+    },
+    {
+      slug: 'social-research',
+      title: 'Social media research and posters',
+      scale: 'Content pipeline',
+      nodes: ['RSS feeds', 'Research', 'AI writes', 'Render poster', 'Log to Notion'],
+      description:
+        'Picks topics from RSS feeds, researches them with Perplexity, has Claude write the post and poster copy, renders the poster as an image and logs it all in Notion.',
+      stack: ['n8n', 'Perplexity', 'Claude API', 'HTML/CSS to Image', 'Notion'],
       link: null,
     },
     {
       slug: 'bob',
       title: 'Bob (contributor)',
-      scale: '[reach]',
+      scale: 'Under development',
       nodes: ['Request', 'Agent', 'API integrations', 'Response'],
       description: "Bloch.ai's agentic AI platform. I worked on API integrations, platform connections and UI.",
-      stack: ['[confirm stack]'],
+      stack: ['Classified'],
       link: { kind: 'external', href: 'https://bob.bloch.ai' },
     },
   ],
@@ -453,11 +564,28 @@ export const content: Content = {
     ],
     toolboxHeading: 'Toolbox',
     toolbox: [
-      { area: 'AI & automation', tools: 'n8n, OpenAI, Claude and DeepSeek APIs, agentic workflows, LLM evaluation' },
-      { area: 'Backend', tools: 'Python (Django), Express, PHP, Prisma, REST APIs' },
-      { area: 'Frontend & mobile', tools: 'JavaScript, TypeScript, React, React Native, Expo, Flutter' },
-      { area: 'Cloud & data', tools: 'Google Cloud Platform, Supabase, Firebase, Microsoft Entra' },
-      { area: 'Delivery', tools: 'Docker, CI/CD, TDD, Azure DevOps, Jira' },
+      {
+        area: 'AI & automation',
+        tools:
+          'n8n, KNIME, OpenAI, Claude, Perplexity, Gemini and DeepSeek APIs, Azure AI Foundry, Azure AI Speech, agentic workflows, prompt design, LLM evaluation, AI-assisted development (Expert, Crossover assessment)',
+      },
+      {
+        area: 'Integrations',
+        tools: 'Microsoft Graph (SharePoint, Outlook), Notion, Baserow, WhatsApp Business, Postmark, OAuth2, RSS',
+      },
+      {
+        area: 'Backend',
+        tools: 'Node.js, TypeScript, Express, Python (Django, Django REST Framework), Prisma, PostgreSQL, REST and GraphQL APIs, PHP',
+      },
+      {
+        area: 'Frontend & mobile',
+        tools: 'JavaScript, TypeScript, React, Next.js, Redux Toolkit, Material UI, Tailwind, Three.js, React Native, Expo, Electron, Flutter',
+      },
+      {
+        area: 'Cloud & data',
+        tools: 'Google Cloud (App Engine, Cloud Build, Storage), Supabase (row-level security, SQL functions, realtime), Firebase, Microsoft Entra ID, Vercel',
+      },
+      { area: 'Delivery', tools: 'Docker, CI/CD (GitHub Actions, Cloud Build), TDD, Jest, Vitest, Sentry, Azure DevOps, Jira' },
     ],
   },
 
@@ -471,8 +599,8 @@ export const content: Content = {
         detail: 'Hosted and cast 80+ live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS.',
         image: '/casual/shoutcasting.webp',
       },
-      { slug: 'gaming', title: 'Video games', detail: '[What you play to unwind.]', image: '/casual/gaming.webp' },
-      { slug: 'cosplay', title: 'Cosplay', detail: '[Characters you have made, or are making next.]', image: '/casual/cosplay.webp' },
+      { slug: 'gaming', title: 'Video games', detail: 'When work gets stressful, I play League of Legends and Valorant to get even more stressed :D', image: '/casual/gaming.webp' },
+      { slug: 'cosplay', title: 'Cosplay', detail: 'I love dressing up as my favourite characters and bringing them to life, with the craftsmanship to make them accurate.', image: '/casual/cosplay.webp' },
     ],
     hobbies: [
       {
@@ -484,7 +612,8 @@ export const content: Content = {
       {
         slug: 'jewelry',
         title: 'Jewelry making',
-        detail: '[What you make, and the piece you are proudest of.]',
+        detail:
+          'Plastic, twine or stainless steel: whatever the material, all you need is a delusional vision and the drive to make it.',
         image: '/casual/jewelry.webp',
       },
       {
@@ -531,7 +660,7 @@ export const content: Content = {
       caption: 'Say hi!',
     },
     openTo:
-      'AI and automation engineering, solutions engineering and technical lead roles. Remote or [location].',
+      'AI and automation engineering, solutions engineering and technical lead roles, remotely.',
     email: 'michaellagonzales.owo@gmail.com',
     copy: 'Copy',
     copied: 'Copied',
@@ -540,7 +669,6 @@ export const content: Content = {
       { label: 'LinkedIn', href: 'https://www.linkedin.com/in/michaella-gonzales-203626296' },
       { label: 'GitHub', href: 'https://github.com/mochiicakes' },
     ],
-    cv,
   },
 
   footer: `© ${new Date().getFullYear()} Michaella Gonzales`,

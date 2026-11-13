@@ -12,4 +12,11 @@ export function render(): string {
   )
 }
 
-export const meta = content.meta
+/** What the head tags and the JSON-LD Person need, read from content.ts. */
+export const meta = {
+  ...content.meta,
+  name: content.hero.name,
+  role: content.hero.role,
+  email: content.contact.email,
+  links: content.contact.links.map((l) => l.href),
+}
