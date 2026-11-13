@@ -112,7 +112,6 @@ export type Content = {
     portrait: { src: string; alt: string; width: number; height: number }
     role: string
     primaryCta: Link
-    cvCta: Link
   }
   tagline: { line1: string; line2: string; supporting: string }
   fan: { ring: string; recruiterGroup: string }
@@ -155,7 +154,6 @@ export type Content = {
     copied: string
     copyFailed: string
     links: Link[]
-    cv: Link
   }
   footer: string
 }

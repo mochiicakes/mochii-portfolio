@@ -36,7 +36,7 @@ Live site: _add the Vercel URL here_
 ```text
 portfolio/
 ├─ index.html                 shell + the pre-paint script (mode, skip-the-gate)
-├─ public/                    favicon, CV, project screenshots (projects/), casual-card photos (casual/)
+├─ public/                    favicon, share image, project screenshots (projects/), casual-card photos (casual/)
 ├─ scripts/
 │  ├─ prerender.mjs           writes rendered HTML, title, description and social tags into dist/
 │  └─ placeholders.mjs        lists [placeholders] left in src/content.ts
@@ -104,8 +104,7 @@ npm run dev
 ### Filling in content
 
 1. Edit `src/content.ts`. Replace each `[placeholder]` until `npm run placeholders` reports none left. `npm run build` refuses to build while any remain, except in an `href`.
-2. Add `public/Michaella-Gonzales-CV.pdf`.
-3. Add the images (WebP, named exactly as in `src/content.ts`). Until a file exists, its slot shows a painted stand-in.
+2. Add the images (WebP, named exactly as in `src/content.ts`). Until a file exists, its slot shows a painted stand-in.
 
    | Slot | Path | Shape and size |
    | --- | --- | --- |
@@ -128,7 +127,7 @@ The canonical link, share-image tags, JSON-LD `Person` URL and `sitemap.xml` nee
 
 - [x] Fill the placeholders, including the Hobbies cards
 - [x] Photos for every casual card and screenshots for every project
-- [x] CV PDF and a 1200 × 630 share image
+- [x] A 1200 × 630 share image (the CV download was removed)
 - [x] Fail the production build while placeholders remain
 - [x] `robots.txt`, `sitemap.xml`, canonical URL, JSON-LD `Person`
 - [ ] Links for tomorrow and Pastel Affirmations

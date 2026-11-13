@@ -3,8 +3,6 @@ import type { Content } from './types'
 // All site copy. Components read from here; edit text, numbers and links in this file.
 // [Square brackets] mark placeholders. `npm run placeholders` lists the ones left.
 
-const cv = { label: 'Download CV', href: '/Michaella-Gonzales-CV.pdf' }
-
 export const content: Content = {
   meta: {
     title: 'Michaella Gonzales, AI & automation engineer',
@@ -32,7 +30,6 @@ export const content: Content = {
     },
     role: 'AI & automation engineer',
     primaryCta: { label: 'Get in touch', href: '#contact' },
-    cvCta: cv,
   },
 
   tagline: {
@@ -672,7 +669,6 @@ export const content: Content = {
       { label: 'LinkedIn', href: 'https://www.linkedin.com/in/michaella-gonzales-203626296' },
       { label: 'GitHub', href: 'https://github.com/mochiicakes' },
     ],
-    cv,
   },
 
   footer: `© ${new Date().getFullYear()} Michaella Gonzales`,
