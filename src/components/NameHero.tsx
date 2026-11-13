@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react'
+import { useCallback, useState, type CSSProperties } from 'react'
 import { content } from '../content'
 import { useImageFallback } from '../lib/useImageFallback'
+import { Drip, DripToggle } from './Drip'
 
 /**
  * The name, set like a magazine cover: the first name huge behind the
@@ -15,6 +16,8 @@ export function NameHero() {
   const t = content.tagline
   const { failed, ref, onError } = useImageFallback(h.portrait.src)
   const portrait = !failed
+  const [drip, setDrip] = useState(false)
+  const closeDrip = useCallback(() => setDrip(false), [])
   return (
     <section id="top" className="hero" data-screen aria-labelledby="hero-name" data-portrait={portrait || undefined}>
       <p className="hero-block hero-tl caps">{h.role}</p>
@@ -63,7 +66,10 @@ export function NameHero() {
         <a className="btn btn-koi" href={h.primaryCta.href}>
           {h.primaryCta.label}
         </a>
+        <DripToggle open={drip} onToggle={() => setDrip((o) => !o)} />
       </div>
+
+      <Drip open={drip} onClose={closeDrip} />
     </section>
   )
 }

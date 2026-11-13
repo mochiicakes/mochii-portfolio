@@ -2,7 +2,7 @@
 
 Personal site of Michaella Gonzales, AI and automation engineer. The page opens as a sheet of white paper laid over the finished site. The visitor paints, and each brush mark splats a watercolour-shaped hole through the paper, showing the page beneath; then the rest of the paper is splatted away. The finished wash shimmers with rippling light, stars and two koi.
 
-Live site: _add the Vercel URL here_
+Live site: [mochii-portfolio.vercel.app](https://mochii-portfolio.vercel.app)
 
 ## What it does
 
@@ -13,7 +13,9 @@ Live site: _add the Vercel URL here_
 - The background is softened with a light blur (`--ground-blur`, about 3 px) and the water light is toned down (`--crystal-opacity`) so the content leads.
 - One topic, one screen: the hero, the Around Tech header with the intro video (YouTube, loaded only when played), Experience, Impact, Automations and Personal Projects each fill the window and open with a dripping divider. With a mouse wheel, one flick turns one screen; a screen taller than the window scrolls to its end first (`src/lib/scroll.ts`). Touch and the keyboard scroll freely.
 - Contact is a page of its own: the top bar's Contact link and Get in touch open it in place of the main page (`#contact`), and MG or the browser's back button return. Without JavaScript it follows the main page.
-- Recruiter and casual modes: "Around Tech" (Experience tabs, the Impact tabs: Proof, Leadership, Case studies, How I work, then Automations, then the Personal Projects fan, each part between dividers) or "Out of Tech" (the Gaming and Hobbies fan). Remembered, and applied before first paint.
+- Recruiter and casual modes: "Around Tech" (Experience tabs, the Impact tabs: Proof, Leadership, Case studies, How I work, then Automations, then the Personal Projects fan, each part between dividers) or "Out of Tech" (the Gaming and Hobbies fan, then Recently played). Remembered, and applied before first paint.
+- Cop my drip? (casual mode): a button under Get in touch draws lines from the pieces she is wearing in the portrait out to cards beside her, each linking to where to buy it (`src/components/Drip.tsx`, items in `src/content.ts`, photos in `public/drip/`). On phones the cards sit in a row you swipe through.
+- Recently played (casual mode): the songs she played last, live from Spotify. Hovering a song plays a 30-second preview; clicking opens it on Spotify (`src/components/RecentlyPlayed.tsx`, served by `api/recently-played.ts`). Spotify no longer gives new apps previews, so they come from Apple's public iTunes catalogue, matched by title and artist.
 - The koi. A goldfish-coloured koi with a long, flowing tail follows the cursor, leaving a watercolour wake that fades as it dries. A golden koi waits at the bottom of the page; once yours reaches it, the two swim together, their wakes braiding. Mouse and trackpad only; off under reduced motion.
 - Type, after an editorial cover: Playfair Display (heavy, high-contrast capitals) for the name and titles, Mrs Saint Delafield (a signature script) for the surname and handwritten accents, and Lora for reading text and tracked capitals. Buttons are capitals inside a hand-drawn ellipse.
 - The name hero is a cover: the first name huge behind a cut-out portrait (`public/hero/michaella.webp`, a transparent WebP), the surname signed across it, and a text block in each corner. Phones stack the same pieces.
@@ -99,6 +101,7 @@ npm run dev
 | `npm run build` | Check for placeholders, type-check, build, pre-render into `dist/` (plus `robots.txt`, and `sitemap.xml` when the site URL is known) |
 | `npm run preview` | Serve `dist/` at `http://localhost:4173` |
 | `npm run lint` | ESLint |
+| `npm run spotify:token` | One-time: get the Spotify refresh token for Recently played (see below) |
 | `npm run placeholders` | List the `[placeholders]` left in `src/content.ts` (`--check` exits with an error while any remain; `href` placeholders are allowed and show "Link coming soon") |
 
 ### Filling in content
@@ -117,6 +120,24 @@ npm run dev
 
    Export WebP at quality 80–85 (screens with small text: 90). Keep each under about 250 KB; the portrait is the only one that needs transparency.
 
+### Recently played (Spotify)
+
+The screen reads your listening history through `api/recently-played.ts`, a Vercel function. Locally, `npm run dev` serves it too (a small plugin in `vite.config.ts`). Until it is set up, the screen shows a quiet empty state.
+
+1. Create an app at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) and add the redirect URI `http://127.0.0.1:8888/callback`.
+2. Put its keys in `.env.local` (never committed):
+
+   ```bash
+   SPOTIFY_CLIENT_ID=...
+   SPOTIFY_CLIENT_SECRET=...
+   ```
+
+3. Run `npm run spotify:token`, open the link it prints, approve, and add the `SPOTIFY_REFRESH_TOKEN=...` it prints to `.env.local`.
+4. In the Vercel project, add the same three variables under Settings, Environment Variables, and redeploy.
+5. Optional: `SPOTIFY_HIDE` takes comma-separated Spotify track or artist ids to keep off the page. It shows whatever you play, so use it for anything you would rather not show.
+
+Responses are cached at the edge for five minutes, so Spotify and Apple are asked at most every few minutes however many people visit.
+
 ## Deployment
 
 Static build on Vercel: import the repo, preset **Vite**, build command `npm run build`, output `dist`. Any static host that serves `dist/` works.
@@ -131,6 +152,7 @@ The canonical link, share-image tags, JSON-LD `Person` URL and `sitemap.xml` nee
 - [x] Fail the production build while placeholders remain
 - [x] `robots.txt`, `sitemap.xml`, canonical URL, JSON-LD `Person`
 - [ ] Links for tomorrow and Pastel Affirmations
+- [ ] Fade transitions when switching tabs, so content changes gracefully instead of swapping at once: the Recruiter/Casual mode switch, the Experience tabs, the Impact tabs (Proof, Leadership, Case studies, How I work), the Gaming/Hobbies fan groups, and opening or leaving Contact. Fade the outgoing panel out, then the incoming one in (about 200–300 ms, opacity with a small upward drift), keep the page height steady while they swap, and skip the motion under `prefers-reduced-motion`
 - [ ] Playwright smoke test with an axe accessibility check in CI
 - [ ] Per-project pages, if the site grows past one page
 

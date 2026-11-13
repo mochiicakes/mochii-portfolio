@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { CasualTabId, Mode, RecruiterTabId } from '../types'
 import { CardFan, type FanCard } from './CardFan'
 import { IntroVideo } from './IntroVideo'
+import { RecentlyPlayed } from './RecentlyPlayed'
 import { ScreenFoot } from './ScreenFoot'
 import { Automations, Experience, RecruiterPanel } from './panels/RecruiterPanels'
 import { Divider } from './ui/Ornaments'
@@ -84,8 +85,8 @@ function Part({
 /**
  * One world per mode, one screen per topic. Recruiter mode ("Around Tech") opens
  * with the intro video, then Experience, the Impact tabs, Automations and the
- * Personal Projects fan. Casual mode ("Out of Tech") is one screen: the Gaming
- * and Hobbies fan. CSS shows the world that matches the mode; both show without
+ * Personal Projects fan. Casual mode ("Out of Tech") is the Gaming and Hobbies
+ * fan, then Recently played (live from Spotify). CSS shows the world that matches the mode; both show without
  * JavaScript.
  */
 function WorldSection({ mode }: { mode: Mode }) {
@@ -105,7 +106,11 @@ function WorldSection({ mode }: { mode: Mode }) {
         ) : (
           <CardFan label={world.title} ring={content.fan.ring} cards={casualCards()} groups={content.worlds.casual.tabs} />
         )}
-        {mode === 'recruiter' ? <NextDivider next={{ id: 'experience', label: 'experience' }} /> : <ScreenFoot />}
+        {mode === 'recruiter' ? (
+          <NextDivider next={{ id: 'experience', label: 'experience' }} />
+        ) : (
+          <NextDivider next={{ id: 'recently-played', label: 'recently played' }} />
+        )}
       </div>
       {mode === 'recruiter' && (
         <>
@@ -138,6 +143,11 @@ function WorldSection({ mode }: { mode: Mode }) {
             <CardFan label={content.fan.recruiterGroup} ring={content.fan.ring} cards={projectCards()} />
           </Part>
         </>
+      )}
+      {mode === 'casual' && (
+        <Part last id="recently-played" title={content.recentlyPlayed.title} intro={content.recentlyPlayed.intro}>
+          <RecentlyPlayed />
+        </Part>
       )}
     </section>
   )

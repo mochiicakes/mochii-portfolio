@@ -3,6 +3,53 @@
 
 export type Link = { label: string; href: string }
 
+/** A song from /api/recently-played (api/recently-played.ts). */
+export type PlayedTrack = {
+  id: string
+  title: string
+  artists: string
+  album: string
+  /** Album art, about 640 px square. */
+  art: string | null
+  /** The track on open.spotify.com. */
+  url: string
+  playedAt: string
+  /** A 30-second preview from Apple, or null when none matched. */
+  preview: string | null
+}
+
+/** One thing she's wearing in the hero portrait. */
+export type DripItem = {
+  id: string
+  name: string
+  /** What kind of piece it is, e.g. Top: written on the stand-in until its photo exists. */
+  kind: string
+  /** The shop, or who made it. */
+  where: string
+  /** The product page. Leave out for something that can't be bought. */
+  href?: string
+  /** Square product photo under public/drip/. Missing files fall back to a painted card. */
+  thumb: string
+  /** Where on the portrait the line starts, in % of its width and height. */
+  dot: { x: number; y: number }
+  /**
+   * Which side of the portrait the card sits, and how far down, in % of its
+   * height. On the wide cover, `fit` centres it instead in a space that changes
+   * with the window: 'above' the name (under the top bar), or 'below' it (above
+   * the buttons). `y` is the fallback.
+   */
+  card: { side: 'left' | 'right'; y: number; fit?: 'above' | 'below' }
+}
+
+export type Drip = {
+  label: string
+  close: string
+  heading: string
+  /** The small labels on the phone-size cards, and the link text. */
+  labels: { from: string; get: string; shop: string; none: string }
+  items: DripItem[]
+}
+
 /** Recruiter mode shows "Around Tech", casual mode shows "Out of Tech". */
 export type Mode = 'recruiter' | 'casual'
 
@@ -112,6 +159,8 @@ export type Content = {
     portrait: { src: string; alt: string; width: number; height: number }
     role: string
     primaryCta: Link
+    /** "Cop my drip?": what she's wearing in the portrait, with where to buy it. Casual mode only. */
+    drip: Drip
   }
   tagline: { line1: string; line2: string; supporting: string }
   fan: { ring: string; recruiterGroup: string }
@@ -154,6 +203,19 @@ export type Content = {
     copied: string
     copyFailed: string
     links: Link[]
+  }
+  /** Casual mode's last screen: the songs she played last, live from Spotify (api/recently-played.ts). */
+  recentlyPlayed: {
+    title: string
+    intro: string
+    /** "{n} min ago" style labels; {n} is replaced. */
+    ago: { now: string; minutes: string; hours: string; days: string }
+    play: string
+    pause: string
+    noPreview: string
+    soundHint: string
+    empty: string
+    credit: { label: string; href: string }
   }
   footer: string
 }
