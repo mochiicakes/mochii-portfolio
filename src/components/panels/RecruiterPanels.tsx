@@ -61,7 +61,7 @@ const EDUCATION = 'education'
 
 function JobThumb({ job }: { job: Job }) {
   const thumb = <Thumb src={job.thumbnail} alt="" label={job.org} className="job-thumb-img" />
-  return hasPlaceholder(job.href) ? (
+  return !job.href || hasPlaceholder(job.href) ? (
     <span className="job-thumb">{thumb}</span>
   ) : (
     <ExternalLink href={job.href} className="job-thumb">
@@ -226,19 +226,23 @@ function Cases() {
                 )}
               </dd>
             </div>
-            <div>
-              <dt>{h.decisions}</dt>
-              <dd>
-                <Rich text={cs.decisions} />
-              </dd>
-            </div>
-            <div>
-              <dt>{h.result}</dt>
-              <dd>
-                <Rich text={cs.result} />
-                {cs.resultNote && <span className="scale">{cs.resultNote}</span>}
-              </dd>
-            </div>
+            {cs.decisions && (
+              <div>
+                <dt>{h.decisions}</dt>
+                <dd>
+                  <Rich text={cs.decisions} />
+                </dd>
+              </div>
+            )}
+            {cs.result && (
+              <div>
+                <dt>{h.result}</dt>
+                <dd>
+                  <Rich text={cs.result} />
+                  {cs.resultNote && <span className="scale">{cs.resultNote}</span>}
+                </dd>
+              </div>
+            )}
           </dl>
         </details>
       ))}
