@@ -523,6 +523,725 @@ html.js:not(.revealed) .skip-link {
   }
 }
 
+/* Recently played: casual mode's last screen, live from Spotify. A coverflow
+   of frosted-glass cards: the focused song in front, two either side turned
+   away and stepped back, and the focused (or playing) album's colours glowing
+   behind them. Hovering any card plays its preview; the equaliser shows which. */
+.songs-wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 8px auto 0;
+}
+
+.flow {
+  /* The front card's width; the stage scales from it. */
+  --cw: clamp(170px, min(21vw, 29svh), 290px);
+  /* How far apart the cards sit, as a share of a card's width. */
+  --gap: 0.6;
+  position: relative;
+  padding: 6px 0 4px;
+  touch-action: pan-y;
+}
+
+.flow-glow {
+  position: absolute;
+  inset: -12% 8%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.flow-glow img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  border-radius: 50%;
+  filter: blur(60px) saturate(2);
+  opacity: 0.9;
+  animation: flow-glow-in 0.9s ease both;
+}
+
+@keyframes flow-glow-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.flow-stage {
+  position: relative;
+  z-index: 1;
+  height: calc(var(--cw) + 104px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each card sits at its distance from the focused one (--d), turned away
+   from the middle and smaller the further out it is. */
+.flow-card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: calc(10 - var(--ad));
+  width: var(--cw);
+  /* The perspective is set per card (not on the stage), so the glass can
+     still blur what is behind it. */
+  transform: translateX(calc(-50% + var(--d) * var(--cw) * var(--gap))) perspective(1400px)
+    rotateY(calc(var(--d) * 24deg)) scale(calc(1 - var(--ad) * 0.12));
+  transform-origin: 50% 40%;
+  transition:
+    transform 0.6s var(--ease),
+    opacity 0.4s;
+}
+
+.flow-card[data-far] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The glass: a frosted, lightly tinted pane with a bright edge. */
+.flow-link {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 12px 12px 14px;
+  border: 1px solid rgb(255 255 255 / 0.4);
+  border-radius: 24px;
+  background: linear-gradient(165deg, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.1));
+  color: inherit;
+  text-align: center;
+  text-decoration: none;
+  box-shadow:
+    0 24px 50px rgb(3 30 58 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.45);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+}
+
+.flow-art {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgb(252 253 253 / 0.14);
+}
+
+.flow-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flow-artist {
+  max-width: 100%;
+  overflow: hidden;
+  font: 600 1.12rem/1.3 var(--font-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-title {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.86rem;
+  line-height: 1.3;
+  opacity: 0.85;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The time played, on the front card only. */
+.flow-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 1.2em;
+  margin-top: 4px;
+  font-size: 0.62rem;
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.flow-card:is([data-focus], [data-playing]) .flow-meta {
+  opacity: 0.8;
+}
+
+/* Three small bars that bounce while the song's preview plays. */
+.song-eq {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 11px;
+}
+
+.song-eq span {
+  width: 3px;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--butter);
+  transform-origin: bottom;
+  animation: song-eq 0.9s ease-in-out infinite alternate;
+}
+
+.song-eq span:nth-child(2) {
+  animation-delay: -0.3s;
+}
+
+.song-eq span:nth-child(3) {
+  animation-delay: -0.6s;
+}
+
+.flow-card[data-playing] .song-eq {
+  display: inline-flex;
+}
+
+@keyframes song-eq {
+  from {
+    scale: 1 0.25;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+/* The play button: always there on touch screens, where there is no hover;
+   with a mouse it shows on the hovered or playing card. */
+.flow-play {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.5);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.75);
+  color: var(--note-ink);
+  font-size: 0.8rem;
+  box-shadow: 0 4px 14px rgb(4 40 72 / 0.35);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.flow-card:hover .flow-play,
+.flow-play:focus-visible,
+.flow-card[data-playing] .flow-play {
+  opacity: 1;
+}
+
+/* Touch screens: the front cover is the play button, with its icon always
+   showing, and the link to Spotify is a pill under the title. */
+.flow-cover {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.flow-cover .flow-play {
+  top: 10px;
+  right: 10px;
+  opacity: 1;
+}
+
+/* Room for the pill under the front card. */
+.flow[data-touch] .flow-stage {
+  height: calc(var(--cw) + 148px);
+}
+
+.flow[data-touch] .flow-card:not([data-focus]) .flow-link {
+  cursor: pointer;
+}
+
+.flow-open {
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgb(255 255 255 / 0.45);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.16);
+  color: inherit;
+  font-size: 0.62rem;
+  letter-spacing: var(--track);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.flow-nav {
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* Loading: empty glass cards. */
+.flow-skeleton .flow-link,
+.flow-skeleton {
+  pointer-events: none;
+}
+
+.flow-skeleton {
+  padding: 12px 12px 14px;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  border-radius: 24px;
+  background: rgb(255 255 255 / 0.12);
+  animation: song-wait 1.4s ease-in-out infinite alternate;
+}
+
+.flow-skeleton .flow-artist,
+.flow-skeleton .flow-title {
+  display: block;
+  height: 0.8rem;
+  margin: 8px auto 0;
+  border-radius: 4px;
+  background: rgb(252 253 253 / 0.18);
+}
+
+.flow-skeleton .flow-artist {
+  width: 60%;
+}
+
+.flow-skeleton .flow-title {
+  width: 40%;
+}
+
+@keyframes song-wait {
+  to {
+    opacity: 0.55;
+  }
+}
+
+.songs-empty {
+  margin: 40px 0;
+  text-align: center;
+}
+
+.songs-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 18px;
+  margin: 18px 0 0;
+  font-size: 0.66rem;
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+}
+
+.songs-hint {
+  color: var(--butter);
+}
+
+/* Phones: a bigger front card with the next ones peeking in at the edges. */
+@media (max-width: 640px) {
+  .flow {
+    --cw: min(60vw, 250px);
+    --gap: 0.42;
+  }
+
+  .flow-artist {
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-card,
+  .flow-glow img,
+  .song-eq span,
+  .flow-skeleton {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* "Cop my drip?": what she's wearing in the portrait, with where to buy it.
+   Casual mode only; the button sits under Get in touch. */
+html[data-mode='recruiter'] :is(.drip-toggle, .drip) {
+  display: none;
+}
+
+.hero-br {
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Get in touch and Cop my drip? share one frame size, whichever label shows. */
+.hero-br .btn {
+  align-self: stretch;
+  min-width: 15rem;
+}
+
+/* Phones and tablets: spec cards in a row you swipe through, under the
+   buttons: the name, a big photo, then from / get it. */
+.drip {
+  position: relative;
+  z-index: 3;
+  width: calc(100% + 2 * var(--gutter));
+  margin-inline: calc(-1 * var(--gutter));
+  padding-bottom: 36px;
+}
+
+.drip:not([data-open]),
+.drip-lines,
+.drip-dot {
+  display: none;
+}
+
+.drip-cards {
+  display: flex;
+  gap: 14px;
+  margin: 0;
+  padding: 4px var(--gutter) 18px;
+  overflow-x: auto;
+  list-style: none;
+  text-align: left;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+}
+
+.drip-card {
+  flex: 0 0 min(74vw, 17rem);
+  scroll-snap-align: start;
+  animation: drip-in 0.5s var(--ease) calc(var(--i) * 70ms) both;
+}
+
+.drip-link {
+  display: grid;
+  gap: 10px;
+  height: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--note-ink);
+  text-decoration: none;
+  text-shadow: none;
+  box-shadow: 0 10px 28px rgb(4 40 72 / 0.28);
+  transition:
+    translate 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+
+a.drip-link:hover,
+a.drip-link:focus-visible {
+  translate: 0 -3px;
+  box-shadow: 0 14px 34px rgb(4 40 72 / 0.36);
+}
+
+/* Small typewriter capitals for the facts; the name is the largest line. */
+.drip-foot b {
+  font: 400 0.66rem/1.35 var(--font-type);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.drip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.drip-name {
+  display: -webkit-box;
+  flex: 1;
+  overflow: hidden;
+  font: 600 1.12rem/1.25 var(--font-body);
+  text-align: center;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.drip-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: #e8ebee;
+}
+
+.drip-thumb .thumb-art {
+  padding: 6px;
+  font-size: 1.6rem;
+}
+
+.drip-foot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgb(29 45 92 / 0.12);
+}
+
+/* Two bordered columns, each a handwritten label centred over its value. */
+.drip-foot > span {
+  display: grid;
+  align-content: start;
+  gap: 1px;
+  justify-items: center;
+  padding-top: 6px;
+  text-align: center;
+}
+
+.drip-foot > span + span {
+  border-left: 1px solid rgb(29 45 92 / 0.12);
+}
+
+/* The labels, handwritten in the signature script, like notes on a spread. */
+.drip-foot i {
+  font: 400 1.6rem/1 var(--font-script);
+  font-style: normal;
+  color: var(--paint);
+}
+
+.drip-foot b {
+  color: #5b6475;
+}
+
+.drip-get b {
+  color: var(--paint);
+}
+
+@keyframes drip-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+/* Wide screens: a fashion spread. Lines run from each piece out to a slim
+   card beside the portrait; the corner text steps back while it's open. */
+@media (min-width: 1100px) {
+  .hero-br {
+    align-items: flex-end;
+  }
+
+  .drip,
+  .drip:not([data-open]) {
+    position: absolute;
+    bottom: var(--figure-bottom);
+    left: 50%;
+    z-index: 4;
+    display: block;
+    width: auto;
+    height: var(--figure-h);
+    margin: 0;
+    aspect-ratio: 543 / 1516;
+    padding: 0;
+    translate: -50% 0;
+    pointer-events: none;
+  }
+
+  .drip[data-open] .drip-link {
+    pointer-events: auto;
+  }
+
+  .drip-lines {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .drip-lines line {
+    stroke: var(--paper);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    filter: drop-shadow(0 1px 2px rgb(4 40 72 / 0.5));
+    transition: stroke-dashoffset 0.25s ease-in;
+  }
+
+  .drip[data-open] .drip-lines line {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.6s var(--ease) calc(var(--i) * 90ms);
+  }
+
+  .drip-dot {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    display: block;
+    width: 11px;
+    height: 11px;
+    border: 2px solid var(--paper);
+    border-radius: 50%;
+    background: var(--goldfish);
+    opacity: 0;
+    translate: -50% -50%;
+    scale: 0.4;
+    transition:
+      opacity 0.2s,
+      scale 0.2s;
+  }
+
+  .drip[data-open] .drip-dot {
+    opacity: 1;
+    scale: 1;
+    transition:
+      opacity 0.3s calc(var(--i) * 90ms),
+      scale 0.4s var(--ease) calc(var(--i) * 90ms);
+    animation: drip-pulse 2.4s ease-out calc(0.6s + var(--i) * 0.3s) infinite;
+  }
+
+  .drip-cards {
+    display: block;
+    padding: 0;
+    overflow: visible;
+  }
+
+  /* The wide card: the same spec sheet as on phones, laid on its side. The
+     cards sit well out from the portrait (--drip-out, matching OUT in
+     Drip.tsx), clear of the name, so the cover keeps its breathing room. */
+  .drip {
+    --drip-out: 62%;
+  }
+
+  .drip-card {
+    position: absolute;
+    top: var(--y);
+    width: 17rem;
+    translate: 0 -50%;
+    opacity: 0;
+    animation: none;
+    transition:
+      opacity 0.2s,
+      translate 0.2s;
+  }
+
+  .drip-left {
+    right: calc(100% + var(--drip-out));
+    translate: 10px -50%;
+  }
+
+  .drip-right {
+    left: calc(100% + var(--drip-out));
+    translate: -10px -50%;
+  }
+
+  .drip[data-open] .drip-card {
+    opacity: 1;
+    translate: 0 -50%;
+    transition:
+      opacity 0.4s calc(0.3s + var(--i) * 90ms),
+      translate 0.5s var(--ease) calc(0.3s + var(--i) * 90ms);
+  }
+
+  /* The photo fills the card's height, with the same space on every side;
+     the name and the from / get it columns sit centred beside it. */
+  .drip-link {
+    --pad: 10px;
+    --photo: 104px;
+    grid-template-columns: var(--photo) 1fr;
+    grid-template-rows: auto auto;
+    align-content: center;
+    column-gap: 14px;
+    row-gap: 3px;
+    padding: var(--pad);
+  }
+
+  .drip-thumb {
+    grid-row: 1 / 3;
+    grid-column: 1;
+    width: var(--photo);
+    height: var(--photo);
+  }
+
+  .drip-thumb .thumb-art {
+    padding: 4px;
+    font-size: 1rem;
+  }
+
+  .drip-head {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: end;
+  }
+
+  .drip-foot {
+    grid-row: 2;
+    grid-column: 2;
+    align-self: start;
+  }
+
+  .drip-foot > span {
+    padding-top: 4px;
+  }
+
+  .drip-name {
+    font-size: 1.02rem;
+  }
+
+  .drip-foot i {
+    font-size: 1.45rem;
+  }
+
+  /* Short laptop windows: a more compact card, so the one between the
+     surname and the buttons still fits there. */
+  @media (max-height: 820px) {
+    /* Wider, so names stay on one line and the card stays short. */
+    .drip-card {
+      width: 19.5rem;
+    }
+
+    .drip-link {
+      --pad: 7px;
+      --photo: 76px;
+      row-gap: 0;
+    }
+
+    .drip-foot > span {
+      padding-top: 2px;
+    }
+
+    .drip-name {
+      font-size: 0.88rem;
+    }
+
+    .drip-foot i {
+      font-size: 1.25rem;
+    }
+  }
+
+  html[data-mode='casual'] .hero:has(.drip[data-open]) :is(.hero-tl, .hero-tr, .hero-bl) {
+    opacity: 0.12;
+  }
+
+  .hero :is(.hero-tl, .hero-tr, .hero-bl) {
+    transition: opacity 0.4s;
+  }
+}
+
+@keyframes drip-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(252 253 253 / 0.6);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 12px rgb(252 253 253 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drip-card,
+  .drip[data-open] .drip-dot {
+    animation: none;
+  }
+
+  .drip-lines line,
+  .drip[data-open] .drip-lines line {
+    transition: none;
+  }
+}
+
 .star-butter {
   fill: var(--butter);
   stroke: var(--butter);
@@ -1940,6 +2659,8 @@ html.js[data-page='contact'] .contact {
 
 .koi-home {
   position: absolute;
+  /* Only a marker for where the golden koi waits: never in the way of a click. */
+  pointer-events: none;
   /* Centred, just above the credits. */
   left: calc(50% - 130px);
   bottom: 0;

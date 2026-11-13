@@ -24,6 +24,8 @@ type Pad = {
   lotus?: Lotus[]
   /** Beside the Automations section, which is wider than the page column on big screens. */
   wide?: boolean
+  /** Anchored to the foot of the page, so the last screen always has this pad. */
+  foot?: boolean
 }
 
 // Big pads, alternating sides, each a little different. Art: public/lily/.
@@ -59,7 +61,7 @@ const PADS: Pad[] = [
   { side: 'left', at: 5.03, size: 560, art: 'c', turn: 160, drift: 24, lotus: [{ x: 0.08, y: 0.3, px: 140 }], wide: true },
   { side: 'right', at: 5.77, size: 760, art: 'b', turn: 40, drift: 22 },
   { side: 'left', at: 6.44, size: 520, art: 'a', turn: 230, drift: 16, lotus: [{ x: 0.07, y: 0.36, px: 160 }] },
-  { side: 'right', at: 6.96, size: 660, art: 'a', turn: 100, drift: 20, lotus: [{ x: 0.08, y: 0.26, px: 180 }] },
+  { side: 'right', at: 6.96, size: 660, art: 'a', turn: 100, drift: 20, lotus: [{ x: 0.08, y: 0.26, px: 180 }], foot: true },
 ]
 
 type Petal = {
@@ -132,9 +134,11 @@ type Layout = { pads: (number | null)[]; petals: (number | null)[] }
 
 /**
  * Lays the pads out for the page showing. The main page spends its first
- * screen on the cover; Contact has none, so its pads start at the top. Only as
- * many pads as the page has room for are shown (about one and a third per
- * screen), and none may run past the page's end, where it would be cut off.
+ * screen on the cover; Contact has none, so its pads start at the top. No pad
+ * may run past the page's end, where it would be cut off: one that would is
+ * moved up to fit. A pad that would then pile onto the one above it on the same
+ * side is left out, so a short page shows its first few pads, spaced as usual.
+ * The foot pad always shows; if it collides, the pad above gives way instead.
  */
 function layout(): Layout {
   const vh = window.innerHeight
@@ -143,13 +147,23 @@ function layout(): Layout {
   const contact = document.documentElement.dataset.page === 'contact'
   const shift = contact ? 0.9 : 0
   const start = contact ? 80 : vh + 40
-  const room = Math.max(0, end / vh - start / vh)
-  const count = Math.max(2, Math.round(room * 1.35))
-  const pads = PADS.map((p, i) => {
-    if (i >= count) return null
-    const size = Math.min(p.size, vw * 0.46)
-    const top = Math.max(start, (p.at - shift) * vh)
-    return Math.min(top, end - size - 24)
+  const pads: (number | null)[] = PADS.map(() => null)
+  // The last pad shown on each side, by index into PADS.
+  const last: Record<Pad['side'], number | null> = { left: null, right: null }
+  const sizeOf = (p: Pad) => Math.min(p.size, vw * 0.46)
+  PADS.forEach((p, i) => {
+    const size = sizeOf(p)
+    const fit = end - size - 24
+    const top = p.foot ? fit : Math.min(Math.max(start, (p.at - shift) * vh), fit)
+    if (top < start - 1 && !p.foot) return
+    const prev = last[p.side]
+    // Allow a little overlap (pads crowd in a real pond), not a pile.
+    if (prev !== null && top < (pads[prev] as number) + sizeOf(PADS[prev]) * 0.82) {
+      if (!p.foot) return
+      pads[prev] = null
+    }
+    pads[i] = top
+    last[p.side] = i
   })
   const petals = PETALS.map((p) => {
     // On Contact, petals keep clear of the top bar's MG mark.
