@@ -40,8 +40,9 @@ export function DripToggle({ open, onToggle }: { open: boolean; onToggle: () => 
  * What she's wearing in the portrait. On the wide cover, a line runs from each
  * piece out to a card beside her, like a fashion spread. On phones and
  * tablets the cards are 4:3 tickets in a row under the buttons that you can
- * swipe through endlessly: three copies sit side by side, and nearing either
- * end quietly moves you back to the middle one. Each card links to where to
+ * swipe through endlessly: three copies sit side by side, and once scrolling
+ * stops outside the middle copy, the row moves back to it by exactly one copy,
+ * which looks the same, so the move can't be seen. Each card links to where to
  * buy the piece. Closes on Escape, and when the page leaves casual mode.
  */
 export function Drip({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -62,13 +63,35 @@ export function Drip({ open, onClose }: { open: boolean; onClose: () => void }) 
   useLayoutEffect(() => {
     if (loop && row.current) row.current.scrollLeft = span()
   }, [loop])
-  const wrapRow = () => {
+  // Only once scrolling has settled: moving the row mid-swipe fights the
+  // swipe and the snapping, and shows as a jump. Settles on `scrollend` and,
+  // as a backstop (it is not always fired), 150 ms after the last scroll.
+  useEffect(() => {
     const el = row.current
-    const s = span()
-    if (!el || !s) return
-    if (el.scrollLeft < s * 0.5) el.scrollLeft += s
-    else if (el.scrollLeft > s * 1.5) el.scrollLeft -= s
-  }
+    if (!loop || !el) return
+    const settle = () => {
+      const s = span()
+      const items = el.children
+      if (!s || items.length < 2) return
+      // Snapped tickets rest a little off whole multiples of the copy width
+      // (they are centred), so the middle copy spans half a ticket either way.
+      const half = ((items[1] as HTMLElement).offsetLeft - (items[0] as HTMLElement).offsetLeft) / 2
+      if (el.scrollLeft < s - half) el.scrollLeft += s
+      else if (el.scrollLeft >= 2 * s - half) el.scrollLeft -= s
+    }
+    let timer = 0
+    const onScroll = () => {
+      clearTimeout(timer)
+      timer = window.setTimeout(settle, 150)
+    }
+    el.addEventListener('scrollend', settle)
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      clearTimeout(timer)
+      el.removeEventListener('scrollend', settle)
+      el.removeEventListener('scroll', onScroll)
+    }
+  }, [loop])
   // Where the `fit` cards go on the wide cover, in % of the portrait's height:
   // the middle of the space above the name (under the top bar) and below it
   // (above the buttons).
@@ -132,7 +155,7 @@ export function Drip({ open, onClose }: { open: boolean; onClose: () => void }) 
           style={{ '--x': `${it.dot.x}%`, '--y': `${it.dot.y}%`, '--i': i } as CSSProperties}
         />
       ))}
-      <ul ref={row} className="drip-cards" aria-label={d.heading} onScroll={loop ? wrapRow : undefined}>
+      <ul ref={row} className="drip-cards" aria-label={d.heading} >
         {Array.from({ length: copies }, (_, c) => c).flatMap((c) =>
           d.items.map((it, i) => {
             // The copies either side of the middle are only there to scroll into.
