@@ -664,7 +664,7 @@ export const content: Content = {
     },
     openTo:
       'AI and automation engineering, solutions engineering and technical lead roles, remotely.',
-    email: 'michaellagonzales.owo@gmail.com',
+    email: 'mochii.aroundtech@gmail.com',
     copy: 'Copy',
     copied: 'Copied',
     copyFailed: 'Copy failed. Select the address instead.',
