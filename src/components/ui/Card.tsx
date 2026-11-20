@@ -4,10 +4,7 @@ import { ExternalLink } from './ExternalLink'
 import { Rich } from './Rich'
 
 export type CardAction =
-  | { kind: 'external'; href: string }
-  | { kind: 'internal'; href: string }
-  | { kind: 'soon' }
-  | { kind: 'none' }
+  { kind: 'external'; href: string } | { kind: 'internal'; href: string } | { kind: 'soon' } | { kind: 'none' }
 
 type Props = {
   title: string

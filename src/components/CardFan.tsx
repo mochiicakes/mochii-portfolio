@@ -30,21 +30,13 @@ function Face({ card, tone }: { card: FanCard; tone: number }) {
   return (
     <span className={`fan-face tone-${tone % 4}`}>
       <span className="fan-face-art" aria-hidden="true">
-        <Star tone={(["butter", "sky", "milk"] as const)[tone % 3]} className="fan-face-star" />
+        <Star tone={(['butter', 'sky', 'milk'] as const)[tone % 3]} className="fan-face-star" />
         <span className="fan-face-word">
           <Rich text={card.title} />
         </span>
       </span>
       {!failed && (
-        <img
-          ref={ref}
-          src={card.image}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          draggable={false}
-          onError={onError}
-        />
+        <img ref={ref} src={card.image} alt="" loading="lazy" decoding="async" draggable={false} onError={onError} />
       )}
       <span className="fan-face-tag">{card.groupLabel}</span>
     </span>

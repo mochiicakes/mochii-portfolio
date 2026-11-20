@@ -104,13 +104,21 @@ export async function GET(): Promise<Response> {
     if (!res.ok) throw new Error(`Spotify recently played: ${res.status}`)
     const { items } = (await res.json()) as { items: SpotifyItem[] }
 
-    const hide = new Set((process.env.SPOTIFY_HIDE ?? '').split(',').map((s) => s.trim()).filter(Boolean))
+    const hide = new Set(
+      (process.env.SPOTIFY_HIDE ?? '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    )
     const seen = new Set<string>()
-    const picked = items.filter(({ track }) => {
-      if (!track || seen.has(track.id) || hide.has(track.id) || track.artists.some((a) => hide.has(a.id))) return false
-      seen.add(track.id)
-      return true
-    }).slice(0, SHOW)
+    const picked = items
+      .filter(({ track }) => {
+        if (!track || seen.has(track.id) || hide.has(track.id) || track.artists.some((a) => hide.has(a.id)))
+          return false
+        seen.add(track.id)
+        return true
+      })
+      .slice(0, SHOW)
 
     const tracks = await Promise.all(
       picked.map(async ({ track, played_at }): Promise<Track> => {

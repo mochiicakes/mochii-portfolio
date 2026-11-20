@@ -1,0 +1,5 @@
+dist
+dist-ssr
+public
+package-lock.json
+.claude

@@ -104,7 +104,12 @@ function WorldSection({ mode }: { mode: Mode }) {
         {mode === 'recruiter' ? (
           <IntroVideo />
         ) : (
-          <CardFan label={world.title} ring={content.fan.ring} cards={casualCards()} groups={content.worlds.casual.tabs} />
+          <CardFan
+            label={world.title}
+            ring={content.fan.ring}
+            cards={casualCards()}
+            groups={content.worlds.casual.tabs}
+          />
         )}
         {mode === 'recruiter' ? (
           <NextDivider next={{ id: 'experience', label: 'experience' }} />
@@ -122,7 +127,11 @@ function WorldSection({ mode }: { mode: Mode }) {
           >
             <Experience />
           </Part>
-          <Part id="impact" title={content.worlds.recruiter.tabsTitle} next={{ id: 'automations', label: 'automations' }}>
+          <Part
+            id="impact"
+            title={content.worlds.recruiter.tabsTitle}
+            next={{ id: 'automations', label: 'automations' }}
+          >
             <Tabs
               set="recruiter"
               label={content.worlds.recruiter.tabsTitle}
@@ -139,7 +148,12 @@ function WorldSection({ mode }: { mode: Mode }) {
           >
             <Automations />
           </Part>
-          <Part last id="personal-projects" title={content.fan.recruiterGroup} intro={content.worlds.recruiter.projectsIntro}>
+          <Part
+            last
+            id="personal-projects"
+            title={content.fan.recruiterGroup}
+            intro={content.worlds.recruiter.projectsIntro}
+          >
             <CardFan label={content.fan.recruiterGroup} ring={content.fan.ring} cards={projectCards()} />
           </Part>
         </>

@@ -327,7 +327,9 @@ html.js:not(.revealed) .skip-link {
 
 .hero-first,
 .hero-overprint > span {
-  font: 800 clamp(2.6rem, 14.5vw, 9rem) / 0.82 'Playfair Display', var(--font-display);
+  font:
+    800 clamp(2.6rem, 14.5vw, 9rem) / 0.82 'Playfair Display',
+    var(--font-display);
   letter-spacing: -0.015em;
   text-transform: uppercase;
   white-space: nowrap;

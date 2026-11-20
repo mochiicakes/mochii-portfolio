@@ -67,7 +67,10 @@ html = html
 fs.writeFileSync(file, html)
 
 // Crawlers: allow everything; the sitemap needs an absolute address, so it waits for one.
-fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: *\nAllow: /\n${site ? `\nSitemap: ${site}/sitemap.xml\n` : ''}`)
+fs.writeFileSync(
+  path.join(dist, 'robots.txt'),
+  `User-agent: *\nAllow: /\n${site ? `\nSitemap: ${site}/sitemap.xml\n` : ''}`,
+)
 if (site) {
   fs.writeFileSync(
     path.join(dist, 'sitemap.xml'),

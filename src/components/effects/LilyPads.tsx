@@ -58,10 +58,28 @@ const PADS: Pad[] = [
   },
   { side: 'left', at: 3.7, size: 740, art: 'b', turn: 70, drift: 21 },
   { side: 'right', at: 4.44, size: 500, art: 'c', turn: 320, drift: 18, lotus: [{ x: 0.07, y: 0.34, px: 150 }] },
-  { side: 'left', at: 5.03, size: 560, art: 'c', turn: 160, drift: 24, lotus: [{ x: 0.08, y: 0.3, px: 140 }], wide: true },
+  {
+    side: 'left',
+    at: 5.03,
+    size: 560,
+    art: 'c',
+    turn: 160,
+    drift: 24,
+    lotus: [{ x: 0.08, y: 0.3, px: 140 }],
+    wide: true,
+  },
   { side: 'right', at: 5.77, size: 760, art: 'b', turn: 40, drift: 22 },
   { side: 'left', at: 6.44, size: 520, art: 'a', turn: 230, drift: 16, lotus: [{ x: 0.07, y: 0.36, px: 160 }] },
-  { side: 'right', at: 6.96, size: 660, art: 'a', turn: 100, drift: 20, lotus: [{ x: 0.08, y: 0.26, px: 180 }], foot: true },
+  {
+    side: 'right',
+    at: 6.96,
+    size: 660,
+    art: 'a',
+    turn: 100,
+    drift: 20,
+    lotus: [{ x: 0.08, y: 0.26, px: 180 }],
+    foot: true,
+  },
 ]
 
 type Petal = {

@@ -62,8 +62,12 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(500).end('No refresh token came back. See the terminal.')
     console.error(token)
   } else {
-    res.writeHead(200, { 'content-type': 'text/plain' }).end('Done. You can close this tab and go back to the terminal.')
-    console.log(`\nAdd this to .env.local and to Vercel's environment variables:\n\nSPOTIFY_REFRESH_TOKEN=${token.refresh_token}\n`)
+    res
+      .writeHead(200, { 'content-type': 'text/plain' })
+      .end('Done. You can close this tab and go back to the terminal.')
+    console.log(
+      `\nAdd this to .env.local and to Vercel's environment variables:\n\nSPOTIFY_REFRESH_TOKEN=${token.refresh_token}\n`,
+    )
   }
   server.close()
 })

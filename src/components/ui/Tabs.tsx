@@ -9,7 +9,17 @@ type Tab = { id: string; label: ReactNode; title?: string }
  * App. Without JavaScript the tab list hides and every panel shows, each under
  * its `title`.
  */
-export function Tabs({ set, label, tabs, children }: { set: TabSet; label: string; tabs: Tab[]; children: (id: string) => ReactNode }) {
+export function Tabs({
+  set,
+  label,
+  tabs,
+  children,
+}: {
+  set: TabSet
+  label: string
+  tabs: Tab[]
+  children: (id: string) => ReactNode
+}) {
   const store = tabStores[set] as TabStore
   const active = useSyncExternalStore(store.subscribe, store.get, store.getServer)
   const select = store.set
@@ -18,11 +28,15 @@ export function Tabs({ set, label, tabs, children }: { set: TabSet; label: strin
   const onKey = (e: KeyboardEvent) => {
     const i = tabs.findIndex((t) => t.id === active)
     const next =
-      e.key === 'ArrowRight' ? (i + 1) % tabs.length
-      : e.key === 'ArrowLeft' ? (i - 1 + tabs.length) % tabs.length
-      : e.key === 'Home' ? 0
-      : e.key === 'End' ? tabs.length - 1
-      : -1
+      e.key === 'ArrowRight'
+        ? (i + 1) % tabs.length
+        : e.key === 'ArrowLeft'
+          ? (i - 1 + tabs.length) % tabs.length
+          : e.key === 'Home'
+            ? 0
+            : e.key === 'End'
+              ? tabs.length - 1
+              : -1
     if (next < 0) return
     e.preventDefault()
     const id = tabs.at(next)!.id

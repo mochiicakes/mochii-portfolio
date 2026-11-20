@@ -155,7 +155,7 @@ export function Drip({ open, onClose }: { open: boolean; onClose: () => void }) 
           style={{ '--x': `${it.dot.x}%`, '--y': `${it.dot.y}%`, '--i': i } as CSSProperties}
         />
       ))}
-      <ul ref={row} className="drip-cards" aria-label={d.heading} >
+      <ul ref={row} className="drip-cards" aria-label={d.heading}>
         {Array.from({ length: copies }, (_, c) => c).flatMap((c) =>
           d.items.map((it, i) => {
             // The copies either side of the middle are only there to scroll into.
@@ -197,7 +197,7 @@ export function Drip({ open, onClose }: { open: boolean; onClose: () => void }) 
                 )}
               </li>
             )
-          })
+          }),
         )}
       </ul>
     </div>
