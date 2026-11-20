@@ -3,8 +3,6 @@ import type { Content } from './types'
 // All site copy. Components read from here; edit text, numbers and links in this file.
 // [Square brackets] mark placeholders. `npm run placeholders` lists the ones left.
 
-const cv = { label: 'Download CV', href: '/Michaella-Gonzales-CV.pdf' }
-
 export const content: Content = {
   meta: {
     title: 'Michaella Gonzales, AI & automation engineer',
@@ -32,7 +30,64 @@ export const content: Content = {
     },
     role: 'AI & automation engineer',
     primaryCta: { label: 'Get in touch', href: '#contact' },
-    cvCta: cv,
+    // Casual mode only. Thumbnails: public/drip/<id>.webp, square, about 240 × 240.
+    drip: {
+      label: 'Cop my drip?',
+      close: 'Hide the drip',
+      heading: 'What I am wearing',
+      labels: { from: 'from', get: 'get it', shop: 'Shop', none: 'One of one' },
+      items: [
+        {
+          id: 'piercings',
+          name: 'Stainless steel sparkle piercings',
+          kind: 'Piercings',
+          where: 'Custom by me',
+          thumb: '/drip/piercings.webp',
+          dot: { x: 50, y: 12.2 },
+          card: { side: 'left', y: 10, fit: 'above' },
+        },
+        {
+          id: 'necklace',
+          name: 'Vnox layered stainless steel necklace',
+          kind: 'Necklace',
+          where: 'Shopee',
+          href: 'https://s.shopee.ph/4VeLBekcUq',
+          thumb: '/drip/necklace.webp',
+          dot: { x: 61, y: 21.2 },
+          card: { side: 'right', y: 13, fit: 'above' },
+        },
+        {
+          id: 'shirt',
+          name: 'White short-sleeve turtleneck',
+          kind: 'Top',
+          where: 'Shopee',
+          href: 'https://s.shopee.ph/3LSNnJcAkL',
+          thumb: '/drip/shirt.webp',
+          dot: { x: 46, y: 29 },
+          card: { side: 'left', y: 60 },
+        },
+        {
+          id: 'pants',
+          name: 'Flared, relaxed black denim',
+          kind: 'Bottoms',
+          where: 'TikTok Shop',
+          href: 'https://vt.tiktok.com/ZS9f49GheacQE-lA0nR/',
+          thumb: '/drip/pants.webp',
+          dot: { x: 77, y: 59 },
+          card: { side: 'right', y: 67, fit: 'below' },
+        },
+        {
+          id: 'shoes',
+          name: 'Converse Run Star Hike high-tops',
+          kind: 'Shoes',
+          where: 'Farfetch',
+          href: 'https://www.farfetch.com/ph/shopping/men/converse-run-star-hike-high-top-sneakers-item-14997354.aspx',
+          thumb: '/drip/shoes.webp',
+          dot: { x: 14, y: 97 },
+          card: { side: 'left', y: 88 },
+        },
+      ],
+    },
   },
 
   tagline: {
@@ -458,13 +513,14 @@ export const content: Content = {
       thumbnail: '/projects/yours-db.webp',
     },
     {
-      slug: 'photo-bot',
-      title: 'Photo Bot',
+      slug: 'tsuki-cam',
+      title: 'Tsuki Cam',
       status: 'Live',
-      description: 'A virtual photobooth. Take photos with your webcam, add digital effects, and save them.',
+      description:
+        'A moonlit photobooth that runs entirely in your browser, with no server by design, so your photos stay on your device. Take a photo or upload one, light your face with a coloured screen light, frame it at 3:4, 1:1 or 4:3, then add filters, skin smoothing and brightening, with pose ideas to try.',
       stack: ['React', 'Tailwind', 'Framer Motion', 'react-webcam', 'html-to-image'],
       href: 'https://photo-bot-kappa.vercel.app',
-      thumbnail: '/projects/photo-bot.webp',
+      thumbnail: '/projects/tsuki-cam.webp',
     },
     {
       slug: 'tomorrow',
@@ -598,8 +654,7 @@ export const content: Content = {
       {
         slug: 'shoutcasting',
         title: 'On the mic',
-        when: '2021 to now',
-        detail: 'Hosted and cast 80+ live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS.',
+        detail: 'Since 2021, I have hosted and cast 80+ live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS.',
         image: '/casual/shoutcasting.webp',
       },
       { slug: 'gaming', title: 'Video games', detail: 'When work gets stressful, I play League of Legends and Valorant to get even more stressed :D', image: '/casual/gaming.webp' },
@@ -672,7 +727,19 @@ export const content: Content = {
       { label: 'LinkedIn', href: 'https://www.linkedin.com/in/michaella-gonzales-203626296' },
       { label: 'GitHub', href: 'https://github.com/mochiicakes' },
     ],
-    cv,
+  },
+
+  // Live from Spotify; setup in README (Recently played).
+  recentlyPlayed: {
+    title: 'Recently played',
+    intro: 'What has been on repeat lately, live from my Spotify. Press play to listen through, or hover a song to hear a bit. Open any of them on Spotify.',
+    ago: { now: 'Just now', minutes: '{n} min ago', hours: '{n} h ago', days: '{n} d ago' },
+    play: 'Listen from here',
+    pause: 'Stop listening',
+    open: 'Open in Spotify',
+    noPreview: 'No preview',
+    soundHint: 'Click anywhere once to turn the sound on.',
+    empty: 'Nothing to show right now. Check back soon.',
   },
 
   footer: `© ${new Date().getFullYear()} Michaella Gonzales`,

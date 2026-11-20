@@ -95,11 +95,6 @@ export function Contact() {
             )}
           </li>
         ))}
-        <li>
-          <a className="btn btn-koi" href={c.cv.href} download>
-            {c.cv.label}
-          </a>
-        </li>
       </ul>
       <p className={toast ? 'toast is-shown' : 'toast'} role="status" aria-live="polite">
         {toast}

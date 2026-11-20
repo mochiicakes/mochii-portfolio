@@ -2,6 +2,7 @@ import { useEffect, useSyncExternalStore } from 'react'
 import { Contact } from './components/Contact'
 import { CursorKoi } from './components/effects/CursorKoi'
 import { CrystalLayer } from './components/effects/CrystalLayer'
+import { LilyPads } from './components/effects/LilyPads'
 import { PaintedGround } from './components/effects/PaintedGround'
 import { NameHero } from './components/NameHero'
 import { TopBar } from './components/TopBar'
@@ -84,10 +85,11 @@ export function App() {
 
   return (
     <>
+      {/* The top bar sits outside #page so it can float above the lily pads. */}
+      <TopBar />
       <PaintedGround />
       <CrystalLayer />
       <div id="page" className="page">
-        <TopBar />
         <main>
           <NameHero />
           <World />
@@ -95,6 +97,7 @@ export function App() {
         </main>
       </div>
       <CursorKoi />
+      <LilyPads />
     </>
   )
 }
