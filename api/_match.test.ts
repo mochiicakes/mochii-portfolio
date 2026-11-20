@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { plain, score } from './_match'
+import { plain, score } from './_match.js'
 
 describe('plain', () => {
   it('strips brackets, accents and feat. credits', () => {

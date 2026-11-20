@@ -10,7 +10,7 @@
 // or artist ids to keep off the page.
 
 import type { PlayedTrack as Track } from '../src/types.ts'
-import { score, type ItunesSong } from './_match.ts'
+import { score, type ItunesSong } from './_match.js'
 
 export type RecentlyPlayed = { tracks: Track[]; reason?: string }
 
