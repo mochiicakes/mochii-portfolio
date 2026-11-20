@@ -17,9 +17,13 @@ lines.forEach((line, i) => {
   const ok = field === 'href'
   if (ok) allowed += found.length
   else count += found.length
-  console.log(`${file}:${i + 1}  ${field ? field + '  ' : ''}${found.join('  ')}${ok ? '  (allowed: shows "Link coming soon")' : ''}`)
+  console.log(
+    `${file}:${i + 1}  ${field ? field + '  ' : ''}${found.join('  ')}${ok ? '  (allowed: shows "Link coming soon")' : ''}`,
+  )
 })
-console.log(`\n${count} placeholder${count === 1 ? '' : 's'} left${allowed ? `, ${allowed} allowed link${allowed === 1 ? '' : 's'}` : ''}.`)
+console.log(
+  `\n${count} placeholder${count === 1 ? '' : 's'} left${allowed ? `, ${allowed} allowed link${allowed === 1 ? '' : 's'}` : ''}.`,
+)
 if (check && count > 0) {
   console.error('Fill or remove the placeholders above before building for production.')
   process.exit(1)

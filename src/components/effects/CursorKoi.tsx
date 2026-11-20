@@ -46,7 +46,12 @@ function parse(d: string): Shape {
   const ops: Shape['ops'] = []
   const xy: number[] = []
   for (const m of d.matchAll(/([MCZ])([^MCZ]*)/g)) {
-    const vals = m[2].trim() ? m[2].trim().split(/[\s,]+/).map(Number) : []
+    const vals = m[2].trim()
+      ? m[2]
+          .trim()
+          .split(/[\s,]+/)
+          .map(Number)
+      : []
     ops.push({ c: m[1], n: vals.length / 2 })
     xy.push(...vals)
   }
@@ -188,7 +193,13 @@ type Refs = { [K in keyof Els]: RefObject<Els[K] | null> }
 function resolve(r: Refs): Els | null {
   const { body, tail, veins, finTop, finBottom } = r
   if (!body.current || !tail.current || !veins.current || !finTop.current || !finBottom.current) return null
-  return { body: body.current, tail: tail.current, veins: veins.current, finTop: finTop.current, finBottom: finBottom.current }
+  return {
+    body: body.current,
+    tail: tail.current,
+    veins: veins.current,
+    finTop: finTop.current,
+    finBottom: finBottom.current,
+  }
 }
 
 /**
@@ -244,7 +255,8 @@ export function CursorKoi() {
     const leadInk: WakeInk = makeInk([247, 80, 62], [186, 38, 24])
     const mateInk: WakeInk = makeInk([251, 226, 140], [226, 160, 48])
     // Each page's last screen has a home; wait at the one that is showing.
-    const findHome = () => [...document.querySelectorAll<HTMLElement>('.koi-home')].find((h) => h.getClientRects().length > 0)
+    const findHome = () =>
+      [...document.querySelectorAll<HTMLElement>('.koi-home')].find((h) => h.getClientRects().length > 0)
 
     let tx = window.innerWidth / 2
     let ty = window.innerHeight / 2

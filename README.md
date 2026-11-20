@@ -23,15 +23,15 @@ Live site: [mochii-portfolio.vercel.app](https://mochii-portfolio.vercel.app)
 
 ## Tech stack
 
-| Layer | Choice |
-| --- | --- |
-| UI | React 19, TypeScript 6 (strict) |
-| Build | Vite 8, pre-rendered with `react-dom/server` (`scripts/prerender.mjs`) |
-| Scrolling | [Lenis](https://github.com/darkroomengineering/lenis) |
-| Styling | Plain CSS with custom-property tokens |
-| Graphics | Canvas 2D (watercolour), WebGL (water light), inline SVG (koi, stars, underline, flow diagrams) |
-| Fonts | Playfair Display (display), Mrs Saint Delafield (script), Lora (body), self-hosted via Fontsource |
-| Hosting | Vercel (static) |
+| Layer     | Choice                                                                                            |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| UI        | React 19, TypeScript 6 (strict)                                                                   |
+| Build     | Vite 8, pre-rendered with `react-dom/server` (`scripts/prerender.mjs`)                            |
+| Scrolling | [Lenis](https://github.com/darkroomengineering/lenis)                                             |
+| Styling   | Plain CSS with custom-property tokens                                                             |
+| Graphics  | Canvas 2D (watercolour), WebGL (water light), inline SVG (koi, stars, underline, flow diagrams)   |
+| Fonts     | Playfair Display (display), Mrs Saint Delafield (script), Lora (body), self-hosted via Fontsource |
+| Hosting   | Vercel (static)                                                                                   |
 
 ## Project structure
 
@@ -95,28 +95,28 @@ npm install
 npm run dev
 ```
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Dev server at `http://localhost:5173` |
-| `npm run build` | Check for placeholders, type-check, build, pre-render into `dist/` (plus `robots.txt`, and `sitemap.xml` when the site URL is known) |
-| `npm run preview` | Serve `dist/` at `http://localhost:4173` |
-| `npm run lint` | ESLint |
-| `npm run spotify:token` | One-time: get the Spotify refresh token for Recently played (see below) |
-| `npm run placeholders` | List the `[placeholders]` left in `src/content.ts` (`--check` exits with an error while any remain; `href` placeholders are allowed and show "Link coming soon") |
+| Command                 | What it does                                                                                                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`           | Dev server at `http://localhost:5173`                                                                                                                            |
+| `npm run build`         | Check for placeholders, type-check, build, pre-render into `dist/` (plus `robots.txt`, and `sitemap.xml` when the site URL is known)                             |
+| `npm run preview`       | Serve `dist/` at `http://localhost:4173`                                                                                                                         |
+| `npm run lint`          | ESLint                                                                                                                                                           |
+| `npm run spotify:token` | One-time: get the Spotify refresh token for Recently played (see below)                                                                                          |
+| `npm run placeholders`  | List the `[placeholders]` left in `src/content.ts` (`--check` exits with an error while any remain; `href` placeholders are allowed and show "Link coming soon") |
 
 ### Filling in content
 
 1. Edit `src/content.ts`. Replace each `[placeholder]` until `npm run placeholders` reports none left. `npm run build` refuses to build while any remain, except in an `href`.
 2. Add the images (WebP, named exactly as in `src/content.ts`). Until a file exists, its slot shows a painted stand-in.
 
-   | Slot | Path | Shape and size |
-   | --- | --- | --- |
-   | Hero portrait (done) | `public/hero/michaella.webp` | transparent cut-out, about 1500–2000px tall, cropped to the figure, feet on the bottom edge |
-   | Personal Projects fan cards | `public/projects/<slug>.webp` | portrait 11:15, 660 × 900 |
-   | Out of Tech fan cards | `public/casual/<slug>.webp` | portrait 11:15, 660 × 900 |
-   | Experience screenshots | `public/experience/<name>.webp` | landscape 16:10, 1600 × 1000 |
-   | Contact polaroid | `public/contact/selfie.webp` | portrait 4:5, 800 × 1000 |
-   | Share image | `public/og.jpg` | 1200 × 630 |
+   | Slot                        | Path                            | Shape and size                                                                              |
+   | --------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------- |
+   | Hero portrait (done)        | `public/hero/michaella.webp`    | transparent cut-out, about 1500–2000px tall, cropped to the figure, feet on the bottom edge |
+   | Personal Projects fan cards | `public/projects/<slug>.webp`   | portrait 11:15, 660 × 900                                                                   |
+   | Out of Tech fan cards       | `public/casual/<slug>.webp`     | portrait 11:15, 660 × 900                                                                   |
+   | Experience screenshots      | `public/experience/<name>.webp` | landscape 16:10, 1600 × 1000                                                                |
+   | Contact polaroid            | `public/contact/selfie.webp`    | portrait 4:5, 800 × 1000                                                                    |
+   | Share image                 | `public/og.jpg`                 | 1200 × 630                                                                                  |
 
    Export WebP at quality 80–85 (screens with small text: 90). Keep each under about 250 KB; the portrait is the only one that needs transparency.
 

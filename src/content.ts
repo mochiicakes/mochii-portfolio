@@ -367,9 +367,19 @@ export const content: Content = {
         heading: 'YOU_SOURCE Inc.',
         period: 'Dec 2023 to Jul 2025',
         items: [
-          { text: 'Introduced test-driven development on Pine Connector, raising coverage from 36% to 78%', kind: 'Initiative' },
-          { text: 'Built YS-AI, a 6-module AI training app, to get colleagues comfortable with AI', kind: 'Initiative', chip: '60+ employees' },
-          { text: 'Benchmarked LLMs for YS-LLM, the internal coding assistant, and supported its pilot', chip: '50+ engineers' },
+          {
+            text: 'Introduced test-driven development on Pine Connector, raising coverage from 36% to 78%',
+            kind: 'Initiative',
+          },
+          {
+            text: 'Built YS-AI, a 6-module AI training app, to get colleagues comfortable with AI',
+            kind: 'Initiative',
+            chip: '60+ employees',
+          },
+          {
+            text: 'Benchmarked LLMs for YS-LLM, the internal coding assistant, and supported its pilot',
+            chip: '50+ engineers',
+          },
           {
             text: 'Led code review and project management initiatives: 25+ reviews and 10+ refactors that cut technical debt by up to 32%',
             kind: 'Initiative',
@@ -403,7 +413,10 @@ export const content: Content = {
             text: 'President, iTamaraws Esports Club: grew membership from 70+ to 280+ and the officer team from 18 to 60+; secured full accreditation',
             kind: 'Volunteer',
           },
-          { text: 'Director for Membership, ACM Student Chapter: grew active membership 36% to 470+', kind: 'Volunteer' },
+          {
+            text: 'Director for Membership, ACM Student Chapter: grew active membership 36% to 470+',
+            kind: 'Volunteer',
+          },
           {
             text: 'Director for Publications, ACM Student Chapter: chapter named Best Student Organization of the Year',
             kind: 'Volunteer',
@@ -569,7 +582,8 @@ export const content: Content = {
       title: 'EU legislation digest',
       scale: 'Weekly',
       nodes: ['EU RSS feeds', 'Filter by week and sector', 'AI summary', 'Weekly email'],
-      description: 'Reads EUR-Lex and EU RSS feeds, keeps what is new for each sector, and emails executives a weekly AI-written briefing.',
+      description:
+        'Reads EUR-Lex and EU RSS feeds, keeps what is new for each sector, and emails executives a weekly AI-written briefing.',
       stack: ['n8n', 'EUR-Lex RSS', 'LLM API', 'Email'],
       link: { kind: 'case', caseId: 'case-executives' },
     },
@@ -634,17 +648,23 @@ export const content: Content = {
       },
       {
         area: 'Backend',
-        tools: 'Node.js, TypeScript, Express, Python (Django, Django REST Framework), Prisma, PostgreSQL, REST and GraphQL APIs, PHP',
+        tools:
+          'Node.js, TypeScript, Express, Python (Django, Django REST Framework), Prisma, PostgreSQL, REST and GraphQL APIs, PHP',
       },
       {
         area: 'Frontend & mobile',
-        tools: 'JavaScript, TypeScript, React, Next.js, Redux Toolkit, Material UI, Tailwind, Three.js, React Native, Expo, Electron, Flutter',
+        tools:
+          'JavaScript, TypeScript, React, Next.js, Redux Toolkit, Material UI, Tailwind, Three.js, React Native, Expo, Electron, Flutter',
       },
       {
         area: 'Cloud & data',
-        tools: 'Google Cloud (App Engine, Cloud Build, Storage), Supabase (row-level security, SQL functions, realtime), Firebase, Microsoft Entra ID, Vercel',
+        tools:
+          'Google Cloud (App Engine, Cloud Build, Storage), Supabase (row-level security, SQL functions, realtime), Firebase, Microsoft Entra ID, Vercel',
       },
-      { area: 'Delivery', tools: 'Docker, CI/CD (GitHub Actions, Cloud Build), TDD, Jest, Vitest, Sentry, Azure DevOps, Jira' },
+      {
+        area: 'Delivery',
+        tools: 'Docker, CI/CD (GitHub Actions, Cloud Build), TDD, Jest, Vitest, Sentry, Azure DevOps, Jira',
+      },
     ],
   },
 
@@ -654,11 +674,23 @@ export const content: Content = {
       {
         slug: 'shoutcasting',
         title: 'On the mic',
-        detail: 'Since 2021, I have hosted and cast 80+ live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS.',
+        detail:
+          'Since 2021, I have hosted and cast 80+ live events for Samsung, Predator Gaming, Mineski, TNC, UAAP, VCT and CFS.',
         image: '/casual/shoutcasting.webp',
       },
-      { slug: 'gaming', title: 'Video games', detail: 'When work gets stressful, I play League of Legends and Valorant to get even more stressed :D', image: '/casual/gaming.webp' },
-      { slug: 'cosplay', title: 'Cosplay', detail: 'I love dressing up as my favourite characters and bringing them to life, with the craftsmanship to make them accurate.', image: '/casual/cosplay.webp' },
+      {
+        slug: 'gaming',
+        title: 'Video games',
+        detail: 'When work gets stressful, I play League of Legends and Valorant to get even more stressed :D',
+        image: '/casual/gaming.webp',
+      },
+      {
+        slug: 'cosplay',
+        title: 'Cosplay',
+        detail:
+          'I love dressing up as my favourite characters and bringing them to life, with the craftsmanship to make them accurate.',
+        image: '/casual/cosplay.webp',
+      },
     ],
     hobbies: [
       {
@@ -717,8 +749,7 @@ export const content: Content = {
       alt: 'Selfie of Michaella with dark, teal-tipped hair and a silver star earring',
       caption: 'Say hi!',
     },
-    openTo:
-      'AI and automation engineering, solutions engineering and technical lead roles, remotely.',
+    openTo: 'AI and automation engineering, solutions engineering and technical lead roles, remotely.',
     email: 'mochii.aroundtech@gmail.com',
     copy: 'Copy',
     copied: 'Copied',
@@ -732,7 +763,8 @@ export const content: Content = {
   // Live from Spotify; setup in README (Recently played).
   recentlyPlayed: {
     title: 'Recently played',
-    intro: 'What has been on repeat lately, live from my Spotify. Press play to listen through, or hover a song to hear a bit. Open any of them on Spotify.',
+    intro:
+      'What has been on repeat lately, live from my Spotify. Press play to listen through, or hover a song to hear a bit. Open any of them on Spotify.',
     ago: { now: 'Just now', minutes: '{n} min ago', hours: '{n} h ago', days: '{n} d ago' },
     play: 'Listen from here',
     pause: 'Stop listening',

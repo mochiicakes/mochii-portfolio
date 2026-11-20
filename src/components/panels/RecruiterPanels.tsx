@@ -12,32 +12,32 @@ function Proof() {
   const { claimHeading, evidenceHeading, rows } = content.proof
   return (
     <div className="proof-wrap pane">
-    <table className="proof">
-      <thead>
-        <tr>
-          <th scope="col">{claimHeading}</th>
-          <th scope="col">{evidenceHeading}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.claim}>
-            <th scope="row">{row.claim}</th>
-            <td>
-              <Rich text={row.evidence} />
-              {row.href && (
-                <>
-                  {' '}
-                  <a className="proof-link" href={row.href}>
-                    See it
-                  </a>
-                </>
-              )}
-            </td>
+      <table className="proof">
+        <thead>
+          <tr>
+            <th scope="col">{claimHeading}</th>
+            <th scope="col">{evidenceHeading}</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.claim}>
+              <th scope="row">{row.claim}</th>
+              <td>
+                <Rich text={row.evidence} />
+                {row.href && (
+                  <>
+                    {' '}
+                    <a className="proof-link" href={row.href}>
+                      See it
+                    </a>
+                  </>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
