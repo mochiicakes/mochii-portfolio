@@ -1,5 +1,6 @@
 import { useEffect, useRef, useSyncExternalStore, type RefObject } from 'react'
 import { revealStore } from '../../lib/htmlState'
+import { clamp, ease, KOI_SWIM, move, steer, type SteerOpts, type Swimmer } from '../../lib/swim'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 import { ageWake, makeInk, newWakePt, WakeCanvas, wakeSpacing, type WakeInk, type WakePt } from '../../lib/wake'
 import { KOI_TAIL, KOI_TAIL_VEINS, KoiShape } from '../ui/Ornaments'
@@ -14,14 +15,7 @@ const TAIL_Y = 24
 const TAIL_LEN = 62
 const SPINE = 16 // samples along the tail's spine
 
-type Fish = {
-  x: number
-  y: number
-  angle: number
-  /** Turning speed, rad/s. Eased, so turns start and end smoothly. */
-  av: number
-  /** px per 60 Hz frame (the units the steering was tuned in). */
-  speed: number
+type Fish = Swimmer & {
   /** Tail beat: phase accumulates, so a change of pace never jumps the tail. */
   phase: number
   omega: number
@@ -74,42 +68,10 @@ const fish = (x: number, y: number, angle: number): Fish => ({
   trail: [],
 })
 
-/** Eases `a` toward `b` at `rate` per second, the same at any frame rate. */
-const ease = (a: number, b: number, rate: number, dt: number) => a + (b - a) * (1 - Math.exp(-rate * dt))
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
-
-/**
- * Steer toward a target the way a fish swims: turn smoothly up to a limited
- * rate, ease the speed, and circle lazily when the target is close. Rates are
- * per 60 Hz frame, scaled by `dt`, so it swims the same on any screen.
- */
-function steer(
-  f: Fish,
-  tx: number,
-  ty: number,
-  dt: number,
-  now: number,
-  opts: { turn: number; top: number; idle: number; wake: boolean },
-) {
-  const k = dt * 60
-  const dx = tx - f.x
-  const dy = ty - f.y
-  const dist = Math.hypot(dx, dy)
-  const maxAv = opts.turn * 60
-  let wantAv: number
-  if (dist < opts.idle) {
-    // Close enough: a lazy circle, carrying on the way it was already turning.
-    wantAv = Math.sign(f.av || 1) * Math.min(maxAv, 2.4)
-  } else {
-    const err = Math.atan2(Math.sin(Math.atan2(dy, dx) - f.angle), Math.cos(Math.atan2(dy, dx) - f.angle))
-    wantAv = clamp(err * 7, -maxAv, maxAv)
-  }
-  f.av = ease(f.av, wantAv, 9, dt)
-  f.angle += f.av * dt
-  const want = dist < opts.idle ? 1.4 : Math.min(opts.top, 1.2 + dist * 0.05)
-  f.speed += (want - f.speed) * (1 - Math.pow(1 - 0.07, k))
-  f.x += Math.cos(f.angle) * f.speed * k
-  f.y += Math.sin(f.angle) * f.speed * k
+/** One frame of a koi: steer, swim, beat the tail and lay the wake. */
+function swim(f: Fish, tx: number, ty: number, dt: number, now: number, opts: SteerOpts & { wake: boolean }) {
+  steer(f, tx, ty, dt, KOI_SWIM, opts)
+  move(f, dt * 60)
 
   // Tail: beat faster and wider with pace, eased so it never snaps.
   const pace = Math.min(f.speed, 11)
@@ -272,13 +234,13 @@ export function CursorKoi() {
     const frame = (now: number) => {
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60
       last = now
-      steer(a, tx, ty, dt, now, { turn: 0.09, top: 11, idle: 70, wake: seen })
+      swim(a, tx, ty, dt, now, { turn: 0.09, top: 11, idle: 70, wake: seen })
       if (seen) paint(a, leadEl)
 
       if (met) {
         // Circle the lead koi, close enough that the wakes cross.
         orbit += 2.7 * dt
-        steer(b, a.x + Math.cos(orbit) * 38, a.y + Math.sin(orbit) * 38, dt, now, {
+        swim(b, a.x + Math.cos(orbit) * 38, a.y + Math.sin(orbit) * 38, dt, now, {
           turn: 0.14,
           top: a.speed + 4,
           idle: 0,
@@ -300,7 +262,7 @@ export function CursorKoi() {
           }
           // Waiting: a slow loop around home.
           orbit += 0.72 * dt
-          steer(b, hx + Math.cos(orbit) * 80, hy + Math.sin(orbit) * 36, dt, now, {
+          swim(b, hx + Math.cos(orbit) * 80, hy + Math.sin(orbit) * 36, dt, now, {
             turn: 0.05,
             top: 2.4,
             idle: 0,
