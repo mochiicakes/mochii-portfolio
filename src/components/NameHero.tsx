@@ -2,11 +2,13 @@ import { useCallback, useState } from 'react'
 import { content } from '../content'
 import { useImageFallback } from '../lib/useImageFallback'
 import { Drip, DripToggle } from './Drip'
+import { HeroRoles } from './HeroRoles'
+import { Title } from './ui/Title'
 
 /**
- * The opening: the portrait in the middle, a glass card with who she is at the
- * top left, the name stacked in the pixel face at the right with the tagline
- * under it, and the buttons at the lower right. Phones stack the same pieces.
+ * The opening: the portrait in the middle, a glass card with the roles at the
+ * top left and the slogan at the lower left, the name stacked in the pixel face
+ * at the right, and the buttons at the lower right. Phones stack the same pieces.
  */
 export function NameHero() {
   const h = content.hero
@@ -17,13 +19,7 @@ export function NameHero() {
   const closeDrip = useCallback(() => setDrip(false), [])
   return (
     <section id="top" className="hero" data-screen aria-labelledby="hero-name" data-portrait={portrait || undefined}>
-      <div className="hero-block hero-card">
-        <p className="hero-card-role">{h.role}</p>
-        <p className="hero-card-text">{t.supporting}</p>
-        <a className="ring-link" href="#work" aria-label={h.more}>
-          <span aria-hidden="true">↓</span>
-        </a>
-      </div>
+      <HeroRoles />
 
       <h1 id="hero-name" className="hero-name">
         <span className="hero-first">{h.firstName}</span> <span className="hero-last">{h.lastName}</span>
@@ -46,9 +42,11 @@ export function NameHero() {
         </div>
       )}
 
-      <p className="hero-block hero-tr">
-        <span>{t.line1}</span>
-        <span>{t.line2}</span>
+      <p className="hero-block hero-slogan">
+        <span className="hero-motto" lang="la">
+          <Title text={t.line1} />
+        </span>
+        <span className="hero-meaning">{t.line2}</span>
       </p>
 
       <div className="hero-block hero-br">

@@ -11,8 +11,14 @@ export const content: Content = {
   },
 
   gate: {
-    prompt: 'Light the water',
-    hint: 'Click and drag to light it up, or drag a finger across the dark.',
+    loading: {
+      files: 'Translating binaries...',
+      light: 'Lighting the deep...',
+      flowers: 'Petals unfurling...',
+      ready: 'Welcome.',
+    },
+    prompt: 'Illuminate',
+    hint: 'Where you touch, there will be light.',
     skip: 'Enter',
   },
 
@@ -27,7 +33,24 @@ export const content: Content = {
       width: 543,
       height: 1516,
     },
-    role: 'AI & automation engineer',
+    rolesLabel: 'Roles',
+    roles: [
+      {
+        title: 'AI & Automation Engineer',
+        text: 'Instilling familiarity, educating people, and facilitating solutions. Because I want you to focus more on tasks that matter more.',
+        note: 'Hours saved, humans kept.',
+      },
+      {
+        title: 'Software & Web Developer',
+        text: 'Whether it’s whimsical or strictly business, tell me what you need, and we’ll make it happen together.',
+        note: 'AI-assisted but not AI-dictated.',
+      },
+      {
+        title: 'Technical Project Manager',
+        text: 'Everything organised, everyone in the loop to uphold standards and prevent chaos.',
+        note: 'Where my nitpickiness pays off.',
+      },
+    ],
     primaryCta: { label: 'Get in touch', href: '#contact' },
     // Casual mode only. Thumbnails: public/drip/<id>.webp, square, about 240 × 240.
     drip: {
@@ -90,10 +113,9 @@ export const content: Content = {
   },
 
   tagline: {
-    line1: 'Always on the move.',
-    line2: 'Your goal, I follow.',
-    supporting:
-      'Software engineer building AI automations and integrations for whole organizations. I also train the people who use them.',
+    // Latin, then what it means.
+    line1: 'Aut viam inveniam aut faciam',
+    line2: 'I will either find a way, or make one.',
   },
 
   // The card fan. Recruiter mode deals the projects; casual mode deals Gaming and Hobbies.

@@ -16,7 +16,7 @@ export function render(): string {
 export const meta = {
   ...content.meta,
   name: content.hero.name,
-  role: content.hero.role,
+  role: content.hero.roles[0].title,
   email: content.contact.email,
   links: content.contact.links.map((l) => l.href),
 }

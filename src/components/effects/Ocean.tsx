@@ -1,6 +1,7 @@
-import { useEffect, useRef, useSyncExternalStore, type CSSProperties } from 'react'
+import { useCallback, useEffect, useRef, useSyncExternalStore, type CSSProperties } from 'react'
 import { drawBloom, type BloomPaletteName, type BloomSpec } from '../../lib/bloom'
 import { depthAt } from '../../lib/depth'
+import { markReady } from '../../lib/loading'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 import LightRays from './LightRays'
 
@@ -100,17 +101,29 @@ function palette(): BloomPaletteName {
 }
 
 /** One bloom, drawn once, a moment after the page opens. */
-function BloomCanvas({ layer, x, y, size, spec, touchAt, touch, i }: Bloom & { touch: boolean; i: number }) {
+function BloomCanvas({
+  layer,
+  x,
+  y,
+  size,
+  spec,
+  touchAt,
+  touch,
+  i,
+  onDrawn,
+}: Bloom & { touch: boolean; i: number; onDrawn: (i: number) => void }) {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
     const timer = window.setTimeout(
       () => {
-        if (ref.current) drawBloom(ref.current, spec, DETAIL[layer] * (touch ? 0.6 : 1), palette())
+        if (!ref.current) return
+        drawBloom(ref.current, spec, DETAIL[layer] * (touch ? 0.6 : 1), palette())
+        onDrawn(i)
       },
       60 + i * 60,
     )
     return () => window.clearTimeout(timer)
-  }, [spec, layer, touch, i])
+  }, [spec, layer, touch, i, onDrawn])
   return (
     <span
       className="ocean-bloom"
@@ -137,6 +150,22 @@ export function Ocean() {
   const ref = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const touch = useSyncExternalStore(coarse.subscribe, coarse.get, coarse.getServer)
+
+  // The loading screen waits for the flowers, and for the rays' first frames.
+  const drawn = useRef(new Set<number>())
+  const onDrawn = useCallback(
+    (i: number) => {
+      drawn.current.add(i)
+      if (drawn.current.size >= BLOOMS.filter((b) => !(touch && b.small)).length) markReady('flowers')
+    },
+    [touch],
+  )
+  useEffect(() => {
+    let raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(() => markReady('light'))
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [])
 
   useEffect(() => {
     let raf = 0
@@ -183,7 +212,7 @@ export function Ocean() {
         <div key={layer} className={`ocean-blooms ocean-${layer}`}>
           {BLOOMS.map((b, i) =>
             b.layer !== layer || (touch && b.small) ? null : (
-              <BloomCanvas key={b.spec.seed} {...b} touch={touch} i={i} />
+              <BloomCanvas key={b.spec.seed} {...b} touch={touch} i={i} onDrawn={onDrawn} />
             ),
           )}
         </div>

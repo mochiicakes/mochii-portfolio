@@ -143,7 +143,13 @@ export type Tab<Id extends string> = { id: Id; label: string }
 
 export type Content = {
   meta: { title: string; description: string }
-  gate: { prompt: string; hint: string; skip: string }
+  gate: {
+    /** The loading screen: a line for each thing it waits for, then the last one. */
+    loading: { files: string; light: string; flowers: string; ready: string }
+    prompt: string
+    hint: string
+    skip: string
+  }
   hero: {
     name: string
     /** Set huge behind the portrait. */
@@ -154,12 +160,14 @@ export type Content = {
     more: string
     /** A cut-out (transparent PNG) under public/, standing on the section's floor. */
     portrait: { src: string; alt: string; width: number; height: number }
-    role: string
+    /** The opening card fades through these. The first is the job title search engines see. */
+    roles: { title: string; text: string; note: string }[]
+    rolesLabel: string
     primaryCta: Link
     /** "Cop my drip?": what she's wearing in the portrait, with where to buy it. Casual mode only. */
     drip: Drip
   }
-  tagline: { line1: string; line2: string; supporting: string }
+  tagline: { line1: string; line2: string }
   fan: { recruiterGroup: string }
   modes: { label: string; recruiter: string; casual: string }
   worlds: {

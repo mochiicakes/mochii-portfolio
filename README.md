@@ -6,6 +6,7 @@ Live site: [mochii-portfolio.vercel.app](https://mochii-portfolio.vercel.app)
 
 ## What it does
 
+- A loading screen. The sea angel floats in the dark until the fonts, every photo, the light rays and the flowers are ready, for 10 seconds at most (`src/lib/loading.ts`; the lines are `gate.loading` in `src/content.ts`). Only then can the visitor light the water.
 - Light the deep. Three layers: the prompt on top, then black water, then the finished page. Press and drag (mouse, finger or pen) to open soft holes in the dark and stir up glowing plankton; a single click leaves one glow. Past about a third of the screen the light spreads from the visitor's strokes and the dark is removed, so none of them stay in the page. An Enter button and the Enter key do it at once; a link straight to a section (`#contact`) arrives with no dark.
 - The ocean. Light rays come down from the surface ([React Bits](https://github.com/DavidHDev/react-bits) `LightRays`, WebGL), and the water darkens to black at the bottom of the page. Glowing flowers drift in three layers: huge and soft in front, small and dim far back, each moving at its own pace as the page scrolls. Still under reduced motion.
 - Deep ocean colours: near-black water, white text and icy blue light. The cards, bars and buttons are glass. Other palettes that were considered are in `docs/style-options.md`; `compare.html` shows them side by side on the dev server only.

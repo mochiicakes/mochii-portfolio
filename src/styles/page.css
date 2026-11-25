@@ -55,8 +55,64 @@ html.revealed .deep:not([data-revealing]) {
   z-index: 1;
 }
 
+/* Loading: the sea angel in the dark, over a line. Its length is that of size m
+   in lib/angel.ts. */
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  transition:
+    opacity 0.7s,
+    visibility 0.7s;
+}
+
+.loading[data-done] {
+  visibility: hidden;
+  opacity: 0;
+}
+
+html:not(.js) .loading,
+html.revealed .loading {
+  display: none;
+}
+
+html.js:not(.revealed):has(.loading:not([data-done])) body {
+  cursor: progress;
+}
+
+.loading canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.loading-line {
+  position: absolute;
+  inset: calc(44% + 0.4 * clamp(80px, 22vmin, 280px) + clamp(28px, 6vh, 64px)) var(--gutter) auto;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.05rem, min(1.7vw, 2.8vh), 1.6rem);
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.loading-line span {
+  display: block;
+  animation: loading-line 0.5s var(--ease) backwards;
+}
+
+@keyframes loading-line {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 /* The prompt, over the dark. */
 .prompt {
+  animation: fade-in 0.9s ease-out 0.2s backwards;
   position: fixed;
   inset: auto 0 12vh;
   z-index: 90;
@@ -80,9 +136,25 @@ html.revealed .prompt {
   line-height: 1.1;
 }
 
+/* As wide as the words, so the name signs them at their lower right. */
+.prompt-words {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: fit-content;
+}
+
 .prompt-hint {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text-dim);
+}
+
+.prompt-by {
+  justify-self: end;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.8rem;
+  color: var(--ice);
 }
 
 .prompt-skip {
@@ -219,7 +291,7 @@ html.js:not(.revealed) .skip-link {
   --figure-bottom: max(3svh, min(11svh, 100svh - var(--figure-h) - 72px));
   --figure-w: calc(var(--figure-h) * 0.3582);
   /* Low enough to leave the necklace card room above it (casual mode). */
-  --name-top: 31svh;
+  --name-top: 37svh;
   position: relative;
   isolation: isolate;
   display: grid;
@@ -280,20 +352,100 @@ html.js:not(.revealed) .skip-link {
   text-transform: uppercase;
 }
 
-.hero-tr {
+/* The roles share one place: the words fade out, then the next ones in. */
+.hero-roles {
   display: grid;
-  gap: 4px;
-  font-size: 0.82rem;
-  letter-spacing: var(--track);
-  text-transform: uppercase;
+}
+
+.hero-role {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 0.45s ease-in,
+    visibility 0s 0.45s;
+}
+
+.hero-role[data-on] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.7s ease-out 0.45s;
+}
+
+.hero-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-dots {
+  display: flex;
+}
+
+/* Small dots, with room round them for a finger. */
+.hero-dots button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.hero-dots button::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(160 184 198 / 0.45);
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.hero-dots button:hover::before {
+  background: var(--text);
+}
+
+.hero-dots button[aria-pressed='true']::before {
+  background: var(--ice);
+  box-shadow: 0 0 8px rgb(180 227 240 / 0.7);
+}
+
+/* The motto, then what it means. */
+.hero-slogan {
+  display: grid;
+  gap: 8px;
+}
+
+.hero-motto {
+  font-style: italic;
+  font-weight: 250;
+  font-size: 1.3rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.hero-meaning {
+  font-size: 0.8rem;
+  line-height: 1.5;
   color: var(--text-dim);
 }
 
 /* Phones and tablets: the role alone, over the name. */
 @media (max-width: 1099px) {
   .hero-card-text,
+  .hero-card-note,
   .hero-card .ring-link {
     display: none;
+  }
+
+  /* No frame here, so no glass either. */
+  .hero .hero-card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 
@@ -381,15 +533,48 @@ html.js:not(.revealed) .skip-link {
     color: var(--text-dim);
   }
 
-  .hero-card .ring-link {
-    margin-top: 30px;
-    justify-self: end;
+  .hero-card-note {
+    margin-top: 10px;
+    font-style: italic;
+    font-size: 0.78rem;
+    color: var(--ice);
   }
 
-  .hero-tr {
-    top: calc(var(--name-top) + 2.42 * min(4.2vw, (50vw - var(--figure-w) / 2 - var(--gutter) - 20px) / 9) + 24px);
-    right: var(--gutter);
-    text-align: right;
+  .hero-card-foot {
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  /* The first dot lines up with the words. */
+  .hero-dots {
+    margin-left: -9px;
+  }
+
+  .hero-slogan {
+    bottom: 8svh;
+    left: var(--gutter);
+    gap: 10px;
+    max-width: calc(50vw - var(--figure-w) / 2 - var(--gutter) - 28px);
+  }
+
+  /* A short line of light over it. */
+  .hero-slogan::before {
+    content: '';
+    width: 44px;
+    height: 1px;
+    margin-bottom: 8px;
+    background: var(--ice);
+    box-shadow: var(--glow);
+  }
+
+  .hero-motto {
+    font-size: clamp(1.45rem, 2.05vw, 2.5rem);
+    text-wrap: balance;
+  }
+
+  .hero-meaning {
+    font-size: clamp(0.8rem, 0.92vw, 1.1rem);
   }
 
   .hero-br {
@@ -1190,16 +1375,16 @@ a.drip-link:focus-visible {
     }
   }
 
-  html[data-mode='casual'] .hero:has(.drip[data-open]) :is(.hero-card, .hero-tr) {
+  html[data-mode='casual'] .hero:has(.drip[data-open]) :is(.hero-card, .hero-slogan) {
     opacity: 0.12;
   }
 
-  /* The denim card takes its place. */
-  html[data-mode='casual'] .hero:has(.drip[data-open]) .hero-tr {
+  /* The cards at the lower left take its place. */
+  html[data-mode='casual'] .hero:has(.drip[data-open]) .hero-slogan {
     opacity: 0;
   }
 
-  .hero :is(.hero-card, .hero-tr) {
+  .hero :is(.hero-card, .hero-slogan) {
     transition: opacity 0.4s;
   }
 }
