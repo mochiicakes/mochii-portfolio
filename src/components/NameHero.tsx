@@ -1,15 +1,12 @@
-import { useCallback, useState, type CSSProperties } from 'react'
+import { useCallback, useState } from 'react'
 import { content } from '../content'
 import { useImageFallback } from '../lib/useImageFallback'
 import { Drip, DripToggle } from './Drip'
 
 /**
- * The name, set like a magazine cover: the first name huge behind the
- * portrait, the surname signed at its end, and a small block of text in each
- * corner. Where the portrait covers the first name, the hidden letters are
- * drawn over her as an outline (masked to her silhouette), so the name stays
- * whole. Every word is printed in paper colour, so on bare paper the section
- * reads as empty; painting behind it brings it out.
+ * The opening: the portrait in the middle, a glass card with who she is at the
+ * top left, the name stacked in the pixel face at the right with the tagline
+ * under it, and the buttons at the lower right. Phones stack the same pieces.
  */
 export function NameHero() {
   const h = content.hero
@@ -20,14 +17,20 @@ export function NameHero() {
   const closeDrip = useCallback(() => setDrip(false), [])
   return (
     <section id="top" className="hero" data-screen aria-labelledby="hero-name" data-portrait={portrait || undefined}>
-      <p className="hero-block hero-tl caps">{h.role}</p>
+      <div className="hero-block hero-card">
+        <p className="hero-card-role">{h.role}</p>
+        <p className="hero-card-text">{t.supporting}</p>
+        <a className="ring-link" href="#work" aria-label={h.more}>
+          <span aria-hidden="true">↓</span>
+        </a>
+      </div>
 
       <h1 id="hero-name" className="hero-name">
         <span className="hero-first">{h.firstName}</span> <span className="hero-last">{h.lastName}</span>
       </h1>
 
       {portrait && (
-        <div className="hero-figure" style={{ '--portrait': `url(${h.portrait.src})` } as CSSProperties}>
+        <div className="hero-figure">
           <img
             ref={ref}
             className="hero-portrait"
@@ -40,15 +43,6 @@ export function NameHero() {
             draggable={false}
             onError={onError}
           />
-          <span className="hero-overprint" aria-hidden="true">
-            <span>
-              {[...h.firstName].map((ch, i) => (
-                <span key={i} data-cover={h.coverLetters.includes(i) || undefined}>
-                  {ch}
-                </span>
-              ))}
-            </span>
-          </span>
         </div>
       )}
 
@@ -56,11 +50,6 @@ export function NameHero() {
         <span>{t.line1}</span>
         <span>{t.line2}</span>
       </p>
-
-      <div className="hero-block hero-bl">
-        <p className="hero-block-name">{h.name}</p>
-        <p>{t.supporting}</p>
-      </div>
 
       <div className="hero-block hero-br">
         <a className="btn btn-koi" href={h.primaryCta.href}>

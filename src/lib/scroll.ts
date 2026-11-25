@@ -149,7 +149,8 @@ export function scrollToElement(el: HTMLElement, reduced: boolean) {
     [...el.querySelectorAll<HTMLElement>('[data-screen]')].find((s) => s.getClientRects().length > 0) ??
     null
   const within = screen ? el.getBoundingClientRect().top - screen.getBoundingClientRect().top : 0
-  const toScreen = screen && within < window.innerHeight * 0.6
+  const fits = screen && screen.offsetHeight <= window.innerHeight + 2
+  const toScreen = screen && (fits || within < window.innerHeight * 0.6)
   const target = toScreen ? screen : el
   const offset = toScreen ? 0 : -NAV_OFFSET
   if (lenis) lenis.scrollTo(target, { offset, duration: 1.2 })
@@ -157,4 +158,12 @@ export function scrollToElement(el: HTMLElement, reduced: boolean) {
     const y = target.getBoundingClientRect().top + window.scrollY + offset
     window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' })
   }
+}
+
+/** Back to the very top of the page, taking over from any page turn under way. */
+export function scrollToTop(instant: boolean) {
+  turning = false
+  if (!lenis) window.scrollTo({ top: 0, behavior: instant ? 'instant' : 'smooth' })
+  else if (instant) lenis.scrollTo(0, { immediate: true, force: true })
+  else lenis.scrollTo(0, { duration: 1.2, force: true })
 }

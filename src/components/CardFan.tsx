@@ -18,10 +18,7 @@ export type FanCard = {
 
 type Props = {
   label: string
-  ring: string
   cards: FanCard[]
-  /** Jump buttons above the fan, one per group. */
-  groups?: { id: string; label: string }[]
 }
 
 /** A card's picture, or a painted stand-in until the photo exists. */
@@ -59,7 +56,7 @@ const wrap = (a: number, n: number) => mod(a + n / 2, n) - n / 2
  * clicking a card, dragging (the cards follow the pointer), the arrow keys, or
  * the arrow buttons.
  */
-export function CardFan({ label, ring, cards, groups }: Props) {
+export function CardFan({ label, cards }: Props) {
   const id = useId().replace(/:/g, '')
   const n = cards.length
   // Unbounded position along the loop: whole at rest, fractional mid-drag.
@@ -135,30 +132,6 @@ export function CardFan({ label, ring, cards, groups }: Props) {
 
   return (
     <section className="fan" aria-roledescription="carousel" aria-label={label}>
-      {groups && (
-        <div className="fan-groups" role="group" aria-label={label}>
-          {groups.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              aria-pressed={card.group === g.id}
-              onClick={() => {
-                // The nearest card in the group, whichever way round is shorter.
-                const here = Math.round(pos)
-                let best = -1
-                cards.forEach((c, i) => {
-                  if (c.group !== g.id) return
-                  if (best < 0 || Math.abs(wrap(i - here, n)) < Math.abs(wrap(best - here, n))) best = i
-                })
-                if (best >= 0) goTo(best)
-              }}
-            >
-              {g.label}
-            </button>
-          ))}
-        </div>
-      )}
-
       <div
         className="fan-stage"
         tabIndex={0}
@@ -179,7 +152,7 @@ export function CardFan({ label, ring, cards, groups }: Props) {
             <circle cx="100" cy="100" r="62" className="fan-ring-dash" />
             <text>
               <textPath href={`#${id}-ring`} startOffset="0">
-                {`${ring} · ${card.groupLabel} · ${ring} · ${card.groupLabel} · `}
+                {`${card.groupLabel} · `.repeat(4)}
               </textPath>
             </text>
           </svg>

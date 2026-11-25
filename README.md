@@ -1,43 +1,42 @@
 # Michaella Gonzales, portfolio
 
-Personal site of Michaella Gonzales, AI and automation engineer. The page opens as a sheet of white paper laid over the finished site. The visitor paints, and each brush mark splats a watercolour-shaped hole through the paper, showing the page beneath; then the rest of the paper is splatted away. The finished wash shimmers with rippling light, stars and two koi.
+Personal site of Michaella Gonzales, AI and automation engineer. The page opens as black water over the finished site. The visitor drags a light through it, opening the dark onto the page; then the light spreads and the dark is gone.
 
 Live site: [mochii-portfolio.vercel.app](https://mochii-portfolio.vercel.app)
 
 ## What it does
 
-- Paint to reveal, after Third by Kenjiro. Three layers: the prompt on top, then white paper, then the page over a watercolour background painted in full before anyone sees it. The visitor paints with a calligraphy brush by pressing and dragging, as in MS Paint (mouse button held, or a finger on touch screens); a single click leaves a dab, and hovering paints nothing. Each mark wears a grainy, rimmed, watercolour-shaped hole in the paper, and fast strokes flick off droplets. Past about a third of the screen, big splats clear the rest of the paper and it is removed, so none of the visitor's strokes stay in the page. An Enter button and the Enter key do it at once; a link straight to a section (`#contact`) arrives with no paper.
-- Rippling water light. A WebGL layer added with `screen` draws soft caustic ripples with a faint rainbow fringe, starburst glints and pastel glitter, plus ripples from the cursor. Screen leaves white untouched, so the light only shows on paint.
-- Colours from the water references: clear and deeper blues, lavender blue, deep teal pools, pale aqua and iridescent lilac and pink in the washes; goldfish orange; butter, sky and milk stars.
+- Light the deep. Three layers: the prompt on top, then black water, then the finished page. Press and drag (mouse, finger or pen) to open soft holes in the dark and stir up glowing plankton; a single click leaves one glow. Past about a third of the screen the light spreads from the visitor's strokes and the dark is removed, so none of them stay in the page. An Enter button and the Enter key do it at once; a link straight to a section (`#contact`) arrives with no dark.
+- The ocean. Light rays come down from the surface ([React Bits](https://github.com/DavidHDev/react-bits) `LightRays`, WebGL), and the water darkens to black at the bottom of the page. Glowing flowers drift in three layers: huge and soft in front, small and dim far back, each moving at its own pace as the page scrolls. Still under reduced motion.
+- Deep ocean colours: near-black water, white text and icy blue light. The cards, bars and buttons are glass. Other palettes that were considered are in `docs/style-options.md`; `compare.html` shows them side by side on the dev server only.
 - The card fan, a continuous loop: past the last card comes the first again, so there are always cards on both sides. Recruiter mode deals the projects; casual mode deals Gaming and Hobbies. Click a card, drag (the cards follow the pointer and settle on release), use the arrow keys or the arrow buttons.
-- The background is softened with a light blur (`--ground-blur`, about 3 px) and the water light is toned down (`--crystal-opacity`) so the content leads.
-- One topic, one screen: the hero, the Around Tech header with the intro video (YouTube, loaded only when played), Experience, Impact, Automations and Personal Projects each fill the window and open with a dripping divider. With a mouse wheel, one flick turns one screen; a screen taller than the window scrolls to its end first (`src/lib/scroll.ts`). Touch and the keyboard scroll freely.
-- Contact is a page of its own: the top bar's Contact link and Get in touch open it in place of the main page (`#contact`), and MG or the browser's back button return. Without JavaScript it follows the main page.
+- One topic, one screen: the hero, the Around Tech header with the intro video (YouTube, loaded only when played), Experience, Impact, Automations and Personal Projects each fill the window, with a divider between them. On wide windows each screen's text scales to fill the window without spilling past it (`src/lib/fit.ts`). With a mouse wheel, one flick turns one screen; a screen taller than the window scrolls to its end first (`src/lib/scroll.ts`). Touch and the keyboard scroll freely.
+- Contact is a page of its own: the top bar's Contact link and Get in touch open it in place of the main page (`#contact`), and Recruiter, Casual or the browser's back button return. Every top bar button goes to the top of its page. Without JavaScript it follows the main page.
 - Recruiter and casual modes: "Around Tech" (Experience tabs, the Impact tabs: Proof, Leadership, Case studies, How I work, then Automations, then the Personal Projects fan, each part between dividers) or "Out of Tech" (the Gaming and Hobbies fan, then Recently played). Remembered, and applied before first paint.
 - Cop my drip? (casual mode): a button under Get in touch draws lines from the pieces she is wearing in the portrait out to cards beside her, each linking to where to buy it (`src/components/Drip.tsx`, items in `src/content.ts`, photos in `public/drip/`). On phones the cards sit in a row you swipe through.
 - Recently played (casual mode): the songs she played last, live from Spotify. Hovering a song plays a 30-second preview; clicking opens it on Spotify (`src/components/RecentlyPlayed.tsx`, served by `api/recently-played.ts`). Spotify no longer gives new apps previews, so they come from Apple's public iTunes catalogue, matched by title and artist.
-- The koi. A goldfish-coloured koi with a long, flowing tail follows the cursor, leaving a watercolour wake that fades as it dries. A golden koi waits at the bottom of the page; once yours reaches it, the two swim together, their wakes braiding. Mouse and trackpad only; off under reduced motion.
-- Type, after an editorial cover: Playfair Display (heavy, high-contrast capitals) for the name and titles, Mrs Saint Delafield (a signature script) for the surname and handwritten accents, and Lora for reading text and tracked capitals. Buttons are capitals inside a hand-drawn ellipse.
-- The name hero is a cover: the first name huge behind a cut-out portrait (`public/hero/michaella.webp`, a transparent WebP), the surname signed across it, and a text block in each corner. Phones stack the same pieces.
-- Smooth scrolling with Lenis. Without JavaScript the page is simply painted: no paper, all content shown.
+- The sea angel. A small translucent sea angel swims after the cursor and circles it; on touch screens it circles the last tap. A heart waits at the bottom of the page: lead the angel to it and it eats the heart, once a visit, and carries it from then on. Under reduced motion it rests above the credits.
+- Type: Sixtyfour, a scanline pixel face, for the name, and light Inter for everything else.
+- The name hero is a cover: the name in pixel capitals over a cut-out portrait (`public/hero/michaella.webp`, a transparent WebP), with a text block in the corners. Phones stack the same pieces.
+- Smooth scrolling with Lenis. Without JavaScript there is no dark, and all content shows.
 
 ## Tech stack
 
-| Layer     | Choice                                                                                            |
-| --------- | ------------------------------------------------------------------------------------------------- |
-| UI        | React 19, TypeScript 6 (strict)                                                                   |
-| Build     | Vite 8, pre-rendered with `react-dom/server` (`scripts/prerender.mjs`)                            |
-| Scrolling | [Lenis](https://github.com/darkroomengineering/lenis)                                             |
-| Styling   | Plain CSS with custom-property tokens                                                             |
-| Graphics  | Canvas 2D (watercolour), WebGL (water light), inline SVG (koi, stars, underline, flow diagrams)   |
-| Fonts     | Playfair Display (display), Mrs Saint Delafield (script), Lora (body), self-hosted via Fontsource |
-| Hosting   | Vercel (static)                                                                                   |
+| Layer     | Choice                                                                                   |
+| --------- | ---------------------------------------------------------------------------------------- |
+| UI        | React 19, TypeScript 6 (strict)                                                          |
+| Build     | Vite 8, pre-rendered with `react-dom/server` (`scripts/prerender.mjs`)                   |
+| Scrolling | [Lenis](https://github.com/darkroomengineering/lenis)                                    |
+| Styling   | Plain CSS with custom-property tokens                                                    |
+| Graphics  | Canvas 2D (angel, flowers, intro), WebGL (light rays), inline SVG (flow diagrams, icons) |
+| Fonts     | Sixtyfour (the name), Inter (everything else), self-hosted via Fontsource                |
+| Hosting   | Vercel (static)                                                                          |
 
 ## Project structure
 
 ```text
 portfolio/
-├─ index.html                 shell + the pre-paint script (mode, skip-the-gate)
+├─ index.html                 shell + the pre-paint script (mode, skip-the-intro)
 ├─ public/                    favicon, share image, project screenshots (projects/), casual-card photos (casual/)
 ├─ scripts/
 │  ├─ prerender.mjs           writes rendered HTML, title, description and social tags into dist/
@@ -51,21 +50,24 @@ portfolio/
    ├─ components/
    │  ├─ TopBar, NameHero, World, CardFan, Contact     the page, top to bottom (Contact opens as its own page)
    │  ├─ panels/              recruiter tab contents
-   │  ├─ effects/             PaintedGround, CrystalLayer, CursorKoi (both koi)
-   │  └─ ui/                  Card, ModeSwitch, FlowDiagram, Rich, ExternalLink, Ornaments
+   │  ├─ effects/             Ocean, LightRays, DeepIntro, CursorAngel
+   │  └─ ui/                  Card, ContactCode, ModeSwitch, FlowDiagram, Tabs, Title, Rich, ExternalLink, Ornaments
    ├─ lib/
-   │  ├─ paint.ts             the watercolour background and shared brush-mark helpers
-   │  ├─ paper.ts             the white paper and the brush that wears through it
-   │  ├─ wake.ts              the koi's watercolour wakes
-   │  ├─ crystal.ts           the WebGL water-light shader
+   │  ├─ deep.ts              the dark over the page and the light that opens it
+   │  ├─ angel.ts             the sea angel: steering, spine, heart and drawing
+   │  ├─ swim.ts              steering shared by anything that swims
+   │  ├─ bloom.ts             the glowing flowers
+   │  ├─ depth.ts             how deep the page is at a scroll position
+   │  ├─ fit.ts               scales each screen to fit the window
    │  ├─ htmlState.ts         mode, revealed and recruiter-tab stores
    │  ├─ scroll.ts            Lenis wrapper and scroll-to-element
    │  ├─ placeholder.ts       [placeholder] detection
    │  └─ useReducedMotion.ts
    └─ styles/
       ├─ tokens.css           palette, fonts, spacing
-      ├─ base.css             reset, capitals, ellipse buttons, panes, Lenis rules
-      └─ page.css             ground, prompt, hero, fan, tabs, panels, koi
+      ├─ base.css             reset, buttons, Lenis rules
+      ├─ page.css             intro, hero, fan, tabs, panels, contact
+      └─ glass.css            ocean, glass, the one-page layouts
 ```
 
 ### How the pieces fit
@@ -74,13 +76,9 @@ Content is data. `content.ts` is the only file to edit to change what the site s
 
 State the CSS needs before React runs lives on `<html>`: `data-mode="recruiter" | "casual"` and the `revealed` class. The inline script in `index.html` sets both before first paint, so a returning casual-mode visitor never sees recruiter mode flash first. `lib/htmlState.ts` reads them back into React with `useSyncExternalStore`. Both worlds are always rendered; CSS shows the one that matches the mode, which is also why everything is visible without JavaScript.
 
-The background (`lib/paint.ts`) is painted in full on a canvas fixed behind the page as soon as the page loads: three layers of broad calligraphic washes, each drawn as one solid shape on an offscreen wet canvas, then dried in: mottled by a grain mask, laid down blurred and translucent with `multiply` so washes deepen as they overlap, given a darker rim (the shape minus a blurred copy of itself) and sometimes a ragged bloom.
+The dark (`lib/deep.ts`) is a canvas above the page; until it is drawn, CSS gives it a black background, so the page never shows uncovered. The light stamps soft round sprites into it with `destination-out`. A second canvas over it draws the trail, the plankton and a few drifting specks, and is left empty under reduced motion. A 24 × 14 grid tracks coverage. Past the threshold, `reveal()` lights a coarse grid of points, nearest the strokes first, fades the leftover haze, and both canvases are removed.
 
-The paper (`lib/paper.ts`) is a white canvas above the page; until it is drawn, CSS gives it a white background, so the page never shows uncovered. The brush stamps watercolour sprites into it with `destination-out`. Each stamp is an ellipse held at the -38° nib angle, so sweeping the brush gives calligraphy: wide across the nib, a hairline along it, thinner when fast, tapered at the start. A 24 × 14 grid tracks coverage. Past the threshold, `reveal()` throws big splats across a coarse grid in random order, fades the leftover flecks, and the paper is removed.
-
-The water light (`lib/crystal.ts`) is one fragment shader at half resolution, capped at 30 fps. Caustics are the edges between cells of moving, warped cellular noise, faded in and out in patches; with `mix-blend-mode: screen` they lighten the paint and leave white paper as it is.
-
-The koi (`effects/CursorKoi.tsx`) steer with an eased turning speed and eased swimming speed, all scaled by frame time so they swim the same at 60 or 144 Hz. The tail beat is an accumulating phase whose rate and width follow the pace; each frame the tail paths are bent along a spine carrying a travelling wave, so the tip lags the base, and the tail curves into turns. The body yaws slightly against the beat and the pectoral fins paddle or fold back. Each wake (`lib/wake.ts`) is a trail of points laid by distance and expiring after 1.4 s, drawn on a canvas as overlapping translucent stamps of watercolour brush sprites (grainy blobs with darker rims, made once with the paint engine's methods). The golden koi loops around `#koi-home` until yours comes within 110 px; then it targets a point orbiting yours.
+The sea angel (`lib/angel.ts`, drawn by `effects/CursorAngel.tsx`) steers with `lib/swim.ts`: an eased turning speed and an eased swimming speed, scaled by frame time so it swims the same at 60 or 144 Hz. Its body hangs on a spine of evenly spaced points that follow the head. The heart sits at `.koi-home` on the last screen until the pointer or the angel comes near it.
 
 The card fan (`components/CardFan.tsx`) rotates every card about one point below the stage (`transform-origin` at the dial's centre), so a single `--o` offset per card places the whole arc. The position along the loop is unbounded; each card's offset is the shortest way round, cards past the visible edge fade out, and a card that wraps jumps sides without animating.
 
@@ -115,7 +113,7 @@ npm run dev
    | Personal Projects fan cards | `public/projects/<slug>.webp`   | portrait 11:15, 660 × 900                                                                   |
    | Out of Tech fan cards       | `public/casual/<slug>.webp`     | portrait 11:15, 660 × 900                                                                   |
    | Experience screenshots      | `public/experience/<name>.webp` | landscape 16:10, 1600 × 1000                                                                |
-   | Contact polaroid            | `public/contact/selfie.webp`    | portrait 4:5, 800 × 1000                                                                    |
+   | Contact photo               | `public/contact/selfie.webp`    | portrait 4:5, 800 × 1000                                                                    |
    | Share image                 | `public/og.jpg`                 | 1200 × 630                                                                                  |
 
    Export WebP at quality 80–85 (screens with small text: 90). Keep each under about 250 KB; the portrait is the only one that needs transparency.
@@ -158,4 +156,4 @@ The canonical link, share-image tags, JSON-LD `Person` URL and `sitemap.xml` nee
 
 ## License
 
-The code is released under the [MIT License](LICENSE). The written content, photos and illustrations are © 2026 Michaella Gonzales, all rights reserved.
+The code is released under the [MIT License](LICENSE), except `src/components/effects/LightRays.jsx` and `.css`, which are [React Bits](https://github.com/DavidHDev/react-bits) under MIT + Commons Clause. The written content, photos and illustrations are © 2026 Michaella Gonzales, all rights reserved.

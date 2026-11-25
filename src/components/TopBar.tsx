@@ -20,9 +20,6 @@ export function TopBar() {
         Skip to content
       </a>
       <header className="topbar" data-scrolled={scrolled || undefined}>
-        <a className="topbar-mark" href="#top" aria-label={`${content.hero.name}, back to top`}>
-          MG
-        </a>
         <div className="topbar-end">
           <ModeSwitch />
           <a className="topbar-link" href="#contact" aria-current={page === 'contact' ? 'page' : undefined}>

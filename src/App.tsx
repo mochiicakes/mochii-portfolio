@@ -1,14 +1,14 @@
 import { useEffect, useSyncExternalStore } from 'react'
 import { Contact } from './components/Contact'
-import { CursorKoi } from './components/effects/CursorKoi'
-import { CrystalLayer } from './components/effects/CrystalLayer'
-import { LilyPads } from './components/effects/LilyPads'
-import { PaintedGround } from './components/effects/PaintedGround'
+import { CursorAngel } from './components/effects/CursorAngel'
+import { DeepIntro } from './components/effects/DeepIntro'
+import { Ocean } from './components/effects/Ocean'
 import { NameHero } from './components/NameHero'
 import { TopBar } from './components/TopBar'
 import { World } from './components/World'
-import { revealStore, setMode, setPage, tabStores, type TabSet, type TabStore } from './lib/htmlState'
-import { lockScroll, scrollToElement, startSmoothScroll, stopSmoothScroll } from './lib/scroll'
+import { fitScreens } from './lib/fit'
+import { pageStore, revealStore, setMode, setPage, tabStores, type TabSet, type TabStore } from './lib/htmlState'
+import { lockScroll, scrollToElement, scrollToTop, startSmoothScroll, stopSmoothScroll } from './lib/scroll'
 import { useReducedMotion } from './lib/useReducedMotion'
 import type { Mode } from './types'
 
@@ -29,7 +29,13 @@ function reveal(el: HTMLElement) {
 function go(id: string, reduced: boolean) {
   const el = id ? document.getElementById(id) : null
   if (!el) return false
+  const from = pageStore.get()
   reveal(el)
+  // Contact is a page of its own: it opens at its top.
+  if (id === 'contact') {
+    scrollToTop(reduced || from !== 'contact')
+    return true
+  }
   // Wait for React to show the tab before measuring where to scroll.
   requestAnimationFrame(() => requestAnimationFrame(() => scrollToElement(el, reduced)))
   return true
@@ -43,6 +49,8 @@ export function App() {
     if (!reduced) startSmoothScroll()
     return stopSmoothScroll
   }, [reduced])
+
+  useEffect(() => fitScreens(), [])
 
   useEffect(() => {
     lockScroll(!revealed)
@@ -85,10 +93,10 @@ export function App() {
 
   return (
     <>
-      {/* The top bar sits outside #page so it can float above the lily pads. */}
+      {/* The top bar sits outside #page so it can float above the angel. */}
       <TopBar />
-      <PaintedGround />
-      <CrystalLayer />
+      <Ocean />
+      <DeepIntro />
       <div id="page" className="page">
         <main>
           <NameHero />
@@ -96,8 +104,7 @@ export function App() {
           <Contact />
         </main>
       </div>
-      <CursorKoi />
-      <LilyPads />
+      <CursorAngel />
     </>
   )
 }

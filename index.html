@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#0977ad" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#020305" />
     <!-- Title, description and social tags are filled from src/content.ts at build time. -->
     <title>Michaella Gonzales</title>
     <meta name="description" content="" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
     <script>
-      // Before first paint: the mode, and whether the paint reveal is needed.
+      // Before first paint: the mode, and whether the intro is needed.
       // The key matches MODE_KEY in src/lib/htmlState.ts.
       ;(function () {
         var d = document.documentElement
@@ -19,7 +19,7 @@
         try {
           if (localStorage.getItem('mg-mode') === 'casual') d.dataset.mode = 'casual'
         } catch (e) {}
-        // A link straight to a section opens the page without the paint reveal.
+        // A link straight to a section opens the page without the intro.
         if (location.hash.length > 1) d.classList.add('revealed')
         // Contact is a page of its own (the key matches setPage in src/lib/htmlState.ts).
         if (location.hash === '#contact') d.dataset.page = 'contact'

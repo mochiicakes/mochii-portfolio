@@ -1,6 +1,6 @@
 import { content } from '../../content'
 import { hasPlaceholder } from '../../lib/placeholder'
-import type { AutomationLink, Job, RecruiterTabId, Region } from '../../types'
+import type { AutomationLink, Job, LeadershipKind, RecruiterTabId, Region } from '../../types'
 import { Card, type CardAction } from '../ui/Card'
 import { ExternalLink } from '../ui/ExternalLink'
 import { FlowDiagram } from '../ui/FlowDiagram'
@@ -12,18 +12,25 @@ function Proof() {
   const { claimHeading, evidenceHeading, rows } = content.proof
   return (
     <div className="proof-wrap pane">
-      <table className="proof">
-        <thead>
-          <tr>
-            <th scope="col">{claimHeading}</th>
-            <th scope="col">{evidenceHeading}</th>
+      <table className="proof" role="table">
+        <thead role="rowgroup">
+          <tr role="row">
+            <th scope="col" role="columnheader">
+              {claimHeading}
+            </th>
+            <th scope="col" role="columnheader">
+              {evidenceHeading}
+            </th>
           </tr>
         </thead>
-        <tbody>
+        {/* Roles spelled out: the rows are laid out as a grid, which drops a table's own. */}
+        <tbody role="rowgroup">
           {rows.map((row) => (
-            <tr key={row.claim}>
-              <th scope="row">{row.claim}</th>
-              <td>
+            <tr key={row.claim} role="row">
+              <th scope="row" role="rowheader">
+                {row.claim}
+              </th>
+              <td role="cell">
                 <Rich text={row.evidence} />
                 {row.href && (
                   <>
@@ -128,10 +135,16 @@ function Education() {
         <Rich text={b.degree} />
       </p>
       <p>
-        <span className="label">Awards:</span> <Rich text={b.awards} />
+        <span className="label">
+          Awards<i>:</i>
+        </span>{' '}
+        <Rich text={b.awards} />
       </p>
       <p>
-        <span className="label">Certifications:</span> <Rich text={b.certs} />
+        <span className="label">
+          Certifications<i>:</i>
+        </span>{' '}
+        <Rich text={b.certs} />
       </p>
     </div>
   )
@@ -154,26 +167,43 @@ export function Experience() {
 function Leadership() {
   const l = content.leadership
   return (
-    <>
-      <p className="panel-intro">{l.intro}</p>
-      <ol className="jobs">
+    <div className="lead pane">
+      <div className="lead-head">
+        <p>{l.intro}</p>
+        {/* Each marked title says its kind to screen readers. */}
+        <p className="lead-legend" aria-hidden="true">
+          {(Object.keys(l.kinds) as LeadershipKind[]).map((kind) => (
+            <span key={kind} data-kind={kind}>
+              {l.kinds[kind]}
+            </span>
+          ))}
+        </p>
+      </div>
+      <ol className="lead-orgs">
         {l.groups.map((g) => (
-          <li key={g.id} id={g.id} className="job pane">
-            <header className="job-head">
+          <li key={g.id} id={g.id} className="lead-org">
+            <header>
               <h4 className="job-org">{g.heading}</h4>
               <p className="job-dates">
                 <Rich text={g.period} />
               </p>
             </header>
-            <ul className="bullets">
+            <ul className="lead-items">
               {g.items.map((it) => (
-                <li key={it.text}>
-                  {it.kind && <span className="lead-kind">{it.kind}</span>}
-                  <Rich text={it.text} />
+                <li key={it.title}>
+                  <p className="lead-title" data-kind={it.kind}>
+                    <Rich text={it.title} />
+                    {it.kind && <span className="sr-only"> ({l.kinds[it.kind]})</span>}
+                  </p>
                   {it.chip && (
-                    <span className="scale">
+                    <p className="lead-figure">
                       <Rich text={it.chip} />
-                    </span>
+                    </p>
+                  )}
+                  {it.text && (
+                    <p className="lead-text">
+                      <Rich text={it.text} />
+                    </p>
                   )}
                 </li>
               ))}
@@ -181,7 +211,7 @@ function Leadership() {
           </li>
         ))}
       </ol>
-    </>
+    </div>
   )
 }
 
@@ -190,7 +220,7 @@ function Cases() {
   return (
     <div className="cases">
       {content.caseStudies.map((cs, i) => (
-        <details key={cs.id} id={cs.id} className="case pane" open={i === 0}>
+        <details key={cs.id} id={cs.id} name="case" className="case pane" open={i === 0}>
           <summary>
             <h4 className="case-title">
               <Rich text={cs.title} />
@@ -258,15 +288,15 @@ function toAction(link: AutomationLink): CardAction {
 
 export function Automations() {
   return (
-    <ul className="card-grid card-grid-2 automations">
+    <ul className="card-grid automations">
       {content.automations.map((a) => (
         <li key={a.slug}>
           <Card
             title={a.title}
             media={
               <>
-                <FlowDiagram nodes={a.nodes} shape="row" className="flow-wide" />
-                <FlowDiagram nodes={a.nodes} className="flow-narrow" />
+                <FlowDiagram nodes={a.nodes} className="flow-wide" />
+                <FlowDiagram nodes={a.nodes} shape="snake" className="flow-narrow" />
               </>
             }
             meta={

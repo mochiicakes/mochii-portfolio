@@ -9,8 +9,6 @@ export type CardAction =
 type Props = {
   title: string
   media: ReactNode
-  /** Beside the title, e.g. a status tag. */
-  badge?: ReactNode
   /** Under the title, e.g. a scale line. */
   meta?: ReactNode
   description: string
@@ -19,10 +17,10 @@ type Props = {
 }
 
 /**
- * Framed card. With a link, the title link stretches over the whole card, so the
+ * Framed card: diagram, title and link, scale, words, tools. With a link, the title link stretches over the whole card, so the
  * card is one click target and one tab stop.
  */
-export function Card({ title, media, badge, meta, description, stack, action }: Props) {
+export function Card({ title, media, meta, description, stack, action }: Props) {
   const labels = content.cardLabels
   const linked = action.kind === 'external' || action.kind === 'internal'
   const titleText = <Rich text={title} />
@@ -43,9 +41,14 @@ export function Card({ title, media, badge, meta, description, stack, action }: 
     <article className={linked ? 'card pane is-linked' : 'card pane'}>
       {media}
       <div className="card-body">
-        <div className="card-title-row">
+        <div className="card-top">
           <h4 className="card-title">{titleNode}</h4>
-          {badge}
+          {linked && (
+            <span className="card-go" aria-hidden="true">
+              {action.kind === 'external' ? labels.visit : labels.readCase} ↗
+            </span>
+          )}
+          {action.kind === 'soon' && <span className="card-soon">{labels.comingSoon}</span>}
         </div>
         {meta}
         <p className="card-desc">
@@ -60,12 +63,6 @@ export function Card({ title, media, badge, meta, description, stack, action }: 
             </span>
           ))}
         </p>
-        {action.kind === 'soon' && <p className="card-soon">{labels.comingSoon}</p>}
-        {linked && (
-          <p className="card-go" aria-hidden="true">
-            {action.kind === 'external' ? labels.visit : labels.readCase}
-          </p>
-        )}
       </div>
     </article>
   )

@@ -133,8 +133,9 @@ export type Moment = {
 
 export type RecruiterTabId = 'proof' | 'leadership' | 'cases' | 'how-i-work'
 
-/** A leadership item. `kind` marks work nobody asked for (Initiative) or unpaid (Volunteer). */
-export type LeadershipItem = { text: string; kind?: 'Initiative' | 'Volunteer'; chip?: string }
+/** A leadership item. `kind` marks work nobody asked for (initiative) or unpaid (volunteer). */
+export type LeadershipKind = 'initiative' | 'volunteer'
+export type LeadershipItem = { title: string; chip?: string; text?: string; kind?: LeadershipKind }
 export type LeadershipGroup = { id: string; heading: string; period: string; items: LeadershipItem[] }
 export type CasualTabId = 'gaming' | 'hobbies'
 
@@ -149,12 +150,8 @@ export type Content = {
     firstName: string
     /** Signed across the first name. */
     lastName: string
-    /**
-     * Letters of the first name (0-based) the portrait covers, redrawn over her
-     * as an outline. Only whole letters she hides: an outline on a letter she
-     * barely touches shows as a stray sliver.
-     */
-    coverLetters: number[]
+    /** Says where the card's arrow goes. */
+    more: string
     /** A cut-out (transparent PNG) under public/, standing on the section's floor. */
     portrait: { src: string; alt: string; width: number; height: number }
     role: string
@@ -163,7 +160,7 @@ export type Content = {
     drip: Drip
   }
   tagline: { line1: string; line2: string; supporting: string }
-  fan: { ring: string; recruiterGroup: string }
+  fan: { recruiterGroup: string }
   modes: { label: string; recruiter: string; casual: string }
   worlds: {
     recruiter: { title: string; intro: string; projectsIntro: string; tabsTitle: string; tabs: Tab<RecruiterTabId>[] }
@@ -171,7 +168,7 @@ export type Content = {
   }
   proof: { claimHeading: string; evidenceHeading: string; rows: ProofRow[] }
   experience: Job[]
-  leadership: { intro: string; groups: LeadershipGroup[] }
+  leadership: { intro: string; kinds: Record<LeadershipKind, string>; groups: LeadershipGroup[] }
   /** The introductory video under the Around Tech header, on YouTube. */
   introVideo: { youtubeId: string; title: string; caption: string }
   /** The recruiter scroll sections after the worlds, each between dividers. */
@@ -194,15 +191,16 @@ export type Content = {
   casual: Record<CasualTabId, Moment[]>
   contact: {
     title: string
-    /** The sticky note: typed prompts, each followed by a handwritten answer. */
-    note: { hello: string; name: string; am: string; role: string; open: string; write: string }
+    /** The card is a class in an editor: its name, bases and two methods. `hello` is read out in its place. */
+    code: { hello: string; name: string; bases: string[]; info: string; open: string }
     selfie: { src: string; alt: string; caption: string }
-    openTo: string
+    openTo: { roles: string[]; type: string[]; where: string }
     email: string
     copy: string
     copied: string
     copyFailed: string
-    links: Link[]
+    /** `text` is what the card shows for the address. */
+    links: (Link & { icon: 'linkedin' | 'github'; text: string })[]
   }
   /** Casual mode's last screen: the songs she played last, live from Spotify (api/recently-played.ts). */
   recentlyPlayed: {

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Compare colours</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Local only: `npm run dev`, then /compare.html. Nothing links here and the build never
+         includes it. The options are written up in docs/style-options.md. -->
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        background: #020305;
+        color: #f4f9fa;
+        font:
+          14px/1.5 Inter,
+          'Helvetica Neue',
+          Arial,
+          sans-serif;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      h1 {
+        margin: 0 auto 0 0;
+        font-size: 18px;
+        font-weight: 300;
+      }
+      button,
+      a {
+        padding: 8px 16px;
+        border: 1px solid rgb(132 160 176 / 0.45);
+        border-radius: 999px;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      button:hover,
+      button[aria-pressed='true'],
+      a:hover {
+        border-color: #b4e3f0;
+        color: #b4e3f0;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr));
+        gap: 16px;
+      }
+      section > div:first-child {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      h2 {
+        margin: 0 auto 0 0;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      h2 small {
+        margin-left: 6px;
+        color: #9fb0ba;
+        font-size: 13px;
+        font-weight: 400;
+      }
+      .view {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        border: 1px solid rgb(132 160 176 / 0.4);
+        border-radius: 14px;
+      }
+      iframe {
+        position: absolute;
+        width: 1440px;
+        height: 810px;
+        border: 0;
+        transform-origin: 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Sea angel and flower colours</h1>
+      <button type="button" data-go="top" aria-pressed="true">Opening</button>
+      <button type="button" data-go="automations">Cards</button>
+      <button type="button" data-go="end">Heart</button>
+      <button type="button" data-reset>New heart</button>
+    </header>
+    <main></main>
+    <script>
+      const VARIANTS = [
+        ['A', 'Original angel, ice flowers', 'the angel is the one warm thing', '?angel=coral'],
+        ['B', 'Ice angel, ice flowers', 'on your site now', ''],
+        ['C', 'Original angel, coral flowers', 'everything in the angel’s colours', '?angel=coral&flowers=coral'],
+        ['D', 'Ice angel, coral flowers', 'colours swapped', '?flowers=coral'],
+      ]
+      const main = document.querySelector('main')
+      // The four share one tab's storage: start each visit with an uneaten heart.
+      sessionStorage.removeItem('mg-heart')
+      for (const [key, name, note, query] of VARIANTS) {
+        const s = document.createElement('section')
+        s.innerHTML = `<div><h2>${key}. ${name} <small>${note}</small></h2><a href="/${query}#top" target="_blank">Full size</a></div>
+          <div class="view"><iframe title="${key}. ${name}" src="/${query}#top"></iframe></div>`
+        main.append(s)
+      }
+      const frames = [...document.querySelectorAll('iframe')]
+      // The frames open at #top, which would scroll this page to them.
+      frames.forEach((f) => f.addEventListener('load', () => window.scrollTo(0, 0)))
+      const fit = new ResizeObserver((entries) => {
+        for (const e of entries) e.target.firstElementChild.style.transform = `scale(${e.contentRect.width / 1440})`
+      })
+      document.querySelectorAll('.view').forEach((v) => fit.observe(v))
+
+      // Moves all four to the same place.
+      function go(where) {
+        for (const f of frames) {
+          const w = f.contentWindow
+          const el = w.document.getElementById(where)
+          const y =
+            where === 'end' ? w.document.documentElement.scrollHeight : el.getBoundingClientRect().top + w.scrollY
+          w.scrollTo(0, y)
+        }
+      }
+      document.querySelectorAll('[data-go]').forEach((b) =>
+        b.addEventListener('click', () => {
+          go(b.dataset.go)
+          document.querySelectorAll('[data-go]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)))
+        }),
+      )
+      document.querySelector('[data-reset]').addEventListener('click', () => {
+        sessionStorage.removeItem('mg-heart')
+        frames.forEach((f) => f.contentWindow.location.reload())
+        document
+          .querySelectorAll('[data-go]')
+          .forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.go === 'top')))
+      })
+    </script>
+  </body>
+</html>

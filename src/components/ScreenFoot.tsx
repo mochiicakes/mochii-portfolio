@@ -1,9 +1,9 @@
 import { content } from '../content'
 
 /**
- * The foot of a page's last screen: the credits, and at the lower left the
- * spot where the golden koi waits (see CursorKoi). Each page ends on its own
- * screen, so there is nothing further to scroll to.
+ * The foot of a page's last screen: the credits, and above them the spot
+ * where the sea angel's heart waits (see CursorAngel). Each page ends on its
+ * own screen, so there is nothing further to scroll to.
  */
 export function ScreenFoot() {
   return (
