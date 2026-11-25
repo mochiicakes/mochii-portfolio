@@ -2800,6 +2800,14 @@ html.js[data-page='contact'] .contact {
   opacity: 1;
 }
 
+/* Reduced motion: the angel rests above the credits, so the last screen makes
+   room for it under its content (the clamp is its length: see resizeAngel). */
+@media (prefers-reduced-motion: reduce) {
+  html.js :is(.screen, .contact):has(> .screen-foot) {
+    padding-bottom: calc(64px + 1.1 * clamp(80px, 15vmin, 280px));
+  }
+}
+
 /* Cursor koi */
 .cursor-koi {
   position: fixed;
