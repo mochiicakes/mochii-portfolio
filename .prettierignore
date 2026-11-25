@@ -3,3 +3,5 @@ dist-ssr
 public
 package-lock.json
 .claude
+src/components/effects/LightRays.jsx
+src/components/effects/LightRays.css

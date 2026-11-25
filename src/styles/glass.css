@@ -1,0 +1,1352 @@
+/* The ocean, and the liquid glass kit.
+
+   Glass follows the liquid-glass-design skill's rules, rebuilt for the web:
+   only on controls, bars and cards; one blurred surface per group; never a
+   blur inside a blur; text stays readable. The look is a thin bright edge, a
+   dark tint and a soft blur, with a little light caught along the top. */
+
+/* ---------- Ocean ---------- */
+
+.ocean {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(#08121f, #040911 30%, #020305 68%);
+}
+
+/* The deep, faded in over the surface as the page goes down. */
+.ocean-deep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#03060c, #010204 45%, #000);
+  opacity: var(--depth, 0);
+}
+
+.ocean-rays {
+  position: absolute;
+  inset: 0;
+  opacity: calc(0.55 - 0.44 * var(--depth, 0));
+}
+
+/* The dive: the blooms rise as the page goes down, the nearer the faster. */
+.ocean-blooms {
+  --travel: 150vh;
+  position: absolute;
+  inset: 0;
+  transform: translateY(calc(var(--depth, 0) * -1 * var(--travel)));
+}
+
+/* Small and dim, as through a lot of water. */
+.ocean-far {
+  --travel: 55vh;
+  opacity: 0.5;
+}
+
+/* Huge and soft, and faint enough to read over. */
+.ocean-near {
+  --travel: 235vh;
+  opacity: 0.42;
+}
+
+.ocean-bloom {
+  --w: calc(var(--size) * clamp(420px, 62vw, 1020px));
+  position: absolute;
+  top: calc(var(--y) - var(--w) / 2);
+  left: calc(var(--x) - var(--w) / 2);
+  width: var(--w);
+  height: var(--w);
+  animation: bloom-sway calc(15s + var(--i) * 2s) ease-in-out calc(var(--i) * -4s) infinite alternate;
+}
+
+.ocean-bloom canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Out of focus. The drawing never changes, so this is blurred only once. */
+@media (pointer: fine) {
+  .ocean-near canvas {
+    filter: blur(2.5px);
+  }
+}
+
+@keyframes bloom-sway {
+  from {
+    transform: translateY(-9px) rotate(-2deg) scale(0.99);
+  }
+  to {
+    transform: translateY(11px) rotate(2.5deg) scale(1.015);
+  }
+}
+
+/* Marine snow: one speckled tile, drifting down. */
+.ocean-snow {
+  position: absolute;
+  inset: -420px 0 0;
+  background:
+    radial-gradient(1.2px 1.2px at 12% 18%, rgb(220 239 255 / 0.5), transparent),
+    radial-gradient(1px 1px at 67% 9%, rgb(220 239 255 / 0.35), transparent),
+    radial-gradient(1.6px 1.6px at 38% 44%, rgb(220 239 255 / 0.4), transparent),
+    radial-gradient(1px 1px at 88% 57%, rgb(220 239 255 / 0.45), transparent),
+    radial-gradient(1.3px 1.3px at 22% 78%, rgb(220 239 255 / 0.3), transparent),
+    radial-gradient(1px 1px at 55% 90%, rgb(220 239 255 / 0.4), transparent);
+  background-size: 420px 420px;
+  opacity: calc(0.9 - 0.4 * var(--depth, 0));
+  animation: snow 46s linear infinite;
+}
+
+.ocean-snow-far {
+  background-size: 260px 260px;
+  opacity: calc(0.4 - 0.15 * var(--depth, 0));
+  animation: snow-far 60s linear infinite;
+}
+
+@keyframes snow {
+  to {
+    transform: translate(0, 420px);
+  }
+}
+
+@keyframes snow-far {
+  to {
+    transform: translate(0, 260px);
+  }
+}
+
+.ocean-bubble {
+  position: absolute;
+  bottom: -20px;
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  border: 1px solid rgb(207 230 255 / 0.4);
+  border-radius: 50%;
+  animation: bubble var(--rise) linear var(--lead) infinite;
+}
+
+@keyframes bubble {
+  25% {
+    margin-left: 10px;
+  }
+  75% {
+    margin-left: -8px;
+  }
+  to {
+    transform: translateY(-108vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean-bloom,
+  .ocean-snow {
+    animation: none;
+  }
+
+  .ocean-bubble {
+    display: none;
+  }
+}
+
+/* ---------- Glass ---------- */
+
+.pane,
+.btn,
+.tabs,
+.flow-link,
+.flow-skeleton,
+.drip-link,
+.fan-nav button {
+  border: 1px solid var(--glass-edge);
+  background: var(--glass);
+  box-shadow: inset 0 0 30px rgb(150 190 215 / 0.035);
+}
+
+.pane {
+  position: relative;
+  border-radius: var(--glass-radius);
+}
+
+/* The blur itself: cards and bars, never something inside one of them. */
+@media (pointer: fine) {
+  .pane,
+  .tabs,
+  .flow-link,
+  .drip-link,
+  .hero-card,
+  .hero .btn {
+    -webkit-backdrop-filter: blur(22px) saturate(1.15);
+    backdrop-filter: blur(22px) saturate(1.15);
+  }
+}
+
+/* Darker on the text, so it reads over the brightest ray. */
+.pane::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(3 8 13 / 0.26);
+}
+
+/* No blur on touch screens, so the fill does the work. */
+@media (pointer: coarse) {
+  .pane::before {
+    background: rgb(3 8 13 / 0.72);
+  }
+}
+
+.pane {
+  isolation: isolate;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 999px;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.btn:hover {
+  border-color: var(--glass-edge-bright);
+  background-color: rgb(160 205 225 / 0.12);
+  box-shadow:
+    inset 0 1px 0 rgb(225 238 244 / 0.24),
+    0 0 22px rgb(160 205 225 / 0.22);
+}
+
+.btn:active {
+  background-color: rgb(160 205 225 / 0.22);
+}
+
+/* The frame is the button: keyboard focus fills it instead of drawing a
+   second frame around it. */
+.btn:focus-visible {
+  outline: none;
+  border-color: var(--ice);
+  background-color: rgb(160 205 225 / 0.26);
+}
+
+a.btn::after {
+  content: '↗' / '';
+  font-size: 0.95em;
+  opacity: 0.8;
+}
+
+/* Top bar: no band, so the water runs to the top of the window. Phones scroll
+   text under the words, so there it fades out, with no edge. */
+@media (max-width: 1023px) {
+  .topbar::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -26px;
+    z-index: -1;
+    background: linear-gradient(rgb(2 4 7 / 0.9) 30%, transparent);
+    opacity: 0;
+    transition: opacity 0.35s;
+    pointer-events: none;
+  }
+
+  .topbar[data-scrolled]::before {
+    opacity: 1;
+  }
+}
+
+.topbar {
+  padding-block: calc(20px + env(safe-area-inset-top, 0px)) 18px;
+}
+
+/* Links, modes and tabs: plain words, the chosen one lit. */
+.topbar-link,
+.mode-switch button,
+.tabs [role='tab'] {
+  padding: 9px 16px;
+  border-radius: 999px;
+  font: 400 0.8rem/1 var(--font-body);
+  letter-spacing: var(--track);
+  transition:
+    opacity 0.3s,
+    color 0.3s,
+    background-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.topbar-link::after,
+.mode-switch button::after,
+.tabs [role='tab']::after {
+  content: none;
+}
+
+.topbar-end {
+  gap: 4px;
+}
+
+.mode-switch {
+  gap: 4px;
+}
+
+.topbar-link[aria-current='page'],
+.mode-switch button[aria-pressed='true'],
+.tabs [role='tab'][aria-selected='true'] {
+  color: var(--ice);
+  background-color: rgb(160 205 225 / 0.14);
+  box-shadow:
+    inset 0 0 0 1px rgb(160 184 198 / 0.34),
+    inset 0 1px 0 rgb(225 238 244 / 0.2);
+  text-shadow: var(--glow);
+}
+
+/* The top bar's words are plain: the chosen one is only brighter. */
+.topbar-link[aria-current='page'],
+.mode-switch button[aria-pressed='true'] {
+  opacity: 1;
+  background: none;
+  box-shadow: none;
+}
+
+.topbar-link,
+.mode-switch button {
+  opacity: 1;
+  /* Flowers pass behind the words. */
+  text-shadow: 0 0 10px rgb(2 4 7 / 0.9);
+  font-weight: 350;
+  font-size: 0.78rem;
+}
+
+.topbar-link:focus-visible,
+.mode-switch button:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  text-decoration-color: var(--ice);
+  text-underline-offset: 7px;
+}
+
+/* Tabs sit together in one glass bar. */
+.tabs {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 26px;
+}
+
+#experience .tabs {
+  gap: 4px;
+}
+
+#experience .tabs [role='tab'] {
+  padding-inline: 12px;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+.tab-region {
+  margin-left: 0.7em;
+  font: 400 0.5rem/1 var(--font-pixel);
+  letter-spacing: 0;
+}
+
+.tabs [role='tab']:focus-visible {
+  outline-offset: -2px;
+  border-radius: 999px;
+}
+
+@media (max-width: 520px) {
+  .topbar-link,
+  .topbar-end .mode-switch button {
+    padding: 9px 10px;
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+  }
+
+  .topbar-end,
+  .topbar-end .mode-switch {
+    gap: 2px;
+  }
+
+  .tabs [role='tab'] {
+    padding: 9px 12px;
+    font-size: 0.72rem;
+  }
+}
+
+/* Hero */
+.hero-first,
+.hero-last {
+  font-variation-settings:
+    'BLED' 0,
+    'SCAN' -4;
+  color: #eef4f4;
+}
+
+/* A ring with an arrow: the way on. */
+.ring-link {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 50%;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s;
+}
+
+.ring-link:hover,
+.ring-link:focus-visible {
+  outline: none;
+  border-color: var(--glass-edge-bright);
+  background: rgb(180 227 240 / 0.12);
+}
+
+/* Automation cards. Every one has the same parts in the same order: the
+   diagram, the title with its link, the scale, two lines of words, the tools. */
+.automations {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+}
+
+.thumb-flow {
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid rgb(160 184 198 / 0.2);
+}
+
+.flow-narrow,
+.flow-narrow svg {
+  max-width: 340px;
+  margin-inline: auto;
+}
+
+@media (min-width: 521px) {
+  .flow-narrow {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .flow-wide {
+    display: none;
+  }
+}
+
+.flow-wide .flow-node text {
+  font-size: 11.5px;
+  letter-spacing: 0;
+}
+
+.flow-wide svg {
+  width: 100%;
+}
+
+.card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 16px 20px 18px;
+}
+
+.card-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.card-title {
+  font: 300 1.2rem/1.3 var(--font-display);
+  letter-spacing: -0.005em;
+}
+
+.card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.card-go,
+.card-soon {
+  flex: none;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  transition: color 0.3s;
+}
+
+.card.is-linked:hover .card-go {
+  color: var(--ice);
+}
+
+.card-scale {
+  margin-top: 3px;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ice);
+}
+
+.card-desc {
+  margin-top: 8px;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.card-stack {
+  align-self: end;
+  margin-top: auto;
+  padding-top: 10px;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.card.is-linked:hover,
+a.job-thumb:hover .job-thumb-img {
+  border-color: var(--glass-edge-bright);
+}
+
+.job {
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.job .bullets {
+  gap: 8px;
+}
+
+/* The panel's title, and the line under it lit in ice. */
+.job-org {
+  font-weight: 250;
+  font-size: 2.6rem;
+}
+
+.job-role {
+  color: var(--ice);
+}
+
+.proof,
+.case-body,
+.principles,
+.toolbox,
+.background,
+.fan-text {
+  font-size: 0.9rem;
+}
+
+.card-desc,
+.bullets li,
+.proof td,
+.principles li,
+.case-body {
+  color: var(--text-dim);
+}
+
+.flow-edge {
+  stroke: rgb(180 210 225 / 0.6);
+}
+
+.flow-node rect {
+  fill: rgb(160 205 225 / 0.07);
+  stroke: rgb(160 184 198 / 0.5);
+}
+
+.flow-head {
+  fill: var(--ice);
+}
+
+/* Leadership. The mark before a title: a dot for own initiative, a ring for
+   volunteer work. */
+.lead {
+  padding: 20px clamp(20px, 4vw, 36px);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.lead-head {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 18px;
+}
+
+.lead-legend {
+  display: flex;
+  flex: none;
+  gap: 1.4em;
+}
+
+[data-kind]::before {
+  content: '' / '';
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-right: 0.55em;
+  border: 1px solid var(--ice);
+  border-radius: 50%;
+  vertical-align: 0.12em;
+}
+
+[data-kind='initiative']::before {
+  background: var(--ice);
+}
+
+.lead-orgs,
+.lead-items {
+  list-style: none;
+  display: grid;
+}
+
+.lead-org {
+  padding: 18px 0;
+  border-top: 1px solid rgb(160 184 198 / 0.2);
+}
+
+.lead-org .job-org {
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+.lead-org .job-dates {
+  margin-top: 4px;
+  font-size: 0.64rem;
+}
+
+.lead-items {
+  gap: 16px;
+}
+
+.lead-title {
+  font-weight: 450;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.lead-figure {
+  font-weight: 300;
+  font-size: 1.35em;
+  line-height: 1.3;
+  color: var(--ice);
+}
+
+.lead-text {
+  margin-top: 2px;
+}
+
+@media (max-width: 1023px) {
+  .lead-org header {
+    margin-bottom: 14px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1023px) {
+  .lead-items {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 28px;
+  }
+}
+
+/* Fan */
+.fan-face {
+  border-radius: 16px;
+  box-shadow:
+    0 22px 44px rgb(0 4 16 / 0.6),
+    inset 0 0 0 1px rgb(160 184 198 / 0.25);
+}
+
+.fan-card[aria-current] .fan-face {
+  outline-color: var(--ice);
+  box-shadow: 0 0 40px rgb(160 205 225 / 0.28);
+}
+
+.fan-face-tag {
+  text-shadow: 0 1px 8px rgb(0 4 16 / 0.9);
+}
+
+.fan-nav button {
+  color: var(--text);
+}
+
+.fan-nav button:hover:not(:disabled) {
+  border-color: var(--glass-edge-bright);
+}
+
+.fan-title {
+  letter-spacing: -0.01em;
+}
+
+/* Songs: the album glow stays behind the words and arrows. */
+.part-head,
+.flow-nav {
+  position: relative;
+  z-index: 1;
+}
+
+.flow-link {
+  border-radius: 20px;
+}
+
+.flow-play {
+  border-color: var(--glass-edge-bright);
+  background: rgb(6 13 21 / 0.75);
+  color: var(--text);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.flow-open {
+  border-color: var(--glass-edge);
+  background: rgb(160 205 225 / 0.12);
+}
+
+/* Drip cards */
+.drip-link {
+  color: var(--text);
+  border-radius: 16px;
+  background-color: rgb(6 13 21 / 0.72);
+}
+
+.drip-foot,
+.drip-foot > span + span {
+  border-color: rgb(160 184 198 / 0.2);
+}
+
+.drip-foot b,
+.drip-get b {
+  color: var(--ice);
+  font-family: var(--font-body);
+}
+
+.drip-foot i {
+  font-style: normal;
+  color: var(--text-dim);
+}
+
+.drip-name {
+  font-weight: 400;
+}
+
+.drip-thumb {
+  border-radius: 10px;
+}
+
+@media (max-width: 1099px) {
+  .drip-link {
+    border-radius: 14px;
+    background-color: #0a141e;
+  }
+
+  .drip-link::after {
+    border-color: rgb(160 184 198 / 0.28);
+  }
+
+  .drip-thumb {
+    border-radius: 0;
+  }
+}
+
+.divider {
+  background: rgb(160 184 198 / 0.25);
+}
+
+.divider span {
+  background: var(--ice);
+  box-shadow: var(--glow);
+}
+
+/* ---------- One page ----------
+   Wide windows: every topic fits one screen. Dense ones are laid out across
+   instead of down; lib/fit.ts scales a body the last little way (--fit). */
+@media (min-width: 1024px) {
+  /* The title and its body sit together in the middle of the window, clear of
+     the top bar. With tabs, the title keeps one height, so it never jumps. */
+  .screen {
+    padding: 92px 0 clamp(72px, 8svh, 112px);
+  }
+
+  .screen:has(> .tabs) {
+    justify-content: flex-start;
+    padding-top: clamp(92px, 12.5svh, 150px);
+  }
+
+  /* Room for the heart above the credits. */
+  .screen:has(> .screen-foot) {
+    padding-bottom: calc(var(--heart) + 30px);
+  }
+
+  .screen > :not(.part-head, .world-head, .intro-video, .tabs, .divider, .screen-foot),
+  .contact > .contact-board {
+    zoom: var(--fit, 1);
+  }
+
+  /* Titles, tabs and the rest of the frame grow with the window (lib/fit.ts). */
+  .part-head,
+  .world-head,
+  .contact-title,
+  .tabs,
+  .intro-video-caption,
+  .footer {
+    zoom: var(--k, 1);
+  }
+
+  .topbar-end {
+    zoom: min(var(--k, 1), 1.3);
+  }
+
+  .part-head,
+  .world-head {
+    gap: var(--space-xs);
+    margin-bottom: clamp(var(--space-md), 2.6svh, var(--space-xl));
+  }
+
+  .section-title,
+  .world-title,
+  .contact-title {
+    font-size: clamp(1.8rem, min(3.2vw, 5.2svh), 2.9rem);
+  }
+
+  .part-intro,
+  .world-intro {
+    max-width: 46rem;
+    font-size: 0.86rem;
+  }
+
+  .tabs {
+    margin-block: 0 var(--space-md);
+  }
+
+  /* Around Tech: the video takes the room that is left. */
+  .intro-video {
+    width: min(100%, (100svh - 210px - 162px * var(--k, 1)) * 16 / 9);
+    min-width: 0;
+    margin-top: var(--space-sm);
+  }
+
+  .intro-video-caption {
+    margin-top: var(--space-sm);
+    font-size: 0.86rem;
+  }
+
+  /* Experience */
+  .job {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.85fr);
+    padding: var(--space-lg) var(--space-xl);
+  }
+
+  .job-head {
+    gap: var(--space-2xs);
+    margin-bottom: var(--space-md);
+  }
+
+  .job-org {
+    font-size: 2.1rem;
+  }
+
+  .job .bullets {
+    gap: var(--space-xs);
+  }
+
+  .job-meta {
+    margin-top: var(--space-md);
+    font-size: 0.82rem;
+  }
+
+  /* Impact: proof in two columns, a claim over its evidence. */
+  .proof-wrap {
+    padding: var(--space-sm) var(--space-xl) var(--space-md);
+  }
+
+  .proof {
+    display: block;
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  .proof thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .proof tbody {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-2xl);
+  }
+
+  .proof tr {
+    display: block;
+    padding: var(--space-sm) 0;
+    border-top: 1px solid rgb(160 184 198 / 0.2);
+  }
+
+  .proof tr:nth-child(-n + 2) {
+    border-top: 0;
+  }
+
+  .proof tbody th,
+  .proof td {
+    display: block;
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+
+  .proof tbody th {
+    margin-bottom: var(--space-2xs);
+    font-size: 1rem;
+    color: var(--ice);
+  }
+
+  /* Leadership: a name, then five columns of achievements. The jobs fill a row
+     each; the President's is two columns wide; the last two share a row. */
+  .lead {
+    padding: var(--space-md) var(--space-lg);
+    font-size: 0.76rem;
+  }
+
+  .lead-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-xl);
+    padding-bottom: var(--space-md);
+  }
+
+  .lead-orgs {
+    grid-template-columns: minmax(0, 1.05fr) repeat(5, minmax(0, 1fr));
+    column-gap: var(--space-lg);
+  }
+
+  .lead-org {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 1.05fr repeat(5, 1fr);
+    column-gap: inherit;
+    padding: var(--space-md) 0;
+  }
+
+  .lead-items {
+    grid-column: 2 / -1;
+    grid-template-columns: repeat(5, 1fr);
+    column-gap: inherit;
+  }
+
+  #lead-student .lead-items > li:first-child {
+    grid-column: span 2;
+  }
+
+  #lead-samsung,
+  #lead-community {
+    grid-column: span 3;
+    padding-bottom: 0;
+  }
+
+  @supports (grid-template-columns: subgrid) {
+    .lead-org,
+    .lead-items {
+      grid-template-columns: subgrid;
+    }
+  }
+
+  /* Case studies: one open at a time, its parts side by side. */
+  .cases {
+    gap: var(--space-sm);
+  }
+
+  .case summary {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .case-body {
+    grid-template-columns: 1fr 1.35fr;
+    gap: var(--space-md) var(--space-2xl);
+    padding: 0 var(--space-lg) var(--space-lg);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .case-body > div {
+    display: block;
+  }
+
+  /* What was built is the longest: it has the right column to itself. */
+  .case-body > div:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+  }
+
+  .case-body dt {
+    margin-bottom: var(--space-2xs);
+  }
+
+  /* How I work */
+  .how {
+    align-items: stretch;
+    gap: var(--space-md);
+  }
+
+  .principles {
+    display: grid;
+    align-content: space-evenly;
+  }
+
+  .principles,
+  .toolbox {
+    padding: var(--space-md) var(--space-lg);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .principles li {
+    padding: var(--space-sm) 0;
+  }
+
+  .toolbox h4 {
+    font-size: 1.5rem;
+  }
+
+  .toolbox dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-xl);
+  }
+
+  .toolbox dl > div {
+    padding: var(--space-sm) 0;
+  }
+
+  .toolbox dl > div:nth-child(2) {
+    border-top: 0;
+  }
+
+  /* Automations: five equal cards, three over two. A row's cards share their
+     lines, so every title, scale, description and tool list starts level. */
+  .automations {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0 var(--space-md);
+  }
+
+  .automations > li {
+    grid-column: span 2;
+    grid-row: 1 / span 5;
+  }
+
+  .automations > li:nth-child(n + 4) {
+    grid-row: 6 / span 5;
+    margin-top: var(--space-md);
+  }
+
+  .automations > li:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+
+  .automations > li:nth-child(5) {
+    grid-column: 4 / span 2;
+  }
+
+  @supports (grid-template-rows: subgrid) {
+    .automations > li,
+    .automations .card,
+    .automations .card-body {
+      display: grid;
+      grid-template-rows: subgrid;
+    }
+
+    .automations .card {
+      grid-row: 1 / -1;
+    }
+
+    .automations .card-body {
+      grid-row: 2 / -1;
+    }
+  }
+
+  .automations .thumb-flow {
+    padding: var(--space-md) var(--space-md) var(--space-sm);
+  }
+
+  .automations .card-body {
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+  }
+
+  .automations .card-desc {
+    margin-top: var(--space-xs);
+    font-size: 0.8rem;
+  }
+
+  .automations .card-stack {
+    padding-top: var(--space-xs);
+    font-size: 0.7rem;
+  }
+
+  /* Fans */
+  .screen > .fan {
+    gap: var(--space-sm);
+  }
+
+  .fan-detail {
+    min-height: 108px;
+    align-content: center;
+    gap: var(--space-xs);
+    width: min(100%, 44rem);
+    padding: var(--space-md) var(--space-lg) var(--space-md);
+  }
+
+  /* Every card here is a personal project, so the dial needn't say so again,
+     and its narrower fan needs less room below. */
+  #personal-projects .fan {
+    --below: calc(var(--ch) * 0.52);
+  }
+
+  #personal-projects .fan-pointer {
+    display: none;
+  }
+
+  #personal-projects .fan-dial {
+    --dial: linear-gradient(#000 3%, transparent 13%);
+  }
+
+  /* Room for the longest project, so the panel never changes height. */
+  #personal-projects .fan-detail {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-xl);
+    justify-items: start;
+    width: min(100%, 54rem);
+    min-height: 128px;
+    text-align: left;
+  }
+
+  #personal-projects .fan-detail > :is(.btn, .fan-soon) {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+  }
+
+  .fan-title {
+    font-size: 1.6rem;
+  }
+
+  .fan-text {
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .fan-detail .btn {
+    padding-block: var(--space-sm);
+  }
+
+  /* Songs */
+  .flow {
+    --cw: clamp(150px, min(19vw, 27svh), 270px);
+  }
+
+  /* Contact */
+  html.js[data-page='contact'] .contact {
+    gap: var(--space-lg);
+    padding: 92px var(--gutter) calc(var(--heart) + 30px);
+  }
+
+  .contact-board {
+    width: min(100%, var(--maxw) / var(--fit, 1));
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Education: the degree leads, the rest sits in two columns under it. */
+  .background {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg) var(--space-2xl);
+    margin-top: 0;
+    padding: var(--space-xl);
+    font-size: 0.95rem;
+    line-height: 1.62;
+    color: var(--text-dim);
+  }
+
+  .background h4,
+  .background p:first-of-type {
+    grid-column: 1 / -1;
+    color: var(--text);
+  }
+
+  .background p:first-of-type {
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid rgb(160 184 198 / 0.2);
+    font-size: 1.3rem;
+    font-weight: 300;
+    line-height: 1.45;
+    color: var(--text);
+  }
+
+  /* On a line of its own a label needs no colon. */
+  .background .label i {
+    display: none;
+  }
+
+  .background .label {
+    display: block;
+    margin-bottom: var(--space-2xs);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+.background .label i {
+  font-style: normal;
+}
+
+/* Screens keep their height, so the browser must not chase text that moves
+   inside one: it would scroll the page when a card turns. */
+@media (min-width: 1024px) {
+  html {
+    overflow-anchor: none;
+  }
+}
+
+/* A figure after a bullet wraps as a whole, with no indent on the next line. */
+.bullets .scale {
+  display: inline;
+  margin-left: 0;
+  white-space: nowrap;
+}
+
+.bullets .scale::before {
+  content: ' ';
+  white-space: normal;
+  word-spacing: 0.5em;
+}
+
+/* Where there is the height for it, text breathes. */
+@media (min-width: 1024px) and (min-height: 900px) {
+  .job,
+  .proof,
+  .case-body,
+  .principles,
+  .toolbox,
+  .fan-text {
+    line-height: 1.62;
+  }
+
+  .job .bullets {
+    gap: var(--space-sm);
+  }
+
+  .job .job-head {
+    gap: var(--space-2xs);
+    margin-bottom: var(--space-md);
+  }
+
+  .job-meta {
+    margin-top: var(--space-md);
+  }
+
+  .proof tr {
+    padding: var(--space-md) 0;
+  }
+
+  .proof tbody th {
+    margin-bottom: var(--space-2xs);
+  }
+
+  .case summary {
+    padding-block: var(--space-md);
+  }
+
+  .case-body {
+    row-gap: var(--space-md);
+    padding-bottom: var(--space-lg);
+  }
+
+  .case-steps {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .principles li {
+    padding: var(--space-sm) 0;
+  }
+
+  .toolbox dl > div {
+    padding: var(--space-sm) 0;
+  }
+}
+
+/* Phones: room for the heart above the credits. */
+@media (max-width: 1023px) {
+  .screen:has(> .screen-foot),
+  .contact:has(> .screen-foot) {
+    padding-bottom: 122px;
+  }
+}
+
+/* Short laptop windows: less air round the edges, more width for dense pages. */
+@media (min-width: 1024px) and (max-height: 800px) {
+  .screen,
+  .screen:has(> .tabs) {
+    padding: 80px 0 58px;
+  }
+
+  .screen:has(> .screen-foot) {
+    padding-bottom: 104px;
+  }
+
+  .screen > .divider {
+    bottom: 8px;
+    height: 38px;
+  }
+
+  .part-head,
+  .world-head {
+    margin-bottom: var(--space-sm);
+  }
+
+  .tabs {
+    margin-bottom: var(--space-sm);
+  }
+
+  #impact .tab-panel {
+    /* Scaled down, it keeps this width on screen, so its lines get longer. */
+    --w: calc(min(95vw, 1340px) / var(--fit, 1));
+    width: var(--w);
+    margin-inline: calc(50% - var(--w) / 2);
+  }
+
+  .proof tr {
+    padding: var(--space-sm) 0;
+  }
+}
+
+/* People who ask for less see-through get solid panels. */
+@media (prefers-reduced-transparency: reduce) {
+  .pane,
+  .btn,
+  .tabs,
+  .flow-link,
+  .drip-link {
+    background: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .title-ice {
+    color: CanvasText;
+  }
+}

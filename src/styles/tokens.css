@@ -1,45 +1,72 @@
-/* Paper and watercolour. Pigments come from the water references (see
-   lib/paint.ts); the washes layer from clear blue toward the deep teal pools.
-   Text is --paper everywhere: invisible on bare paper, and once the page is
-   painted it gets a soft ink bleed (--bleed) so it holds up where the wash is
-   pale. */
+/* Deep ocean: near-black water, white text, icy blue light. The sea
+   angel, its heart and the blooms share it (docs/style-options.md). */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  --paper: #fcfdfd;
-  --paint: #2f80c0;
-  --paint-deep: #277397;
-  --paint-light: #56aede;
-  --ink: #23679c;
-  --ice: #b5dae3;
-  --sky: #65c6f3;
-  --lilac: #bcacd9;
-  --goldfish: #f7503e;
-  --goldfish-deep: #d63d28;
-  --butter: #fbe7a1;
+  /* The water. */
+  --abyss: #020305;
 
-  /* Type, after the editorial cover: a heavy high-contrast serif for names and
-     titles, a signature script for accents, and a book serif for reading. */
-  --font-display: 'Playfair Display Variable', 'Bodoni 72', Didot, Georgia, serif;
-  --font-script: 'Mrs Saint Delafield', 'Snell Roundhand', cursive;
-  --bleed: 0 0 3px rgb(16 70 122 / 0.32), 0 2px 18px rgb(16 70 122 / 0.45);
-  /* Once painted, the ground is softened so the content leads. About 3px
-     takes out pigment grain and hard rims but keeps the washes; 6px and up
-     reads as out of focus. */
-  --ground-blur: clamp(2px, 0.18vw, 4px);
-  --crystal-opacity: 0.75;
-  --font-body: 'Lora Variable', Georgia, 'Times New Roman', serif;
-  --font-type: 'Courier Prime', 'Courier New', ui-monospace, monospace;
+  /* Words and accents. */
+  --text: #f4f9fa;
+  --text-dim: rgb(220 230 236 / 0.84);
+  --ice: #b4e3f0;
+  --ice-deep: #6f9fc0;
+  --glow: 0 0 14px rgb(180 227 240 / 0.35);
 
-  /* The contact board: a white sticky note on a sky-blue one, and a polaroid. */
-  --note: #fdfdfb;
-  --note-back: #9fd3f4;
-  --note-ink: #1d2d5c;
-  --note-hand: #2b2263;
-  --polaroid: #f4ece1;
+  /* Glass (glass.css). */
+  --glass: linear-gradient(170deg, rgb(24 36 50 / 0.44), rgb(8 17 26 / 0.46) 40%, rgb(8 18 30 / 0.5));
+  --glass-solid: #08111a;
+  --glass-edge: rgb(132 160 176 / 0.36);
+  --glass-edge-bright: rgb(190 220 232 / 0.7);
+  --glass-radius: 20px;
 
-  --track: 0.32em;
-  --maxw: 1080px;
+  /* Stand-ins until a photo exists. */
+  --tile-a: linear-gradient(170deg, #1c2c3c, #0c1722 60%, #060d15);
+  --tile-b: linear-gradient(165deg, #263b50, #10202f 60%, #08121c);
+  --tile-c: linear-gradient(175deg, #1f3346, #0e1c2a 60%, #070f18);
+  --tile-d: linear-gradient(170deg, #2b4258, #132433 60%, #091520);
+
+  /* Type: a scanline pixel face for the name and mark, a light sans for
+     everything else. */
+  --font-pixel: 'Sixtyfour Variable', 'Courier New', monospace;
+  --font-display: 'Inter Variable', 'Helvetica Neue', Arial, sans-serif;
+  /* The contact card's editor. */
+  --font-code: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace;
+  --font-body: 'Inter Variable', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Spacing, on a 4 px base. Tight inside a group, generous between groups. */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  --track: 0.02em;
+  --maxw: 1200px;
+  /* The middle of the waiting heart, above the foot of the page. */
+  --heart: 84px;
   --gutter: clamp(16px, 4vw, 48px);
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Shorter windows: the same scale, drawn in, so spacing gives way before text. */
+@media (min-width: 1024px) and (max-height: 899px) {
+  :root {
+    --space-2xs: 3px;
+    --space-xs: 6px;
+    --space-sm: 9px;
+    --space-md: 12px;
+    --space-lg: 20px;
+    --space-xl: 26px;
+    --space-2xl: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --maxw: clamp(1200px, 82vw, 2080px);
+    --heart: clamp(84px, 12svh, 150px);
+  }
 }

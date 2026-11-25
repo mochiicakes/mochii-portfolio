@@ -1,16 +1,14 @@
-import '@fontsource-variable/playfair-display/wght.css'
-// The hero name only: static 800, whose letters are single merged outlines, so
-// the blue outline drawn over the portrait has no overlap seams.
-import '@fontsource/playfair-display/latin-800.css'
-import '@fontsource-variable/lora/wght.css'
-import '@fontsource-variable/lora/wght-italic.css'
-import '@fontsource/mrs-saint-delafield/latin-400.css'
+import '@fontsource-variable/inter/wght.css'
+import '@fontsource-variable/inter/wght-italic.css'
+// The scanline pixel face, with its bleed and scanline axes.
+import '@fontsource-variable/sixtyfour/full.css'
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import { App } from './App'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/page.css'
+import './styles/glass.css'
 
 const root = document.getElementById('root')!
 const app = (

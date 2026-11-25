@@ -8,6 +8,7 @@ import { ScreenFoot } from './ScreenFoot'
 import { Automations, Experience, RecruiterPanel } from './panels/RecruiterPanels'
 import { Divider } from './ui/Ornaments'
 import { Tabs } from './ui/Tabs'
+import { Title } from './ui/Title'
 
 function projectCards(): FanCard[] {
   const group = content.fan.recruiterGroup
@@ -71,7 +72,7 @@ function Part({
     <section id={id} className="world-part screen" data-screen aria-labelledby={`${id}-title`}>
       <header className="part-head">
         <h3 id={`${id}-title`} className="section-title">
-          {title}
+          <Title text={title} />
         </h3>
         {intro && <p className="part-intro">{intro}</p>}
       </header>
@@ -97,20 +98,11 @@ function WorldSection({ mode }: { mode: Mode }) {
       <div className="world-intro-screen screen" data-screen>
         <header className="world-head">
           <h2 id={`world-${mode}`} className="world-title">
-            {world.title}
+            <Title text={world.title} />
           </h2>
           <p className="world-intro">{world.intro}</p>
         </header>
-        {mode === 'recruiter' ? (
-          <IntroVideo />
-        ) : (
-          <CardFan
-            label={world.title}
-            ring={content.fan.ring}
-            cards={casualCards()}
-            groups={content.worlds.casual.tabs}
-          />
-        )}
+        {mode === 'recruiter' ? <IntroVideo /> : <CardFan label={world.title} cards={casualCards()} />}
         {mode === 'recruiter' ? (
           <NextDivider next={{ id: 'experience', label: 'experience' }} />
         ) : (
@@ -154,7 +146,7 @@ function WorldSection({ mode }: { mode: Mode }) {
             title={content.fan.recruiterGroup}
             intro={content.worlds.recruiter.projectsIntro}
           >
-            <CardFan label={content.fan.recruiterGroup} ring={content.fan.ring} cards={projectCards()} />
+            <CardFan label={content.fan.recruiterGroup} cards={projectCards()} />
           </Part>
         </>
       )}

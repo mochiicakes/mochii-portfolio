@@ -35,17 +35,6 @@ export type SteerOpts = {
   idle: number
 }
 
-/** The koi closes 7% of the gap to its wanted speed per 60 Hz frame; this is that as a rate. */
-export const KOI_SWIM: Tuning = {
-  gain: 7,
-  circle: 2.4,
-  turnEase: 9,
-  base: 1.2,
-  slope: 0.05,
-  idleSpeed: 1.4,
-  speedEase: -60 * Math.log(0.93),
-}
-
 export const ANGEL_SWIM: Tuning = {
   gain: 6,
   circle: 2,

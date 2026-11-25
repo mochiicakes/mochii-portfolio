@@ -46,6 +46,8 @@ function profile(s: number) {
 
 /** Body length as a share of the window's smaller side. */
 export const SIZES = { s: 0.15, m: 0.22, l: 0.3 }
+/** The whole animal, and its heart, against the prototype's size. */
+const SCALE = 0.8
 export type AngelSize = keyof typeof SIZES
 
 export type AngelMode = 'hover' | 'chase' | 'circle' | 'approach' | 'eat'
@@ -101,15 +103,17 @@ function resetSpine(a: Angel) {
 export function resizeAngel(a: Angel, W: number, H: number, size: AngelSize) {
   a.W = W
   a.H = H
-  a.L = clamp(Math.min(W, H) * SIZES[size], 80, 280)
+  a.L = clamp(Math.min(W, H) * SIZES[size], 80, 280) * SCALE
   a.seg = a.L / N
   a.sc = a.L / 96
 }
 
 export function newAngel(W: number, H: number, size: AngelSize, eaten: boolean): Angel {
   const a: Angel = {
-    x: W * 0.38,
-    y: H * 0.52,
+    // The right margin, beside the content: until there is a pointer it hovers
+    // where it starts, and must not cover anything to read.
+    x: W - 130,
+    y: H * 0.6,
     angle: -Math.PI / 2,
     av: 0,
     speed: 0,
@@ -262,6 +266,87 @@ export function updateAngel(a: Angel, input: AngelInput, dt: number, now: number
 // --- Drawing ---------------------------------------------------------------
 
 type Ctx = CanvasRenderingContext2D
+
+/** Every colour on the animal. Triples are `r,g,b`; stops are `r,g,b,a`. */
+export type AngelPalette = {
+  /** The jelly: its edges, its middle, and how solid it is. */
+  edge: string
+  middle: string
+  body: number
+  wingTip: string
+  halo: string
+  speck: [string, string]
+  /** Each organ, centre to rim. */
+  head: string[]
+  column: string[]
+  stomach: string[]
+  stomachFull: string[]
+  tail: string[]
+  /** Halo light behind the head and the stomach, empty and full. */
+  headHalo: string[]
+  stomachHalo: string[]
+  fullHalo: string[]
+  /** Glows stamped in added light: down the neck, the organs, the stomach. */
+  neckGlow: string
+  organGlow: string
+  stomachGlow: string
+  tentacle: string
+  heartGlow: string
+  heart: [string, string, string]
+}
+
+/** The first look: blue-violet jelly, orange organs, a pink heart. See docs/style-options.md. */
+const CORAL: AngelPalette = {
+  edge: '158,180,255',
+  middle: '98,112,226',
+  body: 0.86,
+  wingTip: '185,210,255',
+  halo: '125,175,255',
+  speck: ['235,238,255', '220,226,255'],
+  head: ['255,150,90,1', '255,90,90,.7', '255,90,140,0'],
+  column: ['255,200,230,.9', '255,140,200,.55', '255,120,190,0'],
+  stomach: ['255,214,110,1', '255,160,50,.7', '255,130,40,0'],
+  stomachFull: ['255,150,200,.45', '255,120,190,0'],
+  tail: ['255,170,110,.85', '255,120,80,0'],
+  headHalo: ['255,140,120,.9', '255,120,170,0'],
+  stomachHalo: ['255,190,90,.9', '255,160,60,0'],
+  fullHalo: ['255,120,190,.8', '255,120,190,0'],
+  neckGlow: '255,92,158',
+  organGlow: '255,120,40',
+  stomachGlow: '255,140,55',
+  tentacle: '255,135,75',
+  heartGlow: '255,92,158',
+  heart: ['#ffd0e2', '#ff76ad', '#e23d82'],
+}
+
+/** The site's look: the blooms' steel blue, pale ice and warm white light. */
+const ICE: AngelPalette = {
+  edge: '166,206,238',
+  middle: '58,100,154',
+  body: 0.78,
+  wingTip: '190,224,246',
+  halo: '104,160,220',
+  speck: ['244,250,252', '206,230,244'],
+  head: ['250,232,204,.8', '206,208,206,.4', '140,186,224,0'],
+  column: ['226,238,246,.6', '166,206,234,.32', '120,172,220,0'],
+  stomach: ['246,224,188,.85', '218,202,176,.42', '160,184,204,0'],
+  stomachFull: ['150,200,224,.3', '120,180,214,0'],
+  tail: ['214,232,244,.6', '130,180,224,0'],
+  headHalo: ['176,192,206,.5', '130,176,220,0'],
+  stomachHalo: ['204,194,176,.5', '150,180,208,0'],
+  fullHalo: ['130,190,218,.55', '110,170,210,0'],
+  neckGlow: '46,86,126',
+  organGlow: '112,98,74',
+  stomachGlow: '118,100,72',
+  tentacle: '214,234,246',
+  heartGlow: '56,112,142',
+  heart: ['#f2fcff', '#a5d9ec', '#3f86b0'],
+}
+
+export const PALETTES = { coral: CORAL, ice: ICE }
+export type PaletteName = keyof typeof PALETTES
+
+const rgba = (stops: string[]) => stops.map((c) => `rgba(${c})`)
 /** The body at one spine point: position, heading, normal, half-width, rotation. */
 type Frame = { p: Pt; d: Pt; n: Pt; w: number; r: number }
 type Wing = { f0: Pt; tip: Pt; Lp: Pt[]; Tp: Pt[]; root: Pt }
@@ -541,20 +626,29 @@ function add(ctx: Ctx, fn: () => void) {
 const heartSize = (a: Angel) => 17 * a.sc
 
 export class AngelPainter {
-  private pink = glow('255,92,158', 128)
-  private orange = glow('255,120,40', 96)
-  private warm = glow('255,140,55', 128)
-  private dot = radial(16, [
-    [0, 'rgba(235,238,255,1)'],
-    [0.5, 'rgba(220,226,255,.7)'],
-    [1, 'rgba(220,226,255,0)'],
-  ])
+  private p: AngelPalette
+  private neck: HTMLCanvasElement
+  private organs: HTMLCanvasElement
+  private belly: HTMLCanvasElement
+  private love: HTMLCanvasElement
+  private dot: HTMLCanvasElement
   private halo: HTMLCanvasElement
   private haloCtx: Ctx
   /** The side of the square the halo covers, in px. */
   private R = 0
 
-  constructor() {
+  constructor(palette: PaletteName = 'ice') {
+    const p = PALETTES[palette]
+    this.p = p
+    this.neck = glow(p.neckGlow, 128)
+    this.organs = glow(p.organGlow, 96)
+    this.belly = glow(p.stomachGlow, 128)
+    this.love = glow(p.heartGlow, 128)
+    this.dot = radial(16, [
+      [0, `rgba(${p.speck[0]},1)`],
+      [0.5, `rgba(${p.speck[1]},.7)`],
+      [1, `rgba(${p.speck[1]},0)`],
+    ])
     ;[this.halo, this.haloCtx] = canvas2d(32)
   }
 
@@ -574,7 +668,7 @@ export class AngelPainter {
 
   private drawHeart(ctx: Ctx, x: number, y: number, size: number, r: number, now: number, spread: number) {
     const s = size * (1 + 0.07 * Math.max(0, Math.sin((now / 1000) * TAU * 1.1)) ** 3)
-    add(ctx, () => stamp(ctx, this.pink, x, y, s * spread, 0.55))
+    add(ctx, () => stamp(ctx, this.love, x, y, s * spread, 0.55))
     ctx.save()
     ctx.translate(x, y)
     ctx.rotate(r)
@@ -584,9 +678,9 @@ export class AngelPainter {
     HEART.forEach(([hx, hy], i) => (i ? ctx.lineTo(hx * s, hy * s) : ctx.moveTo(hx * s, hy * s)))
     ctx.closePath()
     const g = ctx.createRadialGradient(-s * 0.15, -s * 0.15, 0, 0, 0, s * 0.6)
-    g.addColorStop(0, '#ffd0e2')
-    g.addColorStop(0.5, '#ff76ad')
-    g.addColorStop(1, '#e23d82')
+    g.addColorStop(0, this.p.heart[0])
+    g.addColorStop(0.5, this.p.heart[1])
+    g.addColorStop(1, this.p.heart[2])
     ctx.fillStyle = g
     ctx.fill()
     ctx.restore()
@@ -604,7 +698,7 @@ export class AngelPainter {
     c.setTransform(k, 0, 0, k, (-ox - OFF / k) * k, -oy * k)
     c.shadowOffsetX = OFF
     c.shadowBlur = size * 0.06
-    c.shadowColor = 'rgba(125,175,255,1)'
+    c.shadowColor = `rgba(${this.p.halo},1)`
     c.fillStyle = '#000'
     for (const w of wings) {
       wingPath(c, w)
@@ -620,22 +714,16 @@ export class AngelPainter {
     c.shadowBlur = 0
     c.setTransform(k, 0, 0, k, -ox * k, -oy * k)
     const r = a.L * 0.16
-    organ(c, nearest(F, 0.89), r, r, ['rgba(255,140,120,.9)', 'rgba(255,120,170,0)'])
-    organ(
-      c,
-      nearest(F, 0.47),
-      r,
-      r,
-      a.heart.state === 'carried'
-        ? ['rgba(255,120,190,.8)', 'rgba(255,120,190,0)']
-        : ['rgba(255,190,90,.9)', 'rgba(255,160,60,0)'],
-    )
+    organ(c, nearest(F, 0.89), r, r, rgba(this.p.headHalo))
+    organ(c, nearest(F, 0.47), r, r, rgba(a.heart.state === 'carried' ? this.p.fullHalo : this.p.stomachHalo))
   }
 
   private drawAngel(ctx: Ctx, a: Angel, now: number) {
     const { L, sc, heart } = a
     this.fit(L)
-    const { R, halo, dot } = this
+    const { R, halo, dot, p } = this
+    const edge = `rgb(${p.edge})`
+    const middle = `rgb(${p.middle})`
     const F: Frame[] = []
     for (let i = 0; i <= N; i++) F.push(frameAt(a, i))
     const h = F[0]
@@ -682,10 +770,10 @@ export class AngelPainter {
     const ea = at(m, 0, m.w)
     const eb = at(m, 0, -m.w)
     const jelly = ctx.createLinearGradient(ea.x, ea.y, eb.x, eb.y)
-    jelly.addColorStop(0, 'rgb(158,180,255)')
-    jelly.addColorStop(0.28, 'rgb(98,112,226)')
-    jelly.addColorStop(0.72, 'rgb(98,112,226)')
-    jelly.addColorStop(1, 'rgb(158,180,255)')
+    jelly.addColorStop(0, edge)
+    jelly.addColorStop(0.28, middle)
+    jelly.addColorStop(0.72, middle)
+    jelly.addColorStop(1, edge)
     ctx.save()
     ctx.beginPath()
     ctx.rect(ox - R, oy - R, R * 3, R * 3)
@@ -695,8 +783,8 @@ export class AngelPainter {
     ctx.globalAlpha = 0.66
     for (const w of wings) {
       const g = ctx.createLinearGradient(w.f0.x, w.f0.y, w.tip.x, w.tip.y)
-      g.addColorStop(0, 'rgb(98,112,226)')
-      g.addColorStop(1, 'rgb(185,210,255)')
+      g.addColorStop(0, middle)
+      g.addColorStop(1, `rgb(${p.wingTip})`)
       wingPath(ctx, w)
       ctx.fillStyle = g
       ctx.fill()
@@ -711,13 +799,13 @@ export class AngelPainter {
       }
     }
     // Same paint as the body at the base, warming to orange only toward the tip.
-    ctx.globalAlpha = 0.86
+    ctx.globalAlpha = p.body
     for (const t of T) {
       const b = t.pts[0]
       const g = ctx.createLinearGradient(b.x, b.y, t.tip.x, t.tip.y)
-      g.addColorStop(0, 'rgba(255,140,80,0)')
-      g.addColorStop(0.45, 'rgba(255,140,80,0)')
-      g.addColorStop(1, 'rgba(255,135,75,1)')
+      g.addColorStop(0, `rgba(${p.tentacle},0)`)
+      g.addColorStop(0.45, `rgba(${p.tentacle},0)`)
+      g.addColorStop(1, `rgba(${p.tentacle},1)`)
       tentaclePath(ctx, t)
       ctx.fillStyle = jelly
       ctx.fill()
@@ -726,7 +814,7 @@ export class AngelPainter {
     }
     ctx.restore()
 
-    ctx.globalAlpha = 0.86
+    ctx.globalAlpha = p.body
     bodyPath(ctx, F, sc)
     ctx.fillStyle = jelly
     ctx.fill()
@@ -741,18 +829,10 @@ export class AngelPainter {
     const col = nearest(F, 0.74)
     const st = nearest(F, 0.47)
     const tl = nearest(F, 0.04)
-    organ(ctx, col, L * 0.2, col.w * 0.42, ['rgba(255,200,230,.9)', 'rgba(255,140,200,.55)', 'rgba(255,120,190,0)'])
-    organ(ctx, hd, L * 0.09, hd.w * 0.6, ['rgba(255,150,90,1)', 'rgba(255,90,90,.7)', 'rgba(255,90,140,0)'])
-    organ(
-      ctx,
-      st,
-      L * 0.1,
-      st.w * 0.55,
-      full
-        ? ['rgba(255,150,200,.45)', 'rgba(255,120,190,0)']
-        : ['rgba(255,214,110,1)', 'rgba(255,160,50,.7)', 'rgba(255,130,40,0)'],
-    )
-    organ(ctx, tl, L * 0.07, tl.w * 1.8, ['rgba(255,170,110,.85)', 'rgba(255,120,80,0)'])
+    organ(ctx, col, L * 0.2, col.w * 0.42, rgba(p.column))
+    organ(ctx, hd, L * 0.09, hd.w * 0.6, rgba(p.head))
+    organ(ctx, st, L * 0.1, st.w * 0.55, rgba(full ? p.stomachFull : p.stomach))
+    organ(ctx, tl, L * 0.07, tl.w * 1.8, rgba(p.tail))
     for (const s of SPECKS) {
       const q = pos(F, s.s, s.o)
       stamp(ctx, dot, q.x, q.y, s.r * sc * 2, s.a)
@@ -763,12 +843,12 @@ export class AngelPainter {
     add(ctx, () => {
       for (const s of [0.9, 0.84, 0.78, 0.72, 0.66, 0.6]) {
         const q = pos(F, s, 0)
-        stamp(ctx, this.pink, q.x, q.y, L * (s > 0.8 ? 0.22 : 0.17), s > 0.8 ? 0.35 : 0.28)
+        stamp(ctx, this.neck, q.x, q.y, L * (s > 0.8 ? 0.22 : 0.17), s > 0.8 ? 0.35 : 0.28)
       }
-      stamp(ctx, this.orange, hd.p.x, hd.p.y, L * 0.22, 0.55)
-      if (!full) stamp(ctx, this.warm, st.p.x, st.p.y, L * 0.32, 0.6)
+      stamp(ctx, this.organs, hd.p.x, hd.p.y, L * 0.22, 0.55)
+      if (!full) stamp(ctx, this.belly, st.p.x, st.p.y, L * 0.32, 0.6)
       const t = pos(F, 0.05, 0)
-      stamp(ctx, this.orange, t.x, t.y, L * 0.14, 0.6)
+      stamp(ctx, this.organs, t.x, t.y, L * 0.14, 0.6)
       ctx.globalAlpha = 0.1
       ctx.drawImage(halo, ox, oy, R, R)
     })
@@ -776,14 +856,14 @@ export class AngelPainter {
       ctx.globalAlpha = 0.92
       this.drawHeart(ctx, hf.p.x, hf.p.y, hs, hr, now, 3.4)
       ctx.globalAlpha = 1
-      add(ctx, () => stamp(ctx, this.pink, hf.p.x, hf.p.y, L * 0.6, 0.3))
+      add(ctx, () => stamp(ctx, this.love, hf.p.x, hf.p.y, L * 0.6, 0.3))
     }
     // After eating: a pink pulse spreads out from the stomach.
     if (a.joy > 0) {
       const j = 1 - a.joy / JOY
       add(ctx, () => {
-        stamp(ctx, this.pink, hf.p.x, hf.p.y, L * (0.5 + j * 1.6), 0.55 * (1 - j))
-        stamp(ctx, this.pink, hf.p.x, hf.p.y, L * 0.9, 0.25 * (1 - j))
+        stamp(ctx, this.love, hf.p.x, hf.p.y, L * (0.5 + j * 1.6), 0.55 * (1 - j))
+        stamp(ctx, this.love, hf.p.x, hf.p.y, L * 0.9, 0.25 * (1 - j))
       })
     }
     if (inside) {

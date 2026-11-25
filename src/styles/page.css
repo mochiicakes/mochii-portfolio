@@ -1,84 +1,53 @@
-/* The signature script, thickened: its hairlines get a stroke in their own colour. */
-.prompt-text,
-.hero-last,
-.thumb-art,
-.polaroid-caption {
-  -webkit-text-stroke: 0.015em currentColor;
-  paint-order: stroke fill;
-}
-
-/* Display serif: the cover's heavy, high-contrast face. */
-.topbar-mark,
+/* Titles: thin capitals, the last word lit in ice. */
 .world-title,
 .section-title,
 .panel-title,
-.contact-title {
+.contact-title,
+.prompt-text {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 300;
   letter-spacing: -0.01em;
   text-transform: uppercase;
 }
 
-/* Layers, bottom to top: the finished watercolour (.ground) and its water
-   light (.crystal, screen), the page, the white paper (.paper) that the
-   visitor paints through, the paper fibres, then the prompt. */
-.ground,
-.crystal,
-.paper {
+.title-ice {
+  color: var(--ice);
+}
+
+/* The pixel face: the name. */
+.hero-first,
+.hero-last {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Layers, bottom to top: the ocean (.ocean), the page, the dark (.deep) that
+   the visitor lights up, then the prompt. */
+.deep {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
-  max-width: none;
-  pointer-events: none;
-}
-
-/* Softened so the content leads. A filter on this still canvas is cached by
-   the compositor, unlike a backdrop-filter over the moving water light. */
-.ground {
-  z-index: 0;
-  filter: blur(var(--ground-blur));
-  /* Pushes the blurred edge just off screen, so no paper fringe shows. */
-  scale: 1.012;
-}
-
-.crystal {
-  z-index: 0;
-  mix-blend-mode: screen;
-  opacity: 0;
-  transition: opacity 1s;
-}
-
-.crystal[data-on] {
-  opacity: var(--crystal-opacity);
-}
-
-/* The paper. Plain white until its canvas is drawn, so the page never shows
-   before it is covered. */
-.paper {
   z-index: 2;
-  background: var(--paper);
+  pointer-events: none;
+  /* Plain black until its canvas is drawn, so the page never shows before it
+     is covered. */
+  background: var(--abyss);
 }
 
-.paper[data-ready] {
+.deep[data-ready] {
   background: none;
 }
 
-html:not(.js) .paper,
-html.revealed .paper:not([data-revealing]) {
-  display: none;
+.deep canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
-/* Paper fibres over everything, the white paper included. */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  opacity: 0.22;
-  mix-blend-mode: multiply;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.5 0 0 0 0 0.55 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+html:not(.js) .deep,
+html.revealed .deep:not([data-revealing]) {
+  display: none;
 }
 
 .page {
@@ -86,16 +55,15 @@ body::after {
   z-index: 1;
 }
 
-/* The painting prompt, in paint-coloured ink on the bare paper. */
+/* The prompt, over the dark. */
 .prompt {
   position: fixed;
-  inset: auto 0 9vh;
+  inset: auto 0 12vh;
   z-index: 90;
   display: grid;
   justify-items: center;
-  gap: 10px;
+  gap: 14px;
   padding: 0 var(--gutter);
-  color: var(--ink);
   text-align: center;
   pointer-events: none;
   opacity: calc(1 - var(--progress, 0) * 0.9);
@@ -108,78 +76,40 @@ html.revealed .prompt {
 }
 
 .prompt-text {
-  font: 400 clamp(3.4rem, 8vw, 5.6rem) / 1 var(--font-script);
+  font-size: clamp(2rem, min(4vw, 6.4svh), 3.6rem);
+  line-height: 1.1;
 }
 
 .prompt-hint {
-  font-size: 0.74rem;
-  font-weight: 600;
-  letter-spacing: var(--track);
-  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: var(--text-dim);
 }
 
 .prompt-skip {
-  margin-top: 12px;
-  padding: 10px 26px 8px;
-  border: 1.5px solid var(--ink);
-  border-radius: 50%;
-  background: none;
-  color: var(--ink);
-  font-weight: 600;
-  font-size: 0.72rem;
-  letter-spacing: var(--track);
-  text-transform: uppercase;
-  cursor: pointer;
+  margin-top: 14px;
   pointer-events: auto;
-}
-
-.prompt-skip:focus-visible {
-  outline-color: var(--ink);
 }
 
 /* Top bar */
 .topbar {
   position: fixed;
   inset: 0 0 auto;
-  /* Above the koi (60) and the lily pads (61). */
+  /* Above the angel (60). */
   z-index: 62;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
   padding: calc(26px + env(safe-area-inset-top, 0px)) var(--gutter) 22px;
-  text-shadow: var(--bleed);
   transition: opacity 0.8s 0.6s;
 }
 
 /* Outside #page, so it is not made inert before the reveal: hidden instead, so
-   its links cannot be clicked or focused over the paper. */
+   its links cannot be clicked or focused over the dark. */
 html.js:not(.revealed) .topbar,
 html.js:not(.revealed) .skip-link {
   visibility: hidden;
   opacity: 0;
-}
-
-/* Scrolled: a band of deep water behind the bar, fading out downwards. */
-.topbar::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 -18px;
-  z-index: -1;
-  background: linear-gradient(rgb(22 92 148) 0%, rgb(22 92 148) 70%, rgb(22 92 148 / 0));
-  opacity: 0;
-  transition: opacity 0.35s;
-  pointer-events: none;
-}
-
-.topbar[data-scrolled]::before {
-  opacity: 1;
-}
-
-.topbar-mark {
-  font-size: 1.9rem;
-  line-height: 1;
-  text-decoration: none;
 }
 
 .topbar-end {
@@ -198,7 +128,6 @@ html.js:not(.revealed) .skip-link {
 
 /* Mode switch and tabs: tracked capitals; the chosen one gets a brush underline. */
 .mode-switch,
-.fan-groups,
 .tabs {
   display: flex;
   flex-wrap: wrap;
@@ -208,7 +137,6 @@ html.js:not(.revealed) .skip-link {
 
 .topbar-link,
 .mode-switch button,
-.fan-groups button,
 .tabs [role='tab'] {
   position: relative;
   display: inline-flex;
@@ -217,7 +145,7 @@ html.js:not(.revealed) .skip-link {
   padding: 8px 2px 12px;
   border: 0;
   background: none;
-  color: var(--paper);
+  color: var(--text);
   font: 600 0.8rem/1 var(--font-body);
   letter-spacing: var(--track);
   text-transform: uppercase;
@@ -229,17 +157,14 @@ html.js:not(.revealed) .skip-link {
 .topbar-link:hover,
 .topbar-link[aria-current='page'],
 .mode-switch button:hover,
-.fan-groups button:hover,
 .tabs [role='tab']:hover,
 .mode-switch button[aria-pressed='true'],
-.fan-groups button[aria-pressed='true'],
 .tabs [role='tab'][aria-selected='true'] {
   opacity: 1;
 }
 
 .topbar-link::after,
 .mode-switch button::after,
-.fan-groups button::after,
 .tabs [role='tab']::after {
   content: '';
   position: absolute;
@@ -255,7 +180,6 @@ html.js:not(.revealed) .skip-link {
 
 .topbar-link[aria-current='page']::after,
 .mode-switch button[aria-pressed='true']::after,
-.fan-groups button[aria-pressed='true']::after,
 .tabs [role='tab'][aria-selected='true']::after {
   clip-path: inset(0 0 0 0);
 }
@@ -264,10 +188,6 @@ html.js:not(.revealed) .skip-link {
 @media (max-width: 520px) {
   .topbar {
     padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 12px;
-  }
-
-  .topbar-mark {
-    font-size: 1.5rem;
   }
 
   .topbar-end {
@@ -282,7 +202,7 @@ html.js:not(.revealed) .skip-link {
   .topbar-link,
   .topbar-end .mode-switch button {
     font-size: 0.66rem;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.08em;
   }
 
   .topbar-link::after,
@@ -291,18 +211,15 @@ html.js:not(.revealed) .skip-link {
   }
 }
 
-/* Name: an editorial cover. The first name is set huge behind the portrait,
-   the surname is signed at its end, and a small block of text sits in each
-   corner. Phones stack the same pieces. */
+/* The opening. Phones and tablets stack it; wide screens set it as a stage. */
 .hero {
-  /* The portrait stands a little above the floor; the name starts just under
-     her chin (22% down the portrait), so its outline never crosses her face. */
   --figure-h: min(88svh, 1000px);
   /* As high as fits: up to 11svh off the floor, but never so high that her
      head reaches the top bar (72px). */
   --figure-bottom: max(3svh, min(11svh, 100svh - var(--figure-h) - 72px));
-  --chin: 0.22;
-  --name-top: calc(100svh - var(--figure-bottom) - var(--figure-h) * (1 - var(--chin)));
+  --figure-w: calc(var(--figure-h) * 0.3582);
+  /* Low enough to leave the necklace card room above it (casual mode). */
+  --name-top: 31svh;
   position: relative;
   isolation: isolate;
   display: grid;
@@ -310,93 +227,72 @@ html.js:not(.revealed) .skip-link {
   justify-items: center;
   gap: 18px;
   min-height: 100svh;
-  padding: 104px var(--gutter) 0;
-  /* Clip sideways only, so the portrait's soft shadow can fall past the floor
-     instead of ending in a hard line. */
+  padding: 96px var(--gutter) 0;
+  /* Clip sideways only, so the portrait's glow can fall past the floor. */
   overflow-x: clip;
   text-align: center;
 }
 
-/* One column as wide as the first name, so the surname can sit at its end. */
 .hero-name {
   position: relative;
+  z-index: 3;
   display: grid;
-  grid-template-columns: auto;
-  justify-content: center;
+  justify-items: end;
+  row-gap: 0.42em;
+  font-size: clamp(1.5rem, 9.4vw, 4.4rem);
 }
 
 .hero-first,
-.hero-overprint > span {
-  font:
-    800 clamp(2.6rem, 14.5vw, 9rem) / 0.82 'Playfair Display',
-    var(--font-display);
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.hero-first {
-  position: relative;
-  z-index: 1;
-}
-
 .hero-last {
-  position: relative;
-  z-index: 3;
-  justify-self: end;
-  margin: -0.32em -0.15em 0 0;
-  font: 400 clamp(3rem, 13vw, 8.5rem) / 1 var(--font-script);
-  rotate: -5deg;
+  font-size: 1em;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .hero-figure {
   position: relative;
   z-index: 2;
-  margin-top: -6svh;
+  margin-top: 6px;
 }
 
 .hero-portrait {
   display: block;
   width: auto;
   height: min(64svh, 720px);
-  /* A soft glow all round, not a cast shadow: nothing for the floor to cut. */
-  filter: drop-shadow(0 0 22px rgb(3 40 64 / 0.28));
+  filter: drop-shadow(0 0 28px rgb(120 160 190 / 0.22));
   user-select: none;
-}
-
-/* The first name again, as a blue outline, shown only where she covers it:
-   masked to the portrait's own silhouette. */
-.hero-overprint {
-  display: none;
 }
 
 .hero-block {
   position: relative;
   z-index: 3;
-  max-width: 22rem;
-  font-size: 0.98rem;
 }
 
-.hero-tl {
+.hero-card {
   order: -1;
+  display: grid;
+  justify-items: center;
+}
+
+.hero-card-role {
+  font-size: 0.86rem;
+  letter-spacing: var(--track);
+  text-transform: uppercase;
 }
 
 .hero-tr {
   display: grid;
-  gap: 2px;
-  font: italic 500 1.15rem/1.45 var(--font-body);
+  gap: 4px;
+  font-size: 0.82rem;
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--text-dim);
 }
 
-.hero-block-name {
-  margin-bottom: 6px;
-  font: 700 1.15rem var(--font-display);
-}
-
-/* Phones and tablets: the name and summary block is left out (the name is
-   already the title), so the buttons sit right under the tagline. */
+/* Phones and tablets: the role alone, over the name. */
 @media (max-width: 1099px) {
-  .hero-bl {
+  .hero-card-text,
+  .hero-card .ring-link {
     display: none;
   }
 }
@@ -425,27 +321,10 @@ html.js:not(.revealed) .skip-link {
   padding-bottom: 48px;
 }
 
-/* Wide screens: the cover. The portrait stands on the section floor and the
-   name crosses her upper body. */
 @media (min-width: 1100px) {
   .hero {
     display: block;
     padding: 0;
-  }
-
-  .hero-name {
-    position: absolute;
-    top: var(--name-top);
-    inset-inline: 0;
-  }
-
-  .hero-first,
-  .hero-overprint > span {
-    font-size: clamp(8rem, 14vw, 16rem);
-  }
-
-  .hero-last {
-    margin: -0.42em -0.25em 0 0;
   }
 
   .hero-figure {
@@ -461,67 +340,63 @@ html.js:not(.revealed) .skip-link {
     height: 100%;
   }
 
-  .hero-overprint {
+  /* As wide as the room beside her: nine letters, each about an em. */
+  .hero-name {
     position: absolute;
-    inset: 0;
-    display: block;
-    -webkit-mask: var(--portrait) center / 100% 100% no-repeat;
-    mask: var(--portrait) center / 100% 100% no-repeat;
-    pointer-events: none;
-  }
-
-  /* Placed to match the name exactly: in here, that is the chin line. */
-  .hero-overprint > span {
-    position: absolute;
-    top: calc(var(--figure-h) * var(--chin));
-    left: 50%;
-    translate: -50% 0;
-    color: transparent;
-    text-shadow: none;
-  }
-
-  /* Every letter keeps its place (so the line matches the name), but only the
-     letters she covers are drawn, as translucent blue glass. A traced outline
-     doubles up on the serif's hairlines (the A's crossbar and thin stroke), so
-     the letter is a filled shape instead. */
-  .hero-overprint [data-cover] {
-    color: rgb(47 128 192 / 0.55);
+    top: var(--name-top);
+    right: var(--gutter);
+    font-size: min(4.2vw, (50vw - var(--figure-w) / 2 - var(--gutter) - 20px) / 9);
   }
 
   .hero-block {
     position: absolute;
-    max-width: min(21rem, 26vw);
     text-align: left;
   }
 
-  .hero-tl {
-    top: calc(116px + 3svh);
+  .hero-card {
+    top: 96px;
     left: var(--gutter);
-    padding-top: 14px;
-    border-top: 1px solid rgb(252 253 253 / 0.6);
+    display: grid;
+    justify-items: start;
+    width: min(23rem, 50vw - var(--figure-w) / 2 - var(--gutter) - 28px);
+    padding: 28px 28px 24px;
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--glass-radius);
+    background: var(--glass);
+  }
+
+  .hero-card-role {
+    font-size: clamp(1.5rem, 2.3vw, 2.1rem);
+    font-weight: 250;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-transform: none;
+  }
+
+  .hero-card-text {
+    margin-top: 16px;
+    max-width: 19rem;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+
+  .hero-card .ring-link {
+    margin-top: 30px;
+    justify-self: end;
   }
 
   .hero-tr {
-    top: calc(116px + 3svh);
+    top: calc(var(--name-top) + 2.42 * min(4.2vw, (50vw - var(--figure-w) / 2 - var(--gutter) - 20px) / 9) + 24px);
     right: var(--gutter);
     text-align: right;
   }
 
-  .hero-bl {
-    bottom: 12svh;
-    left: var(--gutter);
-  }
-
   .hero-br {
-    bottom: 12svh;
+    bottom: 8svh;
     right: var(--gutter);
     justify-content: flex-end;
     padding: 0;
-  }
-
-  /* Without the portrait, the name simply sits in the middle. */
-  .hero:not([data-portrait]) {
-    --name-top: 36svh;
   }
 }
 
@@ -619,7 +494,7 @@ html.js:not(.revealed) .skip-link {
   text-align: center;
   text-decoration: none;
   box-shadow:
-    0 24px 50px rgb(3 30 58 / 0.35),
+    0 24px 50px rgb(0 4 16 / 0.35),
     inset 0 1px 0 rgb(255 255 255 / 0.45);
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
   backdrop-filter: blur(16px) saturate(1.3);
@@ -633,7 +508,7 @@ html.js:not(.revealed) .skip-link {
   margin-bottom: 10px;
   overflow: hidden;
   border-radius: 16px;
-  background: rgb(252 253 253 / 0.14);
+  background: rgb(160 184 198 / 0.14);
 }
 
 .flow-art img {
@@ -645,7 +520,7 @@ html.js:not(.revealed) .skip-link {
 .flow-artist {
   max-width: 100%;
   overflow: hidden;
-  font: 600 1.12rem/1.3 var(--font-body);
+  font: 400 1.05rem/1.3 var(--font-body);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -690,7 +565,7 @@ html.js:not(.revealed) .skip-link {
   width: 3px;
   height: 100%;
   border-radius: 1px;
-  background: var(--butter);
+  background: var(--ice);
   transform-origin: bottom;
   animation: song-eq 0.9s ease-in-out infinite alternate;
 }
@@ -730,9 +605,9 @@ html.js:not(.revealed) .skip-link {
   border: 1px solid rgb(255 255 255 / 0.5);
   border-radius: 50%;
   background: rgb(255 255 255 / 0.75);
-  color: var(--note-ink);
+  color: var(--text);
   font-size: 0.8rem;
-  box-shadow: 0 4px 14px rgb(4 40 72 / 0.35);
+  box-shadow: 0 4px 14px rgb(0 4 16 / 0.35);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s;
@@ -809,7 +684,7 @@ html.js:not(.revealed) .skip-link {
   height: 0.8rem;
   margin: 8px auto 0;
   border-radius: 4px;
-  background: rgb(252 253 253 / 0.18);
+  background: rgb(160 184 198 / 0.18);
 }
 
 .flow-skeleton .flow-artist {
@@ -843,7 +718,7 @@ html.js:not(.revealed) .skip-link {
 }
 
 .songs-hint {
-  color: var(--butter);
+  color: var(--ice);
 }
 
 /* Phones: a bigger front card with the next ones peeking in at the edges. */
@@ -926,11 +801,11 @@ html[data-mode='recruiter'] :is(.drip-toggle, .drip) {
   height: 100%;
   padding: 12px;
   border-radius: 6px;
-  background: var(--paper);
-  color: var(--note-ink);
+  background: var(--text);
+  color: var(--text);
   text-decoration: none;
   text-shadow: none;
-  box-shadow: 0 10px 28px rgb(4 40 72 / 0.28);
+  box-shadow: 0 10px 28px rgb(0 4 16 / 0.28);
   transition:
     translate 0.25s var(--ease),
     box-shadow 0.25s var(--ease);
@@ -939,12 +814,12 @@ html[data-mode='recruiter'] :is(.drip-toggle, .drip) {
 a.drip-link:hover,
 a.drip-link:focus-visible {
   translate: 0 -3px;
-  box-shadow: 0 14px 34px rgb(4 40 72 / 0.36);
+  box-shadow: 0 14px 34px rgb(0 4 16 / 0.36);
 }
 
 /* Small typewriter capitals for the facts; the name is the largest line. */
 .drip-foot b {
-  font: 400 0.66rem/1.35 var(--font-type);
+  font: 400 0.66rem/1.35 var(--font-body);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -960,7 +835,7 @@ a.drip-link:focus-visible {
   display: -webkit-box;
   flex: 1;
   overflow: hidden;
-  font: 600 1.12rem/1.25 var(--font-body);
+  font: 400 1.05rem/1.25 var(--font-body);
   text-align: center;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -971,7 +846,7 @@ a.drip-link:focus-visible {
   width: 100%;
   aspect-ratio: 1;
   border-radius: 2px;
-  background: #e8ebee;
+  background: rgb(160 184 198 / 0.08);
 }
 
 .drip-thumb .thumb-art {
@@ -1001,9 +876,10 @@ a.drip-link:focus-visible {
 
 /* The labels, handwritten in the signature script, like notes on a spread. */
 .drip-foot i {
-  font: 400 1.6rem/1 var(--font-script);
-  font-style: normal;
-  color: var(--paint);
+  font: 400 0.68rem/1.4 var(--font-body);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--ice);
 }
 
 .drip-foot b {
@@ -1011,7 +887,7 @@ a.drip-link:focus-visible {
 }
 
 .drip-get b {
-  color: var(--paint);
+  color: var(--ice);
 }
 
 /* Phones and tablets: each card is a 4:3 ticket. The photo fills the stub on
@@ -1033,7 +909,7 @@ a.drip-link:focus-visible {
     flex: 0 0 min(80vw, 19rem);
     scroll-snap-align: center;
     /* The notches cut the card's own shadow, so the shadow follows its shape. */
-    filter: drop-shadow(0 10px 16px rgb(4 40 72 / 0.3));
+    filter: drop-shadow(0 10px 16px rgb(0 4 16 / 0.3));
   }
 
   .drip-link {
@@ -1106,7 +982,7 @@ a.drip-link:focus-visible {
   }
 
   .drip-foot i {
-    font-size: 1.3rem;
+    font-size: 0.64rem;
   }
 }
 
@@ -1154,12 +1030,12 @@ a.drip-link:focus-visible {
   }
 
   .drip-lines line {
-    stroke: var(--paper);
+    stroke: var(--text);
     stroke-width: 2.6;
     stroke-linecap: round;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    filter: drop-shadow(0 1px 2px rgb(4 40 72 / 0.5));
+    filter: drop-shadow(0 1px 2px rgb(0 4 16 / 0.5));
     transition: stroke-dashoffset 0.25s ease-in;
   }
 
@@ -1175,9 +1051,9 @@ a.drip-link:focus-visible {
     display: block;
     width: 11px;
     height: 11px;
-    border: 2px solid var(--paper);
+    border: 2px solid var(--text);
     border-radius: 50%;
-    background: var(--goldfish);
+    background: var(--ice);
     opacity: 0;
     translate: -50% -50%;
     scale: 0.4;
@@ -1284,7 +1160,7 @@ a.drip-link:focus-visible {
   }
 
   .drip-foot i {
-    font-size: 1.45rem;
+    font-size: 0.64rem;
   }
 
   /* Short laptop windows: a more compact card, so the one between the
@@ -1310,26 +1186,31 @@ a.drip-link:focus-visible {
     }
 
     .drip-foot i {
-      font-size: 1.25rem;
+      font-size: 0.62rem;
     }
   }
 
-  html[data-mode='casual'] .hero:has(.drip[data-open]) :is(.hero-tl, .hero-tr, .hero-bl) {
+  html[data-mode='casual'] .hero:has(.drip[data-open]) :is(.hero-card, .hero-tr) {
     opacity: 0.12;
   }
 
-  .hero :is(.hero-tl, .hero-tr, .hero-bl) {
+  /* The denim card takes its place. */
+  html[data-mode='casual'] .hero:has(.drip[data-open]) .hero-tr {
+    opacity: 0;
+  }
+
+  .hero :is(.hero-card, .hero-tr) {
     transition: opacity 0.4s;
   }
 }
 
 @keyframes drip-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgb(252 253 253 / 0.6);
+    box-shadow: 0 0 0 0 rgb(160 184 198 / 0.6);
   }
   70%,
   100% {
-    box-shadow: 0 0 0 12px rgb(252 253 253 / 0);
+    box-shadow: 0 0 0 12px rgb(160 184 198 / 0);
   }
 }
 
@@ -1346,18 +1227,18 @@ a.drip-link:focus-visible {
 }
 
 .star-butter {
-  fill: var(--butter);
-  stroke: var(--butter);
+  fill: var(--ice);
+  stroke: var(--ice);
 }
 
 .star-sky {
-  fill: var(--sky);
-  stroke: var(--sky);
+  fill: var(--ice-deep);
+  stroke: var(--ice-deep);
 }
 
 .star-milk {
-  fill: var(--paper);
-  stroke: var(--paper);
+  fill: var(--text);
+  stroke: var(--text);
 }
 
 /* The divider between sections: a hairline with paint running down it. */
@@ -1366,14 +1247,14 @@ a.drip-link:focus-visible {
   width: 1px;
   height: 64px;
   margin: 0 auto;
-  background: rgb(252 253 253 / 0.35);
+  background: rgb(160 184 198 / 0.35);
   overflow: hidden;
 }
 
 .divider span {
   display: block;
   height: 40%;
-  background: var(--paper);
+  background: var(--text);
   animation: drip 2.4s var(--ease) infinite;
 }
 
@@ -1436,7 +1317,7 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
 }
 
 #experience .tabs [role='tab'] {
-  letter-spacing: 0.24em;
+  letter-spacing: 0.08em;
 }
 
 /* The intro video, under the Around Tech header: as large as fits the screen. */
@@ -1451,7 +1332,7 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 10px;
-  box-shadow: 0 22px 44px rgb(3 40 64 / 0.3);
+  box-shadow: 0 22px 44px rgb(0 4 16 / 0.3);
 }
 
 .intro-video iframe {
@@ -1473,7 +1354,7 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   inset: 0;
   display: grid;
   place-items: center;
-  background: linear-gradient(170deg, rgb(86 174 222 / 0.35), rgb(39 115 151 / 0.45));
+  background: linear-gradient(170deg, rgb(40 90 170 / 0.35), rgb(4 14 38 / 0.6));
 }
 
 .intro-video-cover img {
@@ -1494,10 +1375,10 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   position: relative;
   width: 84px;
   height: 84px;
-  border: 1.5px solid var(--paper);
+  border: 1.5px solid var(--text);
   border-radius: 50%;
-  background: rgb(4 58 92 / 0.45);
-  box-shadow: 0 6px 24px rgb(3 40 64 / 0.4);
+  background: rgb(2 10 28 / 0.45);
+  box-shadow: 0 6px 24px rgb(0 4 16 / 0.4);
   transition: transform 0.4s var(--ease);
 }
 
@@ -1513,7 +1394,7 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   translate: -50% -50%;
   border-style: solid;
   border-width: 13px 0 13px 21px;
-  border-color: transparent transparent transparent var(--paper);
+  border-color: transparent transparent transparent var(--text);
 }
 
 .intro-video-caption {
@@ -1526,35 +1407,25 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   display: grid;
   justify-items: center;
   gap: 10px;
-  margin-bottom: 26px;
+  margin-bottom: 22px;
   text-align: center;
 }
 
 .section-title {
-  font-size: clamp(2.6rem, min(6vw, 8svh), 4.6rem);
-  line-height: 1;
-  text-align: center;
+  font-size: clamp(2rem, min(4vw, 6.4svh), 3.3rem);
+  line-height: 1.1;
 }
 
 .part-intro {
   max-width: 32rem;
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--text-dim);
 }
 
 .world-part > .fan,
 .world-intro-screen > .fan {
   margin-top: 4px;
-}
-
-.world {
-  animation: rise 0.9s var(--ease) both;
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
 }
 
 .world-head {
@@ -1565,49 +1436,32 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
 }
 
 .world-title {
-  font-size: clamp(2.8rem, min(8vw, 11svh), 7rem);
-  line-height: 0.95;
+  font-size: clamp(2.1rem, min(4.6vw, 7svh), 3.8rem);
+  line-height: 1.1;
 }
 
 .world-intro {
   max-width: 32rem;
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--text-dim);
 }
 
 /* Card fan, after the reference pin. */
 .fan {
-  --cw: 220px;
-  --ch: 300px;
-  --rc: 400px;
+  /* Everything follows the card's height, which follows the window's. */
+  /* Growing is for the words: the fan keeps its share of the window (--fit). */
+  --ch: calc(clamp(150px, 21svh, 420px) / max(1, var(--fit, 1)));
+  --cw: calc(var(--ch) * 0.733);
+  --rc: calc(var(--ch) * 1.33);
   --step: 15deg;
-  --top: 64px;
+  --top: calc(var(--ch) * 0.1 + 22px);
   /* Room under the cards for the dial. */
-  --below: 200px;
+  --below: calc(var(--ch) * 0.72);
   display: grid;
   justify-items: center;
   gap: 14px;
   margin-top: 44px;
-}
-
-/* Shorter windows: a smaller fan, so its screen still fits. */
-@media (min-width: 641px) and (max-height: 1150px) {
-  .fan {
-    --cw: 190px;
-    --ch: 259px;
-    --rc: 345px;
-    --top: 54px;
-    --below: 170px;
-  }
-}
-
-@media (min-width: 641px) and (max-height: 960px) {
-  .fan {
-    --cw: 160px;
-    --ch: 218px;
-    --rc: 290px;
-    --top: 46px;
-    --below: 140px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -1627,8 +1481,9 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   overflow: hidden;
   touch-action: pan-y;
   cursor: grab;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  --side: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask: var(--side);
+  mask: var(--side);
 }
 
 .fan-stage:active {
@@ -1677,12 +1532,12 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   display: block;
   overflow: hidden;
   border-radius: 14px;
-  box-shadow: 0 22px 44px rgb(3 40 64 / 0.35);
+  box-shadow: 0 22px 44px rgb(0 4 16 / 0.35);
   user-select: none;
 }
 
 .fan-card[aria-current] .fan-face {
-  outline: 1px solid var(--paper);
+  outline: 1px solid var(--text);
   outline-offset: 5px;
 }
 
@@ -1705,23 +1560,23 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
 }
 
 .tone-0 .fan-face-art {
-  background: linear-gradient(170deg, #fcfdfd 0%, #c9e8f8 55%, #88cef0 100%);
-  color: var(--paint);
+  background: var(--tile-a);
+  color: var(--ice);
 }
 
 .tone-1 .fan-face-art {
-  background: linear-gradient(165deg, #ff8a62, var(--goldfish) 60%, #e0402e);
-  color: var(--paper);
+  background: var(--tile-b);
+  color: var(--text);
 }
 
 .tone-2 .fan-face-art {
-  background: linear-gradient(175deg, #acdaf4, #65c6f3 60%, #3fb0ea);
-  color: var(--paint-deep);
+  background: var(--tile-c);
+  color: var(--text);
 }
 
 .tone-3 .fan-face-art {
-  background: linear-gradient(170deg, var(--paint-light), var(--paint) 60%, var(--paint-deep));
-  color: var(--paper);
+  background: var(--tile-d);
+  color: var(--text);
 }
 
 .fan-face-star {
@@ -1732,7 +1587,7 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
 }
 
 .fan-face-word {
-  font: 600 italic clamp(1.6rem, 3.2vw, 2.3rem) / 1.05 var(--font-display);
+  font: 300 clamp(1.6rem, 3.2vw, 2.3rem) / 1.05 var(--font-display);
   text-align: center;
 }
 
@@ -1762,7 +1617,11 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   aspect-ratio: 1;
   translate: -50% 0;
   border-radius: 50%;
-  border: 1px solid rgb(252 253 253 / 0.6);
+  border: 1px solid rgb(160 184 198 / 0.6);
+  /* Only its top shows: it fades away before the stage ends. */
+  --dial: linear-gradient(#000 12%, transparent 24%);
+  -webkit-mask: var(--dial);
+  mask: var(--dial);
 }
 
 .fan-ring {
@@ -1775,19 +1634,19 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
 
 .fan-ring-line {
   fill: none;
-  stroke: rgb(252 253 253 / 0.4);
+  stroke: rgb(160 184 198 / 0.4);
   stroke-width: 0.4;
 }
 
 .fan-ring-dash {
   fill: none;
-  stroke: rgb(252 253 253 / 0.5);
+  stroke: rgb(160 184 198 / 0.5);
   stroke-width: 0.5;
   stroke-dasharray: 2 3;
 }
 
 .fan-ring text {
-  fill: rgb(252 253 253 / 0.85);
+  fill: rgb(160 184 198 / 0.85);
   font: 400 5px var(--font-body);
   letter-spacing: 1.8px;
   text-transform: uppercase;
@@ -1816,7 +1675,7 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   width: 0;
   height: 0;
   border: 6px solid transparent;
-  border-bottom: 10px solid var(--paper);
+  border-bottom: 10px solid var(--text);
   border-top: 0;
 }
 
@@ -1832,7 +1691,7 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
   place-items: center;
   width: 44px;
   height: 44px;
-  border: 1px solid rgb(252 253 253 / 0.7);
+  border: 1px solid rgb(160 184 198 / 0.7);
   border-radius: 50%;
   background: none;
   font-size: 1.4rem;
@@ -1863,7 +1722,7 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
 }
 
 .fan-title {
-  font: 700 clamp(1.8rem, 3.4vw, 2.3rem) / 1.1 var(--font-display);
+  font: 300 clamp(1.8rem, 3.4vw, 2.3rem) / 1.1 var(--font-display);
 }
 
 .fan-title .ph {
@@ -1874,14 +1733,14 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
 }
 
 .fan-meta {
-  color: var(--butter);
+  color: var(--ice);
   font-size: 0.72rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .fan-text {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .fan-soon {
@@ -1900,11 +1759,11 @@ html.js[data-mode='casual'] .divider[data-world='recruiter'] {
 .tab-region {
   margin-left: 0.8em;
   padding: 4px 7px 3px;
-  border: 1px solid rgb(252 253 253 / 0.6);
+  border: 1px solid rgb(160 184 198 / 0.6);
   border-radius: 999px;
   font-size: 0.6rem;
   line-height: 1;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-decoration: none;
 }
 
@@ -1917,8 +1776,17 @@ html.js .tab-panel:not([data-active]) {
   display: none;
 }
 
-html.js .tab-panel {
-  animation: rise 0.6s var(--ease) both;
+/* What is on the glass fades in, never the glass itself: nothing behind a
+   half-transparent panel can be blurred, so it would show clear until the fade
+   was over. */
+html.js .tab-panel .pane > * {
+  animation: fade-in 0.35s ease-out backwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 html:not(.js) .tab-panel + .tab-panel {
@@ -1943,34 +1811,13 @@ html.js .panel-title {
   clip: rect(0 0 0 0);
 }
 
-.panel-intro {
-  max-width: 36rem;
-  margin: 0 auto 28px;
-  font-weight: 500;
-  text-align: center;
-}
-
 .scale {
   display: inline-block;
   margin-left: 0.6em;
-  color: var(--butter);
+  color: var(--ice);
   font-size: 0.68rem;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.lead-kind {
-  display: inline-block;
-  margin-right: 0.6em;
-  padding: 2px 8px 1px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  vertical-align: 0.15em;
-  opacity: 0.85;
 }
 
 .bullets {
@@ -1982,7 +1829,7 @@ html.js .panel-title {
 .bullets li {
   position: relative;
   padding-left: 20px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .bullets li::before {
@@ -1992,7 +1839,7 @@ html.js .panel-title {
   top: 0.75em;
   width: 8px;
   height: 1px;
-  background: var(--paper);
+  background: var(--text);
 }
 
 /* Proof */
@@ -2018,7 +1865,7 @@ html.js .panel-title {
 .proof tbody th,
 .proof td {
   padding: 18px 12px;
-  border-top: 1px solid rgb(252 253 253 / 0.25);
+  border-top: 1px solid rgb(160 184 198 / 0.25);
   vertical-align: top;
   text-align: left;
 }
@@ -2030,11 +1877,11 @@ html.js .panel-title {
 }
 
 .proof td {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .proof-link {
-  color: var(--butter);
+  color: var(--ice);
   font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -2060,12 +1907,6 @@ html.js .panel-title {
 }
 
 /* Experience */
-.jobs {
-  list-style: none;
-  display: grid;
-  gap: 20px;
-}
-
 .job,
 .background {
   padding: 24px clamp(20px, 4vw, 36px);
@@ -2118,10 +1959,10 @@ a.job-thumb {
   justify-content: flex-end;
   gap: 0.5em;
   margin-top: 12px;
-  color: var(--butter);
+  color: var(--ice);
   font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
+  font-weight: 400;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -2136,9 +1977,9 @@ a.job-thumb:hover {
 
 .job-thumb-img {
   aspect-ratio: 16 / 10;
-  border: 1px solid rgb(252 253 253 / 0.45);
+  border: 1px solid rgb(160 184 198 / 0.45);
   border-radius: 6px;
-  box-shadow: 0 18px 36px rgb(3 40 64 / 0.3);
+  box-shadow: 0 18px 36px rgb(0 4 16 / 0.3);
 }
 
 /* A screenshot or photo, over a painted stand-in. */
@@ -2162,9 +2003,9 @@ a.job-thumb:hover {
   display: grid;
   place-items: center;
   padding: 16px;
-  background: linear-gradient(170deg, #fcfdfd 0%, #c9e8f8 55%, #88cef0 100%);
-  color: var(--paint);
-  font: 400 clamp(2.6rem, 5vw, 3.8rem) / 1.1 var(--font-script);
+  background: var(--tile-a);
+  color: var(--ice);
+  font: 300 clamp(1.4rem, 3vw, 2rem) / 1.1 var(--font-display);
   text-align: center;
   text-shadow: none;
 }
@@ -2176,13 +2017,13 @@ a.job-thumb:hover {
 }
 
 .job-org {
-  font: 700 2.2rem/1.1 var(--font-display);
+  font: 300 2.2rem/1.1 var(--font-display);
 }
 
 .job-role,
 .job-dates {
   font-size: 0.72rem;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -2193,23 +2034,23 @@ a.job-thumb:hover {
 .job-meta {
   margin-top: 18px;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .job-meta span,
 .background .label {
-  color: var(--butter);
+  color: var(--ice);
 }
 
 .background {
   display: grid;
   gap: 14px;
   margin-top: 20px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .background h4 {
-  font: 700 2rem/1.15 var(--font-display);
+  font: 300 2rem/1.15 var(--font-display);
 }
 
 /* Case studies */
@@ -2251,7 +2092,7 @@ a.job-thumb:hover {
   position: absolute;
   inset: 6px 0 auto;
   height: 1px;
-  background: var(--paper);
+  background: var(--text);
 }
 
 .case-toggle::after {
@@ -2266,15 +2107,15 @@ a.job-thumb:hover {
   display: grid;
   gap: 16px;
   padding: 0 clamp(20px, 4vw, 34px) 28px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .case-body dt {
   font-size: 0.68rem;
   font-weight: 400;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--butter);
+  color: var(--ice);
 }
 
 .case-steps {
@@ -2297,10 +2138,6 @@ a.job-thumb:hover {
   gap: 20px;
 }
 
-.card-grid-2 {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
-}
-
 .card {
   display: flex;
   flex-direction: column;
@@ -2313,180 +2150,32 @@ a.job-thumb:hover {
   transform: translateY(-4px);
 }
 
-.thumb-flow {
-  padding: 12px 8px;
-  border-bottom: 1px solid rgb(252 253 253 / 0.25);
-}
-
-/* Automations: a long, flat diagram over a tight card body, so all four
-   cards fit on one screen. Phones keep the two-row diagram. */
-.flow-narrow {
-  display: none;
-}
-
-@media (max-width: 520px) {
-  .flow-wide {
-    display: none;
-  }
-
-  .flow-narrow {
-    display: block;
-  }
-}
-
-.automations {
-  gap: 16px;
-}
-
-.automations .flow-wide {
-  padding: 8px 6px 4px;
-}
-
-.automations .card-body {
-  gap: 5px;
-  padding: 14px 22px 18px;
-}
-
-.automations .card-title {
-  font-size: 1.9rem;
-}
-
-.automations .card-desc {
-  line-height: 1.55;
-}
-
-/* Big screens: let the section grow, so the cards (and the diagrams, which
-   scale with their width) read at a comfortable size and still fit one screen. */
-@media (min-width: 1600px) {
-  /* Wider than the page column: break out of it, centred. */
-  #automations {
-    position: relative;
-    left: 50%;
-    width: min(1480px, 90vw);
-    translate: -50% 0;
-  }
-
-  #automations .part-intro {
-    max-width: 48rem;
-  }
-
-  .automations {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-  }
-
-  .automations .card-body {
-    gap: 7px;
-    padding: 18px 28px 22px;
-  }
-
-  .automations .card-title {
-    font-size: 2.5rem;
-  }
-
-  .automations .card-scale {
-    font-size: 0.8rem;
-  }
-
-  .automations .card-desc {
-    font-size: 1.1rem;
-  }
-
-  .automations .card-stack {
-    font-size: 0.9rem;
-  }
-
-  .automations .card-go,
-  .automations .card-soon {
-    font-size: 0.8rem;
-  }
-}
-
 .flow-node rect {
   fill: none;
-  stroke: rgb(252 253 253 / 0.8);
+  stroke: rgb(160 184 198 / 0.8);
 }
 
 .flow-node text {
-  fill: var(--paper);
+  fill: var(--text);
   font: 400 12px var(--font-body);
   letter-spacing: 0.06em;
 }
 
 .flow-edge {
-  stroke: rgb(252 253 253 / 0.7);
+  stroke: rgb(160 184 198 / 0.7);
   stroke-width: 1;
 }
 
 .flow-head {
-  fill: rgb(252 253 253 / 0.85);
+  fill: rgb(160 184 198 / 0.85);
 }
 
 .flow-glow {
-  stop-color: var(--goldfish);
+  stop-color: var(--ice);
 }
 
 .flow-core {
-  fill: var(--goldfish);
-}
-
-.card-body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 10px;
-  padding: 22px 24px 26px;
-}
-
-.card-title-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.card-title {
-  font: 700 1.6rem/1.15 var(--font-display);
-}
-
-.card-link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.card-link::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-}
-
-.card-scale {
-  color: var(--butter);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.card-desc {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.card-stack {
-  font-size: 0.78rem;
-  opacity: 0.85;
-}
-
-.card-soon,
-.card-go {
-  margin-top: auto;
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.card-go {
-  color: var(--butter);
+  fill: var(--ice);
 }
 
 /* How I work */
@@ -2509,11 +2198,11 @@ a.job-thumb:hover {
 
 .principles li {
   padding: 16px 0;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .principles li + li {
-  border-top: 1px solid rgb(252 253 253 / 0.25);
+  border-top: 1px solid rgb(160 184 198 / 0.25);
 }
 
 .toolbox {
@@ -2522,7 +2211,7 @@ a.job-thumb:hover {
 
 .toolbox h4 {
   margin-bottom: 6px;
-  font: 700 2rem/1.15 var(--font-display);
+  font: 300 2rem/1.15 var(--font-display);
 }
 
 .toolbox dl > div {
@@ -2530,18 +2219,18 @@ a.job-thumb:hover {
 }
 
 .toolbox dl > div + div {
-  border-top: 1px solid rgb(252 253 253 / 0.25);
+  border-top: 1px solid rgb(160 184 198 / 0.25);
 }
 
 .toolbox dt {
   font-size: 0.7rem;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--butter);
+  color: var(--ice);
 }
 
 .toolbox dd {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 /* Contact */
@@ -2568,19 +2257,199 @@ html.js[data-page='contact'] .contact {
 }
 
 .contact-title {
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
-  line-height: 1;
+  width: min(100%, var(--maxw));
+  font-size: clamp(2.1rem, min(4.6vw, 7svh), 3.8rem);
+  line-height: 1.1;
+  text-align: center;
 }
 
-/* The board: a sticky note on the left, a pinned polaroid on the right. */
+/* On its own page the menu already says Contact, so the title is only read out. */
+html.js .contact-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* The board: the photo at the left, the editor at the right. */
 .contact-board {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(36px, 6vw, 72px);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 24px;
   width: min(100%, var(--maxw));
-  padding: 24px clamp(8px, 2vw, 24px);
   text-align: left;
+}
+
+.polaroid {
+  order: -1;
+  margin: 0;
+}
+
+.polaroid-frame {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* As tall as the editor beside it, and at least 4:5. */
+.polaroid-photo {
+  --h: calc(min(52svh, 720px) / max(1, var(--fit, 1)));
+  width: calc(var(--h) * 0.8);
+  height: 100%;
+  min-height: var(--h);
+}
+
+.polaroid-caption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 60px 24px 20px;
+  background: linear-gradient(transparent, rgb(2 3 5 / 0.85));
+  font-size: 1.6rem;
+  font-weight: 250;
+}
+
+/* The editor: a class on glass. Text is as wide as its longest line allows. */
+.code-stack {
+  display: grid;
+  container-type: inline-size;
+}
+
+.code {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  font: 400 clamp(0.74rem, 2.12cqi, 1.1rem) / 1.5 var(--font-code);
+  font-variant-ligatures: none;
+  color: var(--text-dim);
+}
+
+.code-lines {
+  list-style: none;
+  display: grid;
+  flex: 1;
+  align-content: space-between;
+  /* The sign and number columns, all the way down. */
+  --sign: 2.1em;
+  --number: 2.6em;
+  padding: 1.1em 0 0.9em;
+  background:
+    linear-gradient(rgb(160 184 198 / 0.16) 0 0) left / var(--sign) 100% no-repeat,
+    linear-gradient(rgb(1 3 6 / 0.5) 0 0) var(--sign) 0 / var(--number) 100% no-repeat;
+}
+
+.code-lines li {
+  display: grid;
+  grid-template-columns: var(--sign) var(--number) minmax(0, 1fr);
+  align-items: start;
+}
+
+.code-sign {
+  display: grid;
+  place-items: center;
+  height: 1.5em;
+}
+
+.code-sign svg {
+  width: 1.15em;
+  height: 1.15em;
+  fill: var(--text);
+}
+
+.code-number {
+  padding-right: 0.7em;
+  text-align: right;
+  color: rgb(160 184 198 / 0.72);
+}
+
+.code-lines li:first-child .code-number {
+  font-weight: 700;
+  color: var(--ice);
+}
+
+/* The line under the pointer is lit, like an editor's. */
+.code-lines li:hover .code-text {
+  background: rgb(160 205 225 / 0.07);
+}
+
+.code-text {
+  padding-inline: calc(0.7em + var(--indent) * 2.4em) 0.8em;
+  overflow-wrap: anywhere;
+}
+
+.code-keyword {
+  color: #8db8ff;
+}
+
+.code-name {
+  color: var(--ice);
+}
+
+.code-string {
+  font-style: italic;
+  color: #a9ecd8;
+}
+
+.code-string a {
+  color: inherit;
+  text-decoration-color: rgb(169 236 216 / 0.45);
+  text-underline-offset: 0.25em;
+}
+
+.code-string a:hover,
+.code-string a:focus-visible {
+  outline: none;
+  color: var(--text);
+  background: rgb(160 205 225 / 0.18);
+}
+
+.code-selected {
+  background: rgb(160 205 225 / 0.26);
+  color: var(--text);
+}
+
+.code-cursor {
+  background: var(--ice);
+  color: var(--abyss);
+  animation: code-blink 1.2s steps(1) infinite;
+}
+
+@keyframes code-blink {
+  50% {
+    background: transparent;
+    color: inherit;
+  }
+}
+
+.code-copy {
+  margin-left: 0.4em;
+  padding: 0.15em 0.9em;
+  border: 1px solid var(--glass-edge);
+  border-radius: 999px;
+  background: none;
+  font: 400 0.78em/1.3 var(--font-body);
+  cursor: pointer;
+}
+
+.code-copy:hover,
+.code-copy:focus-visible {
+  border-color: var(--glass-edge-bright);
+  outline: none;
+  background: rgb(180 227 240 / 0.12);
+}
+
+.code-status {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 3em;
+  padding: 0.6em 1em 0.7em;
+  border-top: 1px solid rgb(160 184 198 / 0.2);
+}
+
+.code-mode {
+  font-weight: 700;
+  color: var(--text);
 }
 
 @media (max-width: 760px) {
@@ -2588,172 +2457,21 @@ html.js[data-page='contact'] .contact {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .polaroid {
-    order: -1;
-    width: min(78%, 300px);
-    justify-self: center;
+  .polaroid-photo {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
+
+  /* Phones: a narrower indent, so lines seldom wrap. */
+  .code-text {
+    padding-left: calc(0.6em + var(--indent) * 0.9em);
   }
 }
 
-.note-stack,
-.polaroid {
-  position: relative;
-  margin: 0;
-}
-
-.polaroid {
-  justify-self: center;
-  width: min(100%, 340px);
-}
-
-/* The butter note peeking out behind. */
-.note-stack::before {
-  content: '';
-  position: absolute;
-  inset: 18px -14px -16px 22px;
-  background: var(--note-back);
-  rotate: 2.5deg;
-  box-shadow: 0 10px 24px rgb(3 40 64 / 0.25);
-}
-
-.note {
-  position: relative;
-  display: grid;
-  gap: 14px;
-  padding: 44px clamp(22px, 4vw, 44px) 40px;
-  background: var(--note);
-  color: var(--note-ink);
-  text-shadow: none;
-  rotate: -1.2deg;
-  box-shadow: 0 16px 34px rgb(3 40 64 / 0.3);
-}
-
-.note-line {
-  line-height: 2.1;
-}
-
-.note-typed {
-  font: 400 1rem var(--font-type);
-  letter-spacing: 0.02em;
-}
-
-/* The answers, on a ruled line. */
-.note-hand,
-.note-fill {
-  padding: 0 0.3em 2px;
-  border-bottom: 1px solid rgb(29 45 92 / 0.45);
-  color: var(--note-hand);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-
-/* Every answer in the same readable type: the name and role match the rest. */
-.note-hand,
-.note-fill {
-  font-weight: 600;
-}
-
-.email {
-  letter-spacing: 0.04em;
-  overflow-wrap: anywhere;
-}
-
-.note-copy {
-  padding: 4px 12px 2px;
-  border: 1px solid currentColor;
-  border-radius: 0;
-  background: none;
-  font: 400 0.8rem var(--font-type);
-  cursor: pointer;
-}
-
-.note-copy:hover {
-  background: rgb(29 45 92 / 0.1);
-}
-
-.note-copy:focus-visible {
-  outline-color: var(--note-ink);
-}
-
-/* Placeholders on the white note: ink instead of butter, which would vanish. */
-.note .ph {
-  border-bottom-color: var(--goldfish-deep);
-  color: var(--goldfish-deep);
-}
-
-/* A second frame behind the photo. */
-.polaroid::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--polaroid);
-  rotate: -5deg;
-  translate: -10px 8px;
-  box-shadow: 0 10px 24px rgb(3 40 64 / 0.25);
-}
-
-.polaroid-frame {
-  position: relative;
-  padding: 16px 16px 0;
-  background: var(--polaroid);
-  rotate: 2deg;
-  box-shadow: 0 18px 38px rgb(3 40 64 / 0.32);
-}
-
-.polaroid-photo {
-  aspect-ratio: 4 / 5;
-}
-
-.polaroid-caption {
-  padding: 10px 0 14px;
-  color: var(--note-hand);
-  font: 400 2.8rem / 1.1 var(--font-script);
-  text-align: center;
-  text-shadow: none;
-}
-
-/* A silver push pin. */
-.pin {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  z-index: 1;
-  width: 22px;
-  height: 22px;
-  translate: -50% 0;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff 0 12%, #c9ced6 30%, #7d8592 75%, #555c68);
-  box-shadow: 2px 5px 6px rgb(3 30 50 / 0.35);
-}
-
-.contact-links {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 12px 18px;
-  /* Set apart from the board, closer to the foot of the page. */
-  margin-top: 56px;
-}
-
-.toast {
-  min-height: 1.6em;
-  color: var(--butter);
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.toast.is-shown {
-  opacity: 1;
-}
-
-/* Where the second koi waits. */
-/* The last screen's foot: the koi waits at the lower left, the credits sit
-   centred along the bottom. */
+/* The last screen's foot: the heart waits above the credits, which sit centred
+   along the bottom. */
 .screen-foot {
   position: absolute;
   inset: auto 0 0;
@@ -2762,13 +2480,13 @@ html.js[data-page='contact'] .contact {
 
 .koi-home {
   position: absolute;
-  /* Only a marker for where the golden koi waits: never in the way of a click. */
+  /* Only a marker for where the heart waits: never in the way of a click. */
   pointer-events: none;
   /* Centred, just above the credits. */
   left: calc(50% - 130px);
   bottom: 0;
   width: 260px;
-  height: 150px;
+  height: calc(2 * var(--heart));
 }
 
 .footer {
@@ -2804,292 +2522,6 @@ html.js[data-page='contact'] .contact {
    room for it under its content (the clamp is its length: see resizeAngel). */
 @media (prefers-reduced-motion: reduce) {
   html.js :is(.screen, .contact):has(> .screen-foot) {
-    padding-bottom: calc(64px + 1.1 * clamp(80px, 15vmin, 280px));
-  }
-}
-
-/* Cursor koi */
-.cursor-koi {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  width: 100vw;
-  height: 100vh;
-  max-width: none;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-
-.cursor-koi.is-on {
-  opacity: 1;
-}
-
-/* The watercolour wakes, painted under the two koi. */
-.koi-wake,
-.koi-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-}
-
-.koi-mate {
-  opacity: 0;
-  transition: opacity 0.8s;
-}
-
-.koi-mate.is-on,
-.is-met .koi-mate {
-  opacity: 1;
-}
-
-/* Lily pads: big pads floating down both sides, in the room beside the content
-   column. The layer is as tall as the page, so the pads scroll with it, and
-   sits above the koi (z 60), so the koi swim under the pads but over the
-   content. The top bar (z 62, outside #page) sits above both. Pads start
-   below the cover, whose corner text reaches the window's edges. */
-body {
-  position: relative;
-}
-
-.lily-pads {
-  /* The room beside the content column: 0 on a laptop-narrow window. */
-  --room: max(0px, (100vw - var(--maxw)) / 2 - var(--gutter));
-  position: absolute;
-  inset: 0;
-  z-index: 61;
-  overflow: clip;
-  pointer-events: none;
-  transition: opacity 1.2s 0.4s;
-}
-
-/* Not on the white paper before the reveal. */
-html.js:not(.revealed) .lily-pads {
-  opacity: 0;
-  transition: none;
-}
-
-.lily {
-  --s: min(var(--size), 46vw);
-  /* How much of the pad shows past the window's edge: most of it where there
-     is room, a sliver on a laptop. Never more than the room plus a little of
-     the gutter, so a pad never reaches the content. */
-  --show: min(var(--s) * 0.8, var(--room) + 24px);
-  position: absolute;
-  /* Placed by LilyPads.tsx for the page showing; until then, by screen. */
-  top: var(--top, calc(var(--at) * 100svh));
-  width: var(--s);
-  height: var(--s);
-}
-
-/* Beside Automations, which breaks out to min(1480px, 90vw) on big screens:
-   keep clear of that wider edge instead, allowing for the drift. */
-@media (min-width: 1600px) {
-  .lily-wide {
-    --show: min(var(--s) * 0.8, max(0px, (100vw - min(1480px, 90vw)) / 2 - 24px));
-  }
-}
-
-.lily-left {
-  --dir: 1;
-  left: calc(var(--show) - var(--s));
-}
-
-.lily-right {
-  --dir: -1;
-  right: calc(var(--show) - var(--s));
-}
-
-.lily-float,
-.lily-shadow,
-.lily-ripple {
-  position: absolute;
-  inset: 0;
-}
-
-/* The pad drifts on its own clock, carrying its lotus flowers; the pad alone
-   sways and turns, so the flowers stay on the side that shows. */
-.lily-float {
-  animation: lily-drift var(--drift) ease-in-out var(--delay) infinite alternate;
-  will-change: transform;
-}
-
-.lily img {
-  max-width: none;
-  user-select: none;
-}
-
-.lily-pad {
-  display: block;
-  width: 100%;
-  height: 100%;
-  animation: lily-sway calc(var(--drift) * 0.8) ease-in-out var(--delay) infinite alternate;
-  will-change: transform;
-}
-
-/* Lotus flowers: placed from the pad's inner edge (see Lotus in LilyPads.tsx). */
-.lily-lotus {
-  position: absolute;
-  top: calc(var(--y) * 100%);
-  width: calc(var(--f) * 100%);
-  animation: lily-bob 6s ease-in-out var(--lag) infinite alternate;
-}
-
-.lily-left .lily-lotus {
-  right: calc(var(--x) * 100%);
-}
-
-.lily-right .lily-lotus {
-  left: calc(var(--x) * 100%);
-}
-
-/* Cherry blossom petals scattered over the open water in the room beside the
-   content, turning slowly as they drift. Under the pads. */
-.lily-petal {
-  position: absolute;
-  top: var(--top, max(100svh + 20px, var(--at) * 100svh));
-  width: var(--px);
-  max-width: none;
-  user-select: none;
-  animation: lily-petal var(--drift) ease-in-out var(--lag) infinite alternate;
-}
-
-.lily-petal-left {
-  --dir: 1;
-  left: calc(var(--room) * var(--x));
-}
-
-.lily-petal-right {
-  --dir: -1;
-  right: calc(var(--room) * var(--x));
-}
-
-/* Its shadow on the water, offset down and away, following more lazily. */
-.lily-shadow {
-  inset: 3%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(10 50 88 / 0.42) 55%, rgb(10 50 88 / 0));
-  animation: lily-shadow var(--drift) ease-in-out var(--delay) infinite alternate;
-}
-
-/* A faint ring now and then, as the pad rocks. */
-.lily-ripple {
-  inset: -4%;
-  border: 2px solid rgb(252 253 253 / 0.55);
-  border-radius: 50%;
-  opacity: 0;
-  animation: lily-ripple 8s ease-out var(--delay) infinite;
-}
-
-@keyframes lily-drift {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  35% {
-    transform: translate(calc(-10px * var(--dir)), -18px) scale(1.015);
-  }
-  70% {
-    transform: translate(calc(-4px * var(--dir)), 10px) scale(0.995);
-  }
-  100% {
-    transform: translate(calc(-12px * var(--dir)), 20px) scale(1.01);
-  }
-}
-
-@keyframes lily-sway {
-  from {
-    transform: rotate(calc(var(--turn) - 5deg));
-  }
-  to {
-    transform: rotate(calc(var(--turn) + 6deg));
-  }
-}
-
-@keyframes lily-petal {
-  from {
-    transform: translate(0, 0) rotate(var(--spin));
-  }
-  to {
-    transform: translate(calc(-14px * var(--dir)), 22px) rotate(calc(var(--spin) + 50deg));
-  }
-}
-
-@keyframes lily-shadow {
-  0% {
-    transform: translate(calc(16px * var(--dir)), 26px) scale(1.02);
-  }
-  50% {
-    transform: translate(calc(22px * var(--dir)), 20px) scale(1.06);
-  }
-  100% {
-    transform: translate(calc(18px * var(--dir)), 34px) scale(1.03);
-  }
-}
-
-@keyframes lily-bob {
-  from {
-    transform: rotate(calc(var(--spin) - 6deg)) scale(1);
-  }
-  to {
-    transform: rotate(calc(var(--spin) + 8deg)) scale(1.04);
-  }
-}
-
-@keyframes lily-ripple {
-  0% {
-    transform: scale(0.92);
-    opacity: 0;
-  }
-  12% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(1.32);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lily-float,
-  .lily-pad,
-  .lily-shadow,
-  .lily-ripple,
-  .lily-lotus,
-  .lily-petal {
-    animation: none;
-  }
-
-  .lily-pad {
-    transform: rotate(var(--turn));
-  }
-
-  .lily-petal {
-    transform: rotate(var(--spin));
-  }
-
-  .lily-shadow {
-    transform: translate(calc(18px * var(--dir)), 26px);
-  }
-}
-
-/* Tablets and phones: no room beside the content. */
-@media (max-width: 1099px) {
-  .lily-pads {
-    display: none;
-  }
-}
-
-/* Touch screens: the full-window paper-fibre overlay (a multiply blend) and the
-   blur on the painted ground are costly to composite while scrolling on a
-   phone, and barely show at phone size. */
-@media (pointer: coarse) {
-  body::after {
-    display: none;
-  }
-
-  .ground {
-    filter: none;
+    padding-bottom: calc(64px * var(--k, 1) + 0.88 * clamp(80px, 15vmin, 280px));
   }
 }

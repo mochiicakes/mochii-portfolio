@@ -38,16 +38,16 @@ function biting() {
 }
 
 describe('size', () => {
-  it('is a share of the smaller side, never under 80 px or over 280', () => {
-    expect(angelAt(0, 0).L).toBeCloseTo(135)
-    expect(newAngel(390, 844, 's', false).L).toBe(80)
-    expect(newAngel(4000, 4000, 's', false).L).toBe(280)
+  it('is a share of the smaller side, never under 64 px or over 224', () => {
+    expect(angelAt(0, 0).L).toBeCloseTo(108)
+    expect(newAngel(390, 844, 's', false).L).toBe(64)
+    expect(newAngel(4000, 4000, 's', false).L).toBe(224)
   })
 
   it('changes with the window', () => {
     const a = angelAt(700, 400)
     resizeAngel(a, 1440, 1000, 's')
-    expect(a.L).toBeCloseTo(150)
+    expect(a.L).toBeCloseTo(120)
     expect(a.seg).toBeCloseTo(a.L / 20)
   })
 })

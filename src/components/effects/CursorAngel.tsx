@@ -1,5 +1,13 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react'
-import { AngelPainter, newAngel, poseAngel, resizeAngel, updateAngel, type AngelInput } from '../../lib/angel'
+import {
+  AngelPainter,
+  newAngel,
+  poseAngel,
+  resizeAngel,
+  updateAngel,
+  type AngelInput,
+  type PaletteName,
+} from '../../lib/angel'
 import { heartEaten, markHeartEaten, revealStore } from '../../lib/htmlState'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 
@@ -8,6 +16,12 @@ const SIZE = 's'
 const TAP = 12
 /** The still angel's tail ends this far above the page's foot, clear of the credits. */
 const FOOT = 46
+
+/** Trying the other palette, on the local site only: add ?angel=coral to the address. */
+function palette(): PaletteName {
+  const name = import.meta.env.DEV ? new URLSearchParams(location.search).get('angel') : null
+  return name === 'coral' ? 'coral' : 'ice'
+}
 
 /** Each page's last screen has a home for the heart; the one that is showing. */
 const findHome = () =>
@@ -31,7 +45,7 @@ export function CursorAngel() {
     if (!ctx) return
     let painter: AngelPainter
     try {
-      painter = new AngelPainter()
+      painter = new AngelPainter(palette())
     } catch {
       return
     }
@@ -60,7 +74,9 @@ export function CursorAngel() {
         clear()
         const box = findHome()?.getBoundingClientRect()
         if (!box || box.top > window.innerHeight + angel.L || box.bottom < -angel.L) return
-        poseAngel(angel, box.left + box.width / 2, box.bottom - FOOT - angel.L)
+        // The credits grow with the window (--k, lib/fit.ts).
+        const k = Number(getComputedStyle(document.documentElement).getPropertyValue('--k')) || 1
+        poseAngel(angel, box.left + box.width / 2, box.bottom - FOOT * k - angel.L)
         painter.draw(ctx, angel, 0)
       }
       const redraw = () => {

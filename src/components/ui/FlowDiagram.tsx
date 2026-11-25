@@ -1,33 +1,29 @@
 import { useEffect, useId, useRef } from 'react'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 
-/** Two-row snake (fits a narrow card) or one long row (fits a wide, short one). */
-export type FlowShape = 'snake' | 'row'
+/** One row, left to right, or (for a phone) a two-row snake. */
+export type FlowShape = 'row' | 'snake'
 
-const SIZE: Record<FlowShape, { w: number; h: number }> = {
-  snake: { w: 320, h: 200 },
-  row: { w: 520, h: 84 },
+const SHAPE: Record<FlowShape, { w: number; h: number; pad: number; gap: number; node: number; rows: number[] }> = {
+  row: { w: 400, h: 46, pad: 1, gap: 15, node: 44, rows: [23] },
+  snake: { w: 320, h: 200, pad: 16, gap: 16, node: 44, rows: [56, 144] },
 }
-const PAD_X = 16
-const GAP = 16
-const NODE_H = 44
 const DOT_MS = 2200
 
-type Node = { x: number; y: number; w: number; label: string[] }
+type Node = { x: number; y: number; w: number; h: number; label: string[] }
 
 /**
- * Snake: first half left to right, second half back right to left.
  * Row: every node left to right on one line.
+ * Snake: first half left to right, second half back right to left.
  */
 function layout(labels: string[], shape: FlowShape): Node[] {
-  const { w: VW, h: VH } = SIZE[shape]
+  const s = SHAPE[shape]
   const top = shape === 'row' ? labels.length : Math.ceil(labels.length / 2)
-  const w = (VW - PAD_X * 2 - GAP * (top - 1)) / top
-  const rows = labels.length > top ? [56, 144] : [VH / 2]
+  const w = (s.w - s.pad * 2 - s.gap * (top - 1)) / top
   return labels.map((label, i) => {
     const row = i < top ? 0 : 1
     const col = i < top ? i : top - 1 - (i - top)
-    return { x: PAD_X + col * (w + GAP) + w / 2, y: rows[row], w, label: splitLabel(label) }
+    return { x: s.pad + col * (w + s.gap) + w / 2, y: s.rows[row], w, h: s.node, label: splitLabel(label) }
   })
 }
 
@@ -53,7 +49,7 @@ function edge(a: Node, b: Node) {
     const dir = Math.sign(b.x - a.x)
     return { x1: a.x + (dir * a.w) / 2 + dir * 2, y1: a.y, x2: b.x - (dir * b.w) / 2 - dir * 4, y2: b.y }
   }
-  return { x1: a.x, y1: a.y + NODE_H / 2 + 2, x2: b.x, y2: b.y - NODE_H / 2 - 4 }
+  return { x1: a.x, y1: a.y + a.h / 2 + 2, x2: b.x, y2: b.y - b.h / 2 - 4 }
 }
 
 /**
@@ -62,7 +58,7 @@ function edge(a: Node, b: Node) {
  */
 export function FlowDiagram({
   nodes,
-  shape = 'snake',
+  shape = 'row',
   className = '',
 }: {
   nodes: string[]
@@ -74,7 +70,7 @@ export function FlowDiagram({
   const dotRef = useRef<SVGGElement>(null)
   const reduced = useReducedMotion()
   const placed = layout(nodes, shape)
-  const { w: VW, h: VH } = SIZE[shape]
+  const { w: VW, h: VH } = SHAPE[shape]
 
   useEffect(() => {
     const svg = svgRef.current
@@ -145,7 +141,7 @@ export function FlowDiagram({
         })}
         {placed.map((n, i) => (
           <g key={i} className="flow-node">
-            <rect x={n.x - n.w / 2} y={n.y - NODE_H / 2} width={n.w} height={NODE_H} rx={12} />
+            <rect x={n.x - n.w / 2} y={n.y - n.h / 2} width={n.w} height={n.h} rx={12} />
             <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central">
               {n.label.length === 1 ? (
                 n.label[0]

@@ -6,7 +6,9 @@ import { meta, render } from './entry-server'
 describe('App', () => {
   it('pre-renders the page with the hero name and contact email', () => {
     const html = render()
-    expect(html).toContain(meta.name)
+    // The name is drawn in two parts: read the heading as text.
+    const heading = html.match(/<h1.*?<\/h1>/s)?.[0].replace(/<[^>]+>/g, '')
+    expect(heading).toBe(meta.name)
     expect(html).toContain(meta.email)
   })
 })
