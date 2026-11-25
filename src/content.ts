@@ -833,5 +833,5 @@ export const content: Content = {
     empty: 'Nothing to show right now. Check back soon.',
   },
 
-  footer: `© ${new Date().getFullYear()} MG`,
+  footer: `© ${new Date().getFullYear()} Michaella Gonzales`,
 }
