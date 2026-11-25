@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react'
 import { Contact } from './components/Contact'
-import { CursorKoi } from './components/effects/CursorKoi'
+import { CursorAngel } from './components/effects/CursorAngel'
 import { CrystalLayer } from './components/effects/CrystalLayer'
 import { LilyPads } from './components/effects/LilyPads'
 import { PaintedGround } from './components/effects/PaintedGround'
@@ -96,7 +96,7 @@ export function App() {
           <Contact />
         </main>
       </div>
-      <CursorKoi />
+      <CursorAngel />
       <LilyPads />
     </>
   )

@@ -34,6 +34,25 @@ export function setMode(mode: Mode) {
   }
 }
 
+/** The heart is eaten once a visit, whichever mode the visitor is in. */
+export const EATEN_KEY = 'mg-heart'
+
+export function heartEaten(): boolean {
+  try {
+    return sessionStorage.getItem(EATEN_KEY) === 'eaten'
+  } catch {
+    return false
+  }
+}
+
+export function markHeartEaten() {
+  try {
+    sessionStorage.setItem(EATEN_KEY, 'eaten')
+  } catch {
+    // Storage blocked: it stays eaten until the page is reloaded.
+  }
+}
+
 export type Page = 'home' | 'contact'
 
 /** Which page shows: the main page, or Contact on its own. Follows the URL hash. */

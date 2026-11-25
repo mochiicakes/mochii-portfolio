@@ -2783,6 +2783,23 @@ html.js[data-page='contact'] .contact {
   text-transform: uppercase;
 }
 
+/* The sea angel and its heart, drawn over the page (see CursorAngel). */
+.cursor-angel {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.cursor-angel.is-on {
+  opacity: 1;
+}
+
 /* Cursor koi */
 .cursor-koi {
   position: fixed;
